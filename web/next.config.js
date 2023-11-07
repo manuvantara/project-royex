@@ -6,6 +6,15 @@ const nextConfig = {
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
     return config;
   },
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/royalty-tokens',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
