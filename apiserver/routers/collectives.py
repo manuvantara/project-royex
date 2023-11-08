@@ -1,4 +1,4 @@
-from common import ShortenProposal, Proposal
+from apiserver.routers.common import ShortenProposal, Proposal
 from fastapi import APIRouter
 from typing import List
 

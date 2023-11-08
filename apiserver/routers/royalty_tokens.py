@@ -1,6 +1,6 @@
-from typing import List
-from common import ValueIndicator, RoyaltyToken, TimeSeriesDataPoint
+from apiserver.routers.common import ValueIndicator, RoyaltyToken, TimeSeriesDataPoint
 from fastapi import APIRouter
+from typing import List
 
 router = APIRouter()
 

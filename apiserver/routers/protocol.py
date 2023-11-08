@@ -1,4 +1,4 @@
-from common import (
+from apiserver.routers.common import (
     GetRoyaltyIncomeResponse,
     ValueIndicator,
     GetTradingVolume,

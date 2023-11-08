@@ -1,6 +1,6 @@
-from typing import List
-from common import Deposit, GetRoyaltyIncomeResponse
+from apiserver.routers.common import Deposit, GetRoyaltyIncomeResponse
 from fastapi import APIRouter
+from typing import List
 
 router = APIRouter()
 
