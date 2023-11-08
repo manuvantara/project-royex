@@ -47,7 +47,7 @@ def get_trading_volume(royalty_id: str) -> ValueIndicator:  # address
     )
 
 
-@router.get("/{royalty_id}/offers'")
+@router.get("/{royalty_id}/offers")
 def get_trading_volume(royalty_id: str) -> List[Offer]:  # address
     return [
         Offer(
