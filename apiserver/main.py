@@ -3,6 +3,9 @@ from fastapi.routing import APIRoute
 from fastapi.openapi.utils import get_openapi
 
 from apiserver.routers import (
+    collectives,
+    public_royalty_offerings,
+    royalty_tokens,
     otc_markets,
     portfolios,
     protocol,
@@ -10,11 +13,22 @@ from apiserver.routers import (
     royalty_payment_pools,
 )
 
+
 def custom_generate_unique_id(route: APIRoute):
     return f"{route.tags[0]}-{route.name}"
 
+
 app = FastAPI(generate_unique_id_function=custom_generate_unique_id)
 
+app.include_router(collectives.router, prefix="/collectives", tags=["collectives"])
+app.include_router(
+    public_royalty_offerings.router,
+    prefix="/public-royalty-offerings",
+    tags=["public-royalty-offerings"],
+)
+app.include_router(
+    royalty_tokens.router, prefix="/royalty-tokens", tags=["royalty-tokens"]
+)
 app.include_router(otc_markets.router, prefix="/otc-markets", tags=["otc-markets"])
 app.include_router(portfolios.router, prefix="/portfolios", tags=["portfolios"])
 app.include_router(protocol.router, prefix="/protocol", tags=["protocol"])
@@ -26,6 +40,7 @@ app.include_router(
     prefix="/royalty-payment-pools",
     tags=["royalty-payment-pools"],
 )
+
 
 def custom_openapi():
     if app.openapi_schema:
@@ -51,5 +66,6 @@ def custom_openapi():
 
     app.openapi_schema = openapi_schema
     return app.openapi_schema
+
 
 app.openapi = custom_openapi
