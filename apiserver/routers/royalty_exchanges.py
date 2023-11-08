@@ -13,7 +13,7 @@ def get_contract_address(royalty_id: str) -> str: #address
 def get_price(royalty_id: str) -> ValueIndicator:
     return ValueIndicator(
         current=TimeSeriesDataPoint(timestamp=100, value=543),
-        recent_values_dataset=[
+        recentValuesDataset=[
             TimeSeriesDataPoint(timestamp=90, value=234),
             TimeSeriesDataPoint(timestamp=91, value=251),
             TimeSeriesDataPoint(timestamp=92, value=250),
@@ -32,7 +32,7 @@ def get_price(royalty_id: str) -> ValueIndicator:
 def get_trading_volume(royalty_id: str) -> ValueIndicator:
     return ValueIndicator(
         current=TimeSeriesDataPoint(timestamp=10, value=1342),
-        recent_values_dataset=[
+        recentValuesDataset=[
             TimeSeriesDataPoint(timestamp=1, value=320),
             TimeSeriesDataPoint(timestamp=2, value=324),
             TimeSeriesDataPoint(timestamp=3, value=325),

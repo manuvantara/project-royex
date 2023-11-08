@@ -16,18 +16,48 @@ def get_contract_address(royalty_token_symbol: str) -> str: #address
 @router.get("/{royalty_token_symbol}")
 def get_royalty_offering(royalty_token_symbol: str) -> GetRoyaltyOffering:
     return GetRoyaltyOffering(
-        offering_date=100,
-        offering_price=235
+        offeringDate=100,
+        offeringPrice=235,
+        royaltyTokenReserve=ValueIndicator(
+            current=TimeSeriesDataPoint(timestamp=100, value=235),
+            recentValuesDataset=[
+                TimeSeriesDataPoint(timestamp=90, value=220),
+                TimeSeriesDataPoint(timestamp=91, value=212),
+                TimeSeriesDataPoint(timestamp=92, value=232),
+                TimeSeriesDataPoint(timestamp=93, value=289),
+                TimeSeriesDataPoint(timestamp=94, value=352),
+                TimeSeriesDataPoint(timestamp=95, value=379),
+                TimeSeriesDataPoint(timestamp=96, value=378),
+                TimeSeriesDataPoint(timestamp=97, value=432),
+                TimeSeriesDataPoint(timestamp=98, value=457),
+                TimeSeriesDataPoint(timestamp=99, value=521),
+            ],
+        ),
+        stablecoinReserve=ValueIndicator(
+            current=TimeSeriesDataPoint(timestamp=100, value=235),
+            recentValuesDataset=[
+                TimeSeriesDataPoint(timestamp=90, value=220),
+                TimeSeriesDataPoint(timestamp=91, value=232),
+                TimeSeriesDataPoint(timestamp=92, value=247),
+                TimeSeriesDataPoint(timestamp=93, value=298),
+                TimeSeriesDataPoint(timestamp=94, value=325),
+                TimeSeriesDataPoint(timestamp=95, value=397),
+                TimeSeriesDataPoint(timestamp=96, value=387),
+                TimeSeriesDataPoint(timestamp=97, value=423),
+                TimeSeriesDataPoint(timestamp=98, value=476),
+                TimeSeriesDataPoint(timestamp=99, value=513),
+            ],
+        )
     )
 
 @router.get("/{royalty_token_symbol}/live")
 def fetch_live(royalty_token_symbol: str) -> List[RoyaltyToken]:
-    mock_royalty_tokens: List[RoyaltyToken] = [
+    return [
         RoyaltyToken(
-            royalty_token_symbol="KLS",
+            royaltyTokenSymbol="KLS",
             price=ValueIndicator(
                 current=TimeSeriesDataPoint(timestamp=100, value=522),
-                recent_values_dataset=[
+                recentValuesDataset=[
                     TimeSeriesDataPoint(timestamp=90, value=220),
                     TimeSeriesDataPoint(timestamp=91, value=212),
                     TimeSeriesDataPoint(timestamp=92, value=232),
@@ -40,9 +70,9 @@ def fetch_live(royalty_token_symbol: str) -> List[RoyaltyToken]:
                     TimeSeriesDataPoint(timestamp=99, value=521),
                 ]
             ),
-            deposited_royalty_income=ValueIndicator(
+            depositedRoyaltyIncome=ValueIndicator(
                 current=TimeSeriesDataPoint(timestamp=100, value=237),
-                recent_values_dataset=[
+                recentValuesDataset=[
                     TimeSeriesDataPoint(timestamp=90, value=225),
                     TimeSeriesDataPoint(timestamp=91, value=232),
                     TimeSeriesDataPoint(timestamp=92, value=247),
@@ -57,10 +87,10 @@ def fetch_live(royalty_token_symbol: str) -> List[RoyaltyToken]:
             )
         ),
         RoyaltyToken(
-            royalty_token_symbol="SRD",
+            royaltyTokenSymbol="SRD",
             price=ValueIndicator(
                 current=TimeSeriesDataPoint(timestamp=100, value=533),
-                recent_values_dataset=[
+                recentValuesDataset=[
                     TimeSeriesDataPoint(timestamp=90, value=206),
                     TimeSeriesDataPoint(timestamp=91, value=224),
                     TimeSeriesDataPoint(timestamp=92, value=201),
@@ -73,9 +103,9 @@ def fetch_live(royalty_token_symbol: str) -> List[RoyaltyToken]:
                     TimeSeriesDataPoint(timestamp=99, value=512),
                 ]
             ),
-            deposited_royalty_income=ValueIndicator(
+            depositedRoyaltyIncome=ValueIndicator(
                 current=TimeSeriesDataPoint(timestamp=100, value=282),
-                recent_values_dataset=[
+                recentValuesDataset=[
                     TimeSeriesDataPoint(timestamp=90, value=125),
                     TimeSeriesDataPoint(timestamp=91, value=150),
                     TimeSeriesDataPoint(timestamp=92, value=155),
@@ -91,16 +121,14 @@ def fetch_live(royalty_token_symbol: str) -> List[RoyaltyToken]:
         )
     ]
 
-    return mock_royalty_tokens
-
 @router.get("/{royalty_token_symbol}/live")
 def fetch_upcoming(royalty_token_symbol: str) -> List[RoyaltyToken]:
     return [
         RoyaltyToken(
-            royalty_token_symbol="OVN",
+            royaltyTokenSymbol=royalty_token_symbol,
             price=ValueIndicator(
                 current=TimeSeriesDataPoint(timestamp=100, value=325),
-                recent_values_dataset=[
+                recentValuesDataset=[
                     TimeSeriesDataPoint(timestamp=90, value=202),
                     TimeSeriesDataPoint(timestamp=91, value=221),
                     TimeSeriesDataPoint(timestamp=92, value=232),
@@ -113,9 +141,9 @@ def fetch_upcoming(royalty_token_symbol: str) -> List[RoyaltyToken]:
                     TimeSeriesDataPoint(timestamp=99, value=325),
                 ]
             ),
-            deposited_royalty_income=ValueIndicator(
+            depositedRoyaltyIncome=ValueIndicator(
                 current=TimeSeriesDataPoint(timestamp=100, value=33),
-                recent_values_dataset=[]
+                recentValuesDataset=[]
             )
         )
     ]

@@ -12,10 +12,10 @@ def get_contract_address(royalty_token_symbol: str) -> str: #address
 def fetch_public(royalty_token_symbol: str) -> List[RoyaltyToken]:
     return [
         RoyaltyToken(
-            royalty_token_symbol=royalty_token_symbol,
+            royaltyTokenSymbol=royalty_token_symbol,
             price=ValueIndicator(
                 current=TimeSeriesDataPoint(timestamp=100, value=522),
-                recent_values_dataset=[
+                recentValuesDataset=[
                     TimeSeriesDataPoint(timestamp=90, value=220),
                     TimeSeriesDataPoint(timestamp=91, value=212),
                     TimeSeriesDataPoint(timestamp=92, value=232),
@@ -28,9 +28,9 @@ def fetch_public(royalty_token_symbol: str) -> List[RoyaltyToken]:
                     TimeSeriesDataPoint(timestamp=99, value=521),
                 ]
             ),
-            deposited_royalty_income=ValueIndicator(
+            depositedRoyaltyIncome=ValueIndicator(
                 current=TimeSeriesDataPoint(timestamp=100, value=237),
-                recent_values_dataset=[
+                recentValuesDataset=[
                     TimeSeriesDataPoint(timestamp=90, value=225),
                     TimeSeriesDataPoint(timestamp=91, value=232),
                     TimeSeriesDataPoint(timestamp=92, value=247),
@@ -50,10 +50,10 @@ def fetch_public(royalty_token_symbol: str) -> List[RoyaltyToken]:
 def fetch_private(royalty_token_symbol: str) -> List[RoyaltyToken]:
     return [
         RoyaltyToken(
-            royalty_token_symbol=royalty_token_symbol,
+            royaltyTokenSymbol=royalty_token_symbol,
             price=ValueIndicator(
                 current=TimeSeriesDataPoint(timestamp=100, value=427),
-                recent_values_dataset=[
+                recentValuesDataset=[
                     TimeSeriesDataPoint(timestamp=90, value=220),
                     TimeSeriesDataPoint(timestamp=91, value=212),
                     TimeSeriesDataPoint(timestamp=92, value=223),
@@ -66,9 +66,9 @@ def fetch_private(royalty_token_symbol: str) -> List[RoyaltyToken]:
                     TimeSeriesDataPoint(timestamp=99, value=437),
                 ]
             ),
-            deposited_royalty_income=ValueIndicator(
+            depositedRoyaltyIncome=ValueIndicator(
                 current=TimeSeriesDataPoint(timestamp=100, value=973),
-                recent_values_dataset=[
+                recentValuesDataset=[
                     TimeSeriesDataPoint(timestamp=90, value=225),
                     TimeSeriesDataPoint(timestamp=91, value=232),
                     TimeSeriesDataPoint(timestamp=92, value=247),
