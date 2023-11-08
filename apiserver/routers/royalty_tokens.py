@@ -4,11 +4,11 @@ from typing import List
 
 router = APIRouter()
 
-@router.get("/royalty-tokens/{royalty_token_symbol}/contract-address")
+@router.get("/{royalty_token_symbol}/contract-address")
 def get_contract_address(royalty_token_symbol: str) -> str: #address
     return "0x0A7d13ed41AfE5A7ac1c4e289e6f0B3a57F8A6147"
 
-@router.get("/royalty-tokens/{royalty_token_symbol}/public")
+@router.get("/{royalty_token_symbol}/public")
 def fetch_public(royalty_token_symbol: str) -> List[RoyaltyToken]:
     return [
         RoyaltyToken(
@@ -46,7 +46,7 @@ def fetch_public(royalty_token_symbol: str) -> List[RoyaltyToken]:
         )
     ]
 
-@router.get("/royalty-tokens/{royalty_token_symbol}/private")
+@router.get("/{royalty_token_symbol}/private")
 def fetch_private(royalty_token_symbol: str) -> List[RoyaltyToken]:
     return [
         RoyaltyToken(

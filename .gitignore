@@ -67,3 +67,6 @@ archive.zip
 
 # macOS
 .DS_Store
+
+# poetry
+poetry.lock

@@ -9,18 +9,18 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
-@router.get("/public-royalty-offerings/{royalty_token_symbol}/contract-address")
+@router.get("/{royalty_token_symbol}/contract-address")
 def get_contract_address(royalty_token_symbol: str) -> str: #address
     return "0xF3F713ed41AfE1A7ac1c4e239e6f0B3a57F8A4761"
 
-@router.get("/public-royalty-offerings/{royalty_token_symbol}")
+@router.get("/{royalty_token_symbol}")
 def get_royalty_offering(royalty_token_symbol: str) -> GetRoyaltyOffering:
     return GetRoyaltyOffering(
         offering_date=100,
         offering_price=235
     )
 
-@router.get("/public-royalty-offerings/{royalty_token_symbol}/live")
+@router.get("/{royalty_token_symbol}/live")
 def fetch_live(royalty_token_symbol: str) -> List[RoyaltyToken]:
     mock_royalty_tokens: List[RoyaltyToken] = [
         RoyaltyToken(
@@ -93,7 +93,7 @@ def fetch_live(royalty_token_symbol: str) -> List[RoyaltyToken]:
 
     return mock_royalty_tokens
 
-@router.get("/public-royalty-offerings/{royalty_token_symbol}/live")
+@router.get("/{royalty_token_symbol}/live")
 def fetch_upcoming(royalty_token_symbol: str) -> List[RoyaltyToken]:
     return [
         RoyaltyToken(
