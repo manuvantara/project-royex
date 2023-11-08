@@ -12,9 +12,9 @@ router = APIRouter()
 @router.get("/trading-volume")
 def get_trading_volume() -> GetTradingVolume:
     return GetTradingVolume(
-        otc_market=ValueIndicator(
+        otcMarket=ValueIndicator(
             current=TimeSeriesDataPoint(timestamp=10, value=1250),
-            recent_values_dataset=[
+            recentValuesDataset=[
                 TimeSeriesDataPoint(timestamp=1, value=100),
                 TimeSeriesDataPoint(timestamp=2, value=255),
                 TimeSeriesDataPoint(timestamp=3, value=304),
@@ -26,9 +26,9 @@ def get_trading_volume() -> GetTradingVolume:
                 TimeSeriesDataPoint(timestamp=9, value=1233),
             ]
         ),
-        royalty_exchanges=ValueIndicator(
+        royaltyExchanges=ValueIndicator(
             current=TimeSeriesDataPoint(timestamp=10, value=5467),
-            recent_values_dataset=[
+            recentValuesDataset=[
                 TimeSeriesDataPoint(timestamp=1, value=450),
                 TimeSeriesDataPoint(timestamp=2, value=455),
                 TimeSeriesDataPoint(timestamp=3, value=543),
@@ -44,7 +44,4 @@ def get_trading_volume() -> GetTradingVolume:
 
 @router.get("/royalty-income")
 def get_royalty_income_per_protocol() -> GetRoyaltyIncomeResponse:
-    return GetRoyaltyIncomeResponse(
-        reported=3250,
-        deposited=3178
-    )
+    return GetRoyaltyIncomeResponse(reported=3250, deposited=3178)

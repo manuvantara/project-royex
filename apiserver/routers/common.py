@@ -40,7 +40,7 @@ class GetRoyaltyOffering(Response):
     
 class Deposit(Response):
     distributor: str # address
-    checkpointKey: int
+    checkpoint_key: int
     amount: int
     
 class GetEstimatedPortfolioValue(Response):

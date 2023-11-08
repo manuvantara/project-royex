@@ -12,10 +12,7 @@ def get_contract_address(royalty_id: str) -> None:  # address
 
 @router.get("/{royalty_id}/royalty-income")
 def get_royalty_income(royalty_id: str) -> GetRoyaltyIncomeResponse:
-    return GetRoyaltyIncomeResponse(
-        reported=8461,
-        deposited=7824
-    )
+    return GetRoyaltyIncomeResponse(reported=8461, deposited=7824)
 
 
 @router.get("/{royalty_id}/deposits")
