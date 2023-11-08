@@ -27,6 +27,17 @@ class GetRoyaltyIncomeResponse(CamelModel):
     reported: int
     deposited: int
     
+class RoyaltyToken(CamelModel):
+    royalty_token_symbol: str
+    price: ValueIndicator | None
+    deposited_royalty_income: ValueIndicator
+
+class GetRoyaltyOffering(CamelModel):
+    offering_date: int
+    offering_price: int
+    royalty_token_reserve: ValueIndicator
+    stablecoin_reserve: ValueIndicator
+    
 class Deposit(CamelModel):
     distributor: str # address
     checkpointKey: int
@@ -40,3 +51,23 @@ class Offer(CamelModel):
     seller: str
     royalty_token_amount: int
     stablecoin_amount: int
+
+class ShortenProposal(CamelModel):
+    proposal_id: int
+    proposer: str
+    title: str
+    voting_date: int
+    voting_deadline: int
+    votes: dict
+    is_executed: bool
+
+class Proposal(ShortenProposal):
+    description: str
+    targets: list[str]
+    values: list[int]
+    signatures: list[str]
+    calldatas: list[str]
+
+class GetTradingVolume(CamelModel):
+    otc_market: ValueIndicator
+    royalty_exchange: ValueIndicator
