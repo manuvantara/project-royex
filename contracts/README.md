@@ -11,3 +11,10 @@ REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.ts
 ```
+
+To extract abi for core contracts
+
+```shell
+npx hardhat compile
+npx hardhat run scripts/extract-abi.ts
+```
