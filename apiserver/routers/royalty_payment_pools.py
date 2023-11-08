@@ -5,12 +5,12 @@ from typing import List
 router = APIRouter()
 
 
-@router.get("/royalty-payment-pools/{royalty_id}/contract-address")
+@router.get("/{royalty_id}/contract-address")
 def get_contract_address(royalty_id: str) -> None:  # address
     return "0x02651afe41AfE1A7ac1c3D039e6f0B3a57F8AfEd7"
 
 
-@router.get("/royalty-payment-pools/{royalty_id}/royalty-income")
+@router.get("/{royalty_id}/royalty-income")
 def get_royalty_income(royalty_id: str) -> GetRoyaltyIncomeResponse:
     return GetRoyaltyIncomeResponse(
         reported=8461,
@@ -18,7 +18,7 @@ def get_royalty_income(royalty_id: str) -> GetRoyaltyIncomeResponse:
     )
 
 
-@router.get("/royalty-payment-pools/{royalty_id}/deposits")
+@router.get("/{royalty_id}/deposits")
 def fetch_deposits(royalty_id: str) -> List[Deposit]:
     return [
         Deposit(

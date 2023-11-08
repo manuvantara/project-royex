@@ -9,7 +9,7 @@ from fastapi import APIRouter
 router = APIRouter()
 
 # Must be updated every time individual royalty's trading volume is updated.
-@router.get("/protocol/trading-volume")
+@router.get("/trading-volume")
 def get_trading_volume() -> GetTradingVolume:
     return GetTradingVolume(
         otc_market=ValueIndicator(
@@ -42,7 +42,7 @@ def get_trading_volume() -> GetTradingVolume:
         )
     )
 
-@router.get("/protocol/royalty-income")
+@router.get("/royalty-income")
 def get_royalty_income_per_protocol() -> GetRoyaltyIncomeResponse:
     return GetRoyaltyIncomeResponse(
         reported=3250,

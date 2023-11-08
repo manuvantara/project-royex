@@ -11,7 +11,7 @@ from fastapi import APIRouter
 router = APIRouter()
 
 
-@router.get("/portfolios/{stakeholder_address}/estimated-value")
+@router.get("/{stakeholder_address}/estimated-value")
 def get_estimated_portfolio_value(
     stakeholder_address: str,
 ) -> GetEstimatedPortfolioValue:  # address
@@ -48,11 +48,11 @@ def get_estimated_portfolio_value(
     )
 
 
-@router.get("/portfolios/{stakeholder_address}/royalty-income")
+@router.get("/{stakeholder_address}/royalty-income")
 def calculate_royalty_income(stakeholder_address: str) -> GetRoyaltyIncomeResponse:  # address
     return GetRoyaltyIncomeResponse(reported=3256, deposited=3255)
 
-@router.get("/portfolios/{stakeholder_address}/public-royalty-tokens")
+@router.get("/{stakeholder_address}/public-royalty-tokens")
 def fetch_public_royalty_tokens(stakeholder_address: str) -> List[RoyaltyToken]:  # address
     return [
         RoyaltyToken(
@@ -76,7 +76,7 @@ def fetch_public_royalty_tokens(stakeholder_address: str) -> List[RoyaltyToken]:
         )
     ]
 
-@router.get("/portfolios/{stakeholder_address}/private-royalty-tokens")
+@router.get("/{stakeholder_address}/private-royalty-tokens")
 def fetch_private_royalty_tokens(stakeholder_address: str) -> List[RoyaltyToken]:  # address
     return [
         RoyaltyToken(
