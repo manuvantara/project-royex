@@ -20,7 +20,7 @@ def get_royalty_income(royalty_id: str) -> GetRoyaltyIncomeResponse:
 
 @router.get("/royalty-payment-pools/{royalty_id}/deposits")
 def fetch_deposits(royalty_id: str) -> List[Deposit]:
-    mock_deposits: List[Deposit] = [
+    return [
         Deposit(
             distributor="0x0ecfA66e77d95Cc1484617eb496e6eb49EAbdA96",
             checkpointKey=1,
@@ -32,5 +32,3 @@ def fetch_deposits(royalty_id: str) -> List[Deposit]:
             amount=15
         )
     ]
-
-    return mock_deposits

@@ -54,7 +54,7 @@ def calculate_royalty_income(stakeholder_address: str) -> GetRoyaltyIncomeRespon
 
 @router.get("/portfolios/{stakeholder_address}/public-royalty-tokens")
 def fetch_public_royalty_tokens(stakeholder_address: str) -> List[RoyaltyToken]:  # address
-    mock_royalty_tokens: List[RoyaltyToken] = [
+    return [
         RoyaltyToken(
             royalty_token_symbol="OVN",
             royalty_token_address="0x000000000000000000000000000000000000000a",
@@ -76,11 +76,9 @@ def fetch_public_royalty_tokens(stakeholder_address: str) -> List[RoyaltyToken]:
         )
     ]
 
-    return mock_royalty_tokens
-
 @router.get("/portfolios/{stakeholder_address}/private-royalty-tokens")
 def fetch_private_royalty_tokens(stakeholder_address: str) -> List[RoyaltyToken]:  # address
-    mock_royalty_tokens: List[RoyaltyToken] = [
+    return [
         RoyaltyToken(
             royalty_token_symbol="SRD",
             royalty_token_address="0x000000000000000000000000000000000000000b",
@@ -101,5 +99,3 @@ def fetch_private_royalty_tokens(stakeholder_address: str) -> List[RoyaltyToken]
             )
         )
     ]
-
-    return mock_royalty_tokens

@@ -7,53 +7,53 @@ def to_camel(string: str) -> str:
     return string_split[0] + "".join(word.capitalize() for word in string_split[1:])
 
 
-class CamelModel(BaseModel):
+class Response(BaseModel):
     class Config:
         alias_generator = to_camel
         populate_by_name = True
 
 
-class TimeSeriesDataPoint(CamelModel):
+class TimeSeriesDataPoint(Response):
     timestamp: int
     value: int
 
 
-class ValueIndicator(CamelModel):
+class ValueIndicator(Response):
     current: TimeSeriesDataPoint
     recent_values_dataset: List[TimeSeriesDataPoint]
 
 
-class GetRoyaltyIncomeResponse(CamelModel):
+class GetRoyaltyIncomeResponse(Response):
     reported: int
     deposited: int
     
-class RoyaltyToken(CamelModel):
+class RoyaltyToken(Response):
     royalty_token_symbol: str
     price: ValueIndicator | None
     deposited_royalty_income: ValueIndicator
 
-class GetRoyaltyOffering(CamelModel):
+class GetRoyaltyOffering(Response):
     offering_date: int
     offering_price: int
     royalty_token_reserve: ValueIndicator
     stablecoin_reserve: ValueIndicator
     
-class Deposit(CamelModel):
+class Deposit(Response):
     distributor: str # address
     checkpointKey: int
     amount: int
     
-class GetEstimatedPortfolioValue(CamelModel):
+class GetEstimatedPortfolioValue(Response):
     on_otc_market: ValueIndicator
     at_royalty_exchange: ValueIndicator
     
-class Offer(CamelModel):
+class Offer(Response):
     seller: str
     royalty_token_amount: int
     stablecoin_amount: int
 
-class ShortenProposal(CamelModel):
-    proposal_id: int
+class ShortenProposal(Response):
+    proposal_id: str
     proposer: str
     title: str
     voting_date: int
@@ -68,6 +68,6 @@ class Proposal(ShortenProposal):
     signatures: list[str]
     calldatas: list[str]
 
-class GetTradingVolume(CamelModel):
+class GetTradingVolume(Response):
     otc_market: ValueIndicator
     royalty_exchange: ValueIndicator
