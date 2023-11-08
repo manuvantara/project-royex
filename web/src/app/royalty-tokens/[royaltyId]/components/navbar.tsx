@@ -11,27 +11,27 @@ const examples = [
   {
     name: 'Initial Royalty Offering',
     href: 'initial-royalty-offering',
-    code: 'https://github.com/shadcn/ui/tree/main/apps/www/app/examples/dashboard',
+    contract: 'https://github.com/shadcn/ui/tree/main/apps/www/app/examples/dashboard',
   },
   {
     name: 'OTC Market',
     href: 'otc-market',
-    code: 'https://github.com/shadcn/ui/tree/main/apps/www/app/examples/cards',
+    contract: 'https://github.com/shadcn/ui/tree/main/apps/www/app/examples/cards',
   },
   {
     name: 'Royalty Exchange',
     href: 'royalty-exchange',
-    code: 'https://github.com/shadcn/ui/tree/main/apps/www/app/examples/tasks',
+    contract: 'https://github.com/shadcn/ui/tree/main/apps/www/app/examples/tasks',
   },
   {
     name: 'Royalty Payments Pool',
     href: 'royalty-payments-pool',
-    code: 'https://github.com/shadcn/ui/tree/main/apps/www/app/examples/playground',
+    contract: 'https://github.com/shadcn/ui/tree/main/apps/www/app/examples/playground',
   },
   {
     name: 'Collective',
     href: 'collective',
-    code: 'https://github.com/shadcn/ui/tree/main/apps/www/app/examples/forms',
+    contract: 'https://github.com/shadcn/ui/tree/main/apps/www/app/examples/forms',
   },
 ];
 
@@ -43,7 +43,7 @@ export default function Navbar({ className, ...props }: Props) {
   return (
     <div className="relative">
       <ScrollArea className="max-w-[600px] lg:max-w-none">
-        <div className={cn('mb-4 flex items-center', className)} {...props}>
+        <div className={cn('flex items-center', className)} {...props}>
           {examples.map((example) => (
             <Link
               href={example.href}
@@ -59,30 +59,30 @@ export default function Navbar({ className, ...props }: Props) {
         </div>
         <ScrollBar orientation="horizontal" className="invisible" />
       </ScrollArea>
-      <CodeLink pathname={pathname} />
+      <ContractLink pathname={pathname} />
     </div>
   );
 }
 
-interface CodeLinkProps {
+interface ContractLinkProps {
   pathname: string | null;
 }
 
-export function CodeLink({ pathname }: CodeLinkProps) {
-  const example = examples.find((example) => pathname?.startsWith(example.href));
+export function ContractLink({ pathname }: ContractLinkProps) {
+  const example = examples.find((example) => pathname?.includes(example.href));
 
-  if (!example?.code) {
+  if (!example?.contract) {
     return null;
   }
 
   return (
     <Link
-      href={example?.code}
+      href={example?.contract}
       target="_blank"
       rel="nofollow"
       className="absolute right-0 top-0 hidden items-center rounded-[0.5rem] text-sm font-medium md:flex"
     >
-      View code
+      View contract
       <ArrowRightIcon className="ml-1 h-4 w-4" />
     </Link>
   );
