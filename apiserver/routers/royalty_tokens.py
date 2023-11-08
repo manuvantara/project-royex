@@ -10,7 +10,7 @@ def get_contract_address(royalty_token_symbol: str) -> str: #address
 
 @router.get("/royalty-tokens/{royalty_token_symbol}/public")
 def fetch_public(royalty_token_symbol: str) -> List[RoyaltyToken]:
-    mock_royalty_tokens: List[RoyaltyToken] = [
+    return [
         RoyaltyToken(
             royalty_token_symbol=royalty_token_symbol,
             price=ValueIndicator(
@@ -46,11 +46,9 @@ def fetch_public(royalty_token_symbol: str) -> List[RoyaltyToken]:
         )
     ]
 
-    return mock_royalty_tokens
-
 @router.get("/royalty-tokens/{royalty_token_symbol}/private")
 def fetch_private(royalty_token_symbol: str) -> List[RoyaltyToken]:
-    mock_royalty_tokens: List[RoyaltyToken] = [
+    return [
         RoyaltyToken(
             royalty_token_symbol=royalty_token_symbol,
             price=ValueIndicator(

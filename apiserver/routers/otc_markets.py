@@ -49,7 +49,7 @@ def get_trading_volume(royalty_id: str) -> ValueIndicator:  # address
 
 @router.get("/{royalty_id}/offers'")
 def get_trading_volume(royalty_id: str) -> List[Offer]:  # address
-    mock_offers: List[Offer] = [
+    return [
         Offer(
             seller="0x000000000000000000000000000000000000000d",
             royalty_token_amount=100,
@@ -61,5 +61,3 @@ def get_trading_volume(royalty_id: str) -> List[Offer]:  # address
             stablecoin_amount=205,
         )
     ]
-
-    return mock_offers

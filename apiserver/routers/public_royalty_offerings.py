@@ -95,7 +95,7 @@ def fetch_live(royalty_token_symbol: str) -> List[RoyaltyToken]:
 
 @router.get("/public-royalty-offerings/{royalty_token_symbol}/live")
 def fetch_upcoming(royalty_token_symbol: str) -> List[RoyaltyToken]:
-    mock_royalty_tokens: List[RoyaltyToken] = [
+    return [
         RoyaltyToken(
             royalty_token_symbol="OVN",
             price=ValueIndicator(
@@ -119,5 +119,3 @@ def fetch_upcoming(royalty_token_symbol: str) -> List[RoyaltyToken]:
             )
         )
     ]
-
-    return mock_royalty_tokens
