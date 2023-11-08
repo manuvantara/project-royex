@@ -13,6 +13,11 @@ const nextConfig = {
         destination: '/royalty-tokens',
         permanent: true,
       },
+      {
+        source: '/royalty-tokens/:royaltyId',
+        destination: '/royalty-tokens/:royaltyId/initial-royalty-offering',
+        permanent: false,
+      }
     ];
   },
 };
