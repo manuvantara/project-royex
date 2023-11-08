@@ -1,5 +1,4 @@
-from apiserver.routers.common import TimeSeriesDataPoint
-from common import ValueIndicator
+from apiserver.routers.common import TimeSeriesDataPoint, ValueIndicator
 from fastapi import APIRouter
 
 router = APIRouter()

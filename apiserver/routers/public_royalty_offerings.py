@@ -1,5 +1,5 @@
 from typing import List
-from common import (
+from apiserver.routers.common import (
     ValueIndicator,
     RoyaltyToken,
     GetRoyaltyOffering,

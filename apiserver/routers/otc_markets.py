@@ -1,5 +1,5 @@
 from typing import List
-from common import Offer, ValueIndicator, TimeSeriesDataPoint
+from apiserver.routers.common import Offer, ValueIndicator, TimeSeriesDataPoint
 from fastapi import APIRouter
 
 router = APIRouter()
