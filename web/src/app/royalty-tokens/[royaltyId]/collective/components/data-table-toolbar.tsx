@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DataTableViewOptions } from './data-table-view-options';
+import DelegateVotes from './delegate-votes';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -24,9 +25,6 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
           onChange={(event) => table.getColumn('title')?.setFilterValue(event.target.value)}
           className="h-8 w-[150px] lg:w-[250px]"
         />
-        {/* {table.getColumn('status') && (
-          <DataTableFacetedFilter column={table.getColumn('status')} title="Status" options={statuses} />
-        )} */}
         {isFiltered && (
           <Button variant="ghost" onClick={() => table.resetColumnFilters()} className="h-8 px-2 lg:px-3">
             Reset
@@ -34,10 +32,13 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
           </Button>
         )}
       </div>
-      <DataTableViewOptions table={table} />
-      <Button size="sm" className="ml-2" asChild>
-        <Link href="collective/proposals/new">Create proposal</Link>
-      </Button>
+      <div className="flex w-fit gap-3">
+        <DataTableViewOptions table={table} />
+        <Button size="sm" asChild>
+          <Link href="collective/proposals/new">Create proposal</Link>
+        </Button>
+        <DelegateVotes />
+      </div>
     </div>
   );
 }
