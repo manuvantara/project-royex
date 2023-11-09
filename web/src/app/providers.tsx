@@ -2,6 +2,8 @@
 
 import '@rainbow-me/rainbowkit/styles.css';
 import { getDefaultWallets, midnightTheme, RainbowKitProvider, Theme } from '@rainbow-me/rainbowkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
 import { auroraTestnet } from 'viem/chains';
 
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
@@ -33,10 +35,23 @@ const rainbowKitTheme: Theme = {
 };
 
 export default function Providers({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            // With SSR, we usually want to set some default staleTime
+            // above 0 to avoid refetching immediately on the client
+            staleTime: 60 * 1000,
+          },
+        },
+      })
+  );
+
   return (
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider chains={chains} theme={rainbowKitTheme}>
-        {children}
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       </RainbowKitProvider>
     </WagmiConfig>
   );
