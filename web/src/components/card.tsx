@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card as UICard, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Skeleton } from './ui/skeleton';
+import { useMounted } from '@/hooks/use-mounted';
 
 type Props = {
   title?: string;
@@ -25,15 +26,6 @@ const defaultIcon = (
     <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
   </svg>
 );
-export function useMounted() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  return mounted;
-}
 
 export default function Card({ title = '', icon = defaultIcon, value = '0', percentage }: Props) {
   const mounted = useMounted();

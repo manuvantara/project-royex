@@ -5,6 +5,7 @@ import Report from '@/components/report';
 import PageLayout from '../components/page-layout';
 import DepositRoyaltiesForm from './components/deposit-royalties-form';
 import RoyaltyPaymentsTable from './components/royalty-payments-table';
+import WithdrawRoyaltiesForm from './components/withdraw-royalties-form';
 
 const fakeStats = Array.from({ length: 4 }, (_) => ({
   title: faker.word.words(3),
@@ -32,8 +33,13 @@ export default async function Page({ params }: { params: { id: string } }) {
           <Report />
           {/* <RoyaltyPaymentsTable data={royaltyPayments} /> */}
         </div>
-        <div className="w-[400px]">
-          <DepositRoyaltiesForm />
+        <div className="flex gap-4">
+          <div className="w-[400px]">
+            <DepositRoyaltiesForm />
+          </div>
+          <div className="w-[400px]">
+            <WithdrawRoyaltiesForm />
+          </div>
         </div>
       </div>
     </PageLayout>
