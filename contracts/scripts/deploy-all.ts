@@ -47,7 +47,7 @@ async function main() {
     royaltyToken.target,
     stablecoin.target,
     1699501779n,
-    2n * 10n ** 18n,
+    2n,
   ]);
   await initialRoyaltyOffering.waitForDeployment();
   console.log(`IRO deployed to ${initialRoyaltyOffering.target}`);
