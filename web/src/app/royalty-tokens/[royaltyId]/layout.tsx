@@ -1,5 +1,6 @@
-import Navbar from './components/navbar';
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from '@/components/ui/page-header';
+import Navbar from './components/navbar';
+
 export default function RoyaltyLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="container relative">

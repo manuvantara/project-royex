@@ -3,7 +3,7 @@
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 
-const data = [
+const DATA = [
   {
     name: 'Jan',
     reported: Math.floor(Math.random() * 5000) + 1000,
@@ -66,12 +66,22 @@ const data = [
   },
 ];
 
-export default function Report() {
+type Props = {
+  title?: string;
+  description?: string;
+  data?: { name: string; reported: number; deposited: number }[];
+};
+
+export default function Report({
+  title = 'Exercise Minutes',
+  description = 'Your excercise minutes are ahead of where you normally are.',
+  data = DATA,
+}: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Exercise Minutes</CardTitle>
-        <CardDescription>Your excercise minutes are ahead of where you normally are.</CardDescription>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="pb-4">
         <ResponsiveContainer width="100%" height={350}>

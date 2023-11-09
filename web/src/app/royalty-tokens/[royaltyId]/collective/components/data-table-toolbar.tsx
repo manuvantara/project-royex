@@ -3,6 +3,7 @@
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { Table } from '@tanstack/react-table';
 
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DataTableViewOptions } from './data-table-view-options';
@@ -34,7 +35,9 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
         )}
       </div>
       <DataTableViewOptions table={table} />
-      <Button size="sm" className='ml-2'>Create proposal</Button>
+      <Button size="sm" className="ml-2" asChild>
+        <Link href="collective/proposals/new">Create proposal</Link>
+      </Button>
     </div>
   );
 }
