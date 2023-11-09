@@ -4,6 +4,7 @@ import { formatEther } from 'viem';
 import { useContractRead } from 'wagmi';
 import Card from '@/components/card';
 import { ROYALTY_EXCHANGE_ABI, ROYALTY_EXCHANGE_ADDRESS } from '@/lib/abi/royalty-exchange';
+import roundUpEther from '@/lib/helpers/round-up-ether';
 import ExchangeForm from './components/exchange-form';
 
 export default function Page() {
@@ -24,12 +25,12 @@ export default function Page() {
   const stats = [
     {
       title: 'Royalty Token Reserve',
-      value: royaltyTokenReserve.data ? formatEther(royaltyTokenReserve.data).split('.')[0] : undefined,
+      value: royaltyTokenReserve.data ? roundUpEther(formatEther(royaltyTokenReserve.data)) : undefined,
       icon: <div></div>,
     },
     {
       title: 'Stablecoin Reserve',
-      value: stablecoinReserve.data ? `$${formatEther(stablecoinReserve.data).split('.')[0]}` : undefined,
+      value: stablecoinReserve.data ? `$${roundUpEther(formatEther(stablecoinReserve.data))}` : undefined,
       icon: <div></div>,
     },
   ];

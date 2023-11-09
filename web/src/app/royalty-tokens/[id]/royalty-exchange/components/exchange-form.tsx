@@ -25,6 +25,7 @@ import { ROYALTY_EXCHANGE_ABI, ROYALTY_EXCHANGE_ADDRESS } from '@/lib/abi/royalt
 import { ROYALTY_TOKEN_ABI, ROYALTY_TOKEN_ADDRESS } from '@/lib/abi/royalty-token';
 import { STABLECOIN_ABI, STABLECOIN_ADDRESS } from '@/lib/abi/stablecoin';
 import calculateStablecoinAmount from '@/lib/helpers/calculate-stablecoin-amount';
+import roundUpEther from '@/lib/helpers/round-up-ether';
 
 const types = z.enum(['sell', 'buy']);
 
@@ -42,6 +43,12 @@ type FormValues = z.infer<typeof formSchema>;
 export default function ExchangeForm() {
   const publicClient = usePublicClient();
 
+  const [input, setInput] = useState({
+    royaltyTokens: BigInt(0),
+    stablecoinAmount: BigInt(0),
+    priceSlippage: 0,
+  });
+
   const [submit, setSubmit] = useState(false);
   const [type, setType] = useState<z.infer<typeof types>>(types.enum.sell);
   const form = useForm<FormValues>({
@@ -58,6 +65,13 @@ export default function ExchangeForm() {
     functionName: 'calculateStablecoinAmount',
     args: [type === types.enum.buy, parseEther(form.getValues('royaltyTokens').toString())],
     enabled: false,
+    onSuccess(data) {
+      setInput({
+        royaltyTokens: parseEther(form.getValues('royaltyTokens').toString()),
+        stablecoinAmount: data,
+        priceSlippage: form.getValues('priceSlippage') * 10,
+      });
+    },
   });
 
   const buy = useContractWrite({
@@ -95,9 +109,7 @@ export default function ExchangeForm() {
       const approveStablecoinsHash = await approveStablecoins.writeAsync({
         args: [
           ROYALTY_EXCHANGE_ADDRESS,
-          parseEther(
-            calculateStablecoinAmount(true, stablecoinAmount.data!, BigInt(form.getValues('priceSlippage') * 10))
-          ),
+          parseEther(calculateStablecoinAmount(true, input.stablecoinAmount, input.priceSlippage)),
         ],
       });
       await publicClient.waitForTransactionReceipt({
@@ -105,11 +117,7 @@ export default function ExchangeForm() {
       });
       // buy
       const buyHash = await buy.writeAsync({
-        args: [
-          parseEther(form.getValues('royaltyTokens').toString()),
-          stablecoinAmount.data!,
-          form.getValues('priceSlippage') * 10,
-        ],
+        args: [input.royaltyTokens, input.stablecoinAmount, input.priceSlippage],
       });
       await publicClient.waitForTransactionReceipt({
         hash: buyHash.hash,
@@ -117,18 +125,14 @@ export default function ExchangeForm() {
     } else {
       // approve royalty tokens
       const approveRoyaltyTokensHash = await approveRoyaltyTokens.writeAsync({
-        args: [ROYALTY_EXCHANGE_ADDRESS, parseEther(form.getValues('royaltyTokens').toString())],
+        args: [ROYALTY_EXCHANGE_ADDRESS, input.royaltyTokens],
       });
       await publicClient.waitForTransactionReceipt({
         hash: approveRoyaltyTokensHash.hash,
       });
       // sell
       const sellHash = await sell.writeAsync({
-        args: [
-          parseEther(form.getValues('royaltyTokens').toString()),
-          stablecoinAmount.data!,
-          form.getValues('priceSlippage') * 10,
-        ],
+        args: [input.royaltyTokens, input.stablecoinAmount, input.priceSlippage],
       });
       await publicClient.waitForTransactionReceipt({
         hash: sellHash.hash,
@@ -183,18 +187,14 @@ export default function ExchangeForm() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
-                {stablecoinAmount.data ? (
+                {input.stablecoinAmount ? (
                   <div>
                     {type === types.enum.buy
-                      ? `You will pay at most $${calculateStablecoinAmount(
-                          true,
-                          stablecoinAmount.data,
-                          BigInt(form.getValues('priceSlippage') * 10)
+                      ? `You will pay at most $${roundUpEther(
+                          calculateStablecoinAmount(true, input.stablecoinAmount, input.priceSlippage)
                         )}`
-                      : `You will receive at least $${calculateStablecoinAmount(
-                          false,
-                          stablecoinAmount.data,
-                          BigInt(form.getValues('priceSlippage') * 10)
+                      : `You will receive at least $${roundUpEther(
+                          calculateStablecoinAmount(false, input.stablecoinAmount, input.priceSlippage)
                         )}`}
                   </div>
                 ) : (
@@ -203,7 +203,7 @@ export default function ExchangeForm() {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onTrade()} disabled={!stablecoinAmount.data}>
+                <AlertDialogAction onClick={() => onTrade()} disabled={!input.stablecoinAmount}>
                   Continue
                 </AlertDialogAction>
               </AlertDialogFooter>
