@@ -14,7 +14,7 @@ def get_contract_address(royalty_id: str) -> str:  # address
 def get_floor_price(royalty_id: str) -> ValueIndicator:  # address
     return ValueIndicator(
         current=TimeSeriesDataPoint(timestamp=100, value=345),
-        recentValuesDataset=[
+        recent_values_dataset=[
             TimeSeriesDataPoint(timestamp=90, value=244),
             TimeSeriesDataPoint(timestamp=91, value=255),
             TimeSeriesDataPoint(timestamp=92, value=276),
@@ -33,7 +33,7 @@ def get_floor_price(royalty_id: str) -> ValueIndicator:  # address
 def get_trading_volume(royalty_id: str) -> ValueIndicator:  # address
     return ValueIndicator(
         current=TimeSeriesDataPoint(timestamp=10, value=1342),
-        recentValuesDataset=[
+        recent_values_dataset=[
             TimeSeriesDataPoint(timestamp=1, value=302),
             TimeSeriesDataPoint(timestamp=2, value=342),
             TimeSeriesDataPoint(timestamp=3, value=352),
@@ -52,12 +52,12 @@ def get_trading_volume(royalty_id: str) -> List[Offer]:  # address
     return [
         Offer(
             seller="0x000000000000000000000000000000000000000d",
-            royaltyTokenAmount=100,
-            stablecoinAmount=125,
+            royalty_token_amount=100,
+            stablecoin_amount=125,
         ),
         Offer(
             seller="0x000000000000000000000000000000000000000e",
-            royaltyTokenAmount=200,
-            stablecoinAmount=205,
+            royalty_token_amount=200,
+            stablecoin_amount=205,
         )
     ]

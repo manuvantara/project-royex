@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List
 
 
@@ -10,7 +10,7 @@ def to_camel(string: str) -> str:
 class Response(BaseModel):
     class Config:
         alias_generator = to_camel
-        populate_by_name = True
+        allow_population_by_field_name = True
 
 
 class TimeSeriesDataPoint(Response):
@@ -52,13 +52,18 @@ class Offer(Response):
     royalty_token_amount: int
     stablecoin_amount: int
 
+class Votes(Response):
+    for_: int = Field(alias="for")
+    against: int
+    abstain: int
+
 class ShortenProposal(Response):
     proposal_id: str
     proposer: str
     title: str
     voting_date: int
     voting_deadline: int
-    votes: dict
+    votes: Votes
     is_executed: bool
 
 class Proposal(ShortenProposal):
