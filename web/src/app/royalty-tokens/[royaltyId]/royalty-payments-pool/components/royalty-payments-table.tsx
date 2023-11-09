@@ -49,14 +49,7 @@ const columns: ColumnDef<Deposit>[] = [
   },
   {
     accessorKey: 'distributor',
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Distributor
-          <CaretSortIcon className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: 'Distributor',
     cell: ({ row }) => <div className="lowercase">{row.getValue('distributor')}</div>,
   },
   {
@@ -107,12 +100,12 @@ export default function RoyaltyPaymentsTable({ data }: Props) {
   });
 
   return (
-    <Card>
+    <Card className='flex flex-col'>
       <CardHeader>
         <CardTitle>Royalty Payments</CardTitle>
         <CardDescription>Manage your royalty.</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className='flex flex-col flex-1'>
         <div className="mb-4 flex items-center justify-between gap-4">
           <Input
             placeholder="Filter distributors..."
@@ -144,7 +137,7 @@ export default function RoyaltyPaymentsTable({ data }: Props) {
                 table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="[&:has([role=checkbox])]:pl-3 ">
+                      <TableCell key={cell.id} className="[&:has([role=checkbox])]:pl-3 py-4">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
@@ -160,7 +153,7 @@ export default function RoyaltyPaymentsTable({ data }: Props) {
             </TableBody>
           </Table>
         </div>
-        <div className="flex items-center justify-end space-x-2 pt-4">
+        <div className="flex items-center justify-end space-x-2 pt-4 mt-auto">
           <div className="flex-1 text-sm text-muted-foreground">
             {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
             selected.

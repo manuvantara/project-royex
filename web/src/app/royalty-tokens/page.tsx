@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
-import RoyaltyTokensSection from './components/royalty-tokens-section';
 import Card from '@/components/card';
 import CardMetric from '@/components/card-metric';
 import Report from '@/components/report';
+import RoyaltyTokensSection from './components/royalty-tokens-section';
 
 const fakeStats = Array.from({ length: 4 }, (_) => ({
   title: faker.word.words(3),
