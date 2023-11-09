@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { formatEther, parseEther } from 'viem';
 import { useContractRead, useContractWrite, usePublicClient } from 'wagmi';
 import * as z from 'zod';
@@ -68,20 +69,26 @@ export default function IroForm() {
   }
 
   async function onTrade(values: FormValues) {
-    // approve stable coins
-    const approveStableCoinsHash = await approveStablecoins.writeAsync({
-      args: [IRO_ADDRESS, offeringPrice.data! * parseEther(values.royaltyTokens.toString())],
-    });
-    await publicClient.waitForTransactionReceipt({
-      hash: approveStableCoinsHash.hash,
-    });
-    // buy
-    const buyHash = await buy.writeAsync({
-      args: [parseEther(values.royaltyTokens.toString())],
-    });
-    await publicClient.waitForTransactionReceipt({
-      hash: buyHash.hash,
-    });
+    try {
+      // approve stable coins
+      const approveStableCoinsHash = await approveStablecoins.writeAsync({
+        args: [IRO_ADDRESS, offeringPrice.data! * parseEther(values.royaltyTokens.toString())],
+      });
+      await publicClient.waitForTransactionReceipt({
+        hash: approveStableCoinsHash.hash,
+      });
+      toast.success('Stablecoins approved');
+      // buy
+      const buyHash = await buy.writeAsync({
+        args: [parseEther(values.royaltyTokens.toString())],
+      });
+      await publicClient.waitForTransactionReceipt({
+        hash: buyHash.hash,
+      });
+      toast.success('Royalty tokens bought');
+    } catch (error: any) {
+      toast.error(error.message);
+    }
   }
 
   return (

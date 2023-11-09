@@ -19,6 +19,7 @@ import roundUpEther from '@/lib/helpers/round-up-ether';
 import { STABLECOIN_ABI, STABLECOIN_ADDRESS } from '@/lib/abi/stablecoin';
 import { ROYALTY_PAYMENT_POOL_ABI, ROYALTY_PAYMENT_POOL_ADDRESS } from '@/lib/abi/royalty-payment-pool';
 import { useMounted } from '@/hooks/use-mounted';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
   checkpointKey: z.coerce.number().positive({
@@ -58,12 +59,18 @@ export default function WithdrawRoyaltiesForm() {
 
   async function onSubmit(values: FormValues) {
     // withdraw royalties
-    const withdrawRoyaltiesHash = await withdrawRoyalties.writeAsync({
-      args: [values.checkpointKey, parseEther(values.amount.toString())],
-    });
-    await publicClient.waitForTransactionReceipt({
-      hash: withdrawRoyaltiesHash.hash,
-    });
+    try {
+      const withdrawRoyaltiesHash = await withdrawRoyalties.writeAsync({
+        args: [values.checkpointKey, parseEther(values.amount.toString())],
+      });
+      await publicClient.waitForTransactionReceipt({
+        hash: withdrawRoyaltiesHash.hash,
+      });
+
+      toast.success('Royalties withdrawn');
+    } catch (error: any) {
+      toast.error(error.message);
+    }
   }
 
   return (

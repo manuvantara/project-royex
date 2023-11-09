@@ -26,6 +26,7 @@ import { ROYALTY_TOKEN_ABI, ROYALTY_TOKEN_ADDRESS } from '@/lib/abi/royalty-toke
 import { STABLECOIN_ABI, STABLECOIN_ADDRESS } from '@/lib/abi/stablecoin';
 import calculateStablecoinAmount from '@/lib/helpers/calculate-stablecoin-amount';
 import roundUpEther from '@/lib/helpers/round-up-ether';
+import { toast } from 'sonner';
 
 const types = z.enum(['sell', 'buy']);
 
@@ -105,38 +106,50 @@ export default function ExchangeForm() {
 
   async function onTrade() {
     if (type === types.enum.buy) {
-      // approve stablecoins
-      const approveStablecoinsHash = await approveStablecoins.writeAsync({
-        args: [
-          ROYALTY_EXCHANGE_ADDRESS,
-          parseEther(calculateStablecoinAmount(true, input.stablecoinAmount, input.priceSlippage)),
-        ],
-      });
-      await publicClient.waitForTransactionReceipt({
-        hash: approveStablecoinsHash.hash,
-      });
-      // buy
-      const buyHash = await buy.writeAsync({
-        args: [input.royaltyTokens, input.stablecoinAmount, input.priceSlippage],
-      });
-      await publicClient.waitForTransactionReceipt({
-        hash: buyHash.hash,
-      });
+      try {
+        // approve stablecoins
+        const approveStablecoinsHash = await approveStablecoins.writeAsync({
+          args: [
+            ROYALTY_EXCHANGE_ADDRESS,
+            parseEther(calculateStablecoinAmount(true, input.stablecoinAmount, input.priceSlippage)),
+          ],
+        });
+        await publicClient.waitForTransactionReceipt({
+          hash: approveStablecoinsHash.hash,
+        });
+        toast.success('Stablecoins approved');
+        // buy
+        const buyHash = await buy.writeAsync({
+          args: [input.royaltyTokens, input.stablecoinAmount, input.priceSlippage],
+        });
+        await publicClient.waitForTransactionReceipt({
+          hash: buyHash.hash,
+        });
+        toast.success('Royalty tokens bought');
+      } catch (error: any) {
+        toast.error(error.message);
+      }
     } else {
-      // approve royalty tokens
-      const approveRoyaltyTokensHash = await approveRoyaltyTokens.writeAsync({
-        args: [ROYALTY_EXCHANGE_ADDRESS, input.royaltyTokens],
-      });
-      await publicClient.waitForTransactionReceipt({
-        hash: approveRoyaltyTokensHash.hash,
-      });
-      // sell
-      const sellHash = await sell.writeAsync({
-        args: [input.royaltyTokens, input.stablecoinAmount, input.priceSlippage],
-      });
-      await publicClient.waitForTransactionReceipt({
-        hash: sellHash.hash,
-      });
+      try {
+        // approve royalty tokens
+        const approveRoyaltyTokensHash = await approveRoyaltyTokens.writeAsync({
+          args: [ROYALTY_EXCHANGE_ADDRESS, input.royaltyTokens],
+        });
+        await publicClient.waitForTransactionReceipt({
+          hash: approveRoyaltyTokensHash.hash,
+        });
+        toast.success('Royalty tokens approved');
+        // sell
+        const sellHash = await sell.writeAsync({
+          args: [input.royaltyTokens, input.stablecoinAmount, input.priceSlippage],
+        });
+        await publicClient.waitForTransactionReceipt({
+          hash: sellHash.hash,
+        });
+        toast.success('Royalty tokens sold');
+      } catch (error: any) {
+        toast.error(error.message);
+      }
     }
   }
 

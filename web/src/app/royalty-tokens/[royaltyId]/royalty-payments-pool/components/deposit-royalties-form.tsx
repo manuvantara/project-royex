@@ -18,6 +18,7 @@ import calculateStablecoinAmount from '@/lib/helpers/calculate-stablecoin-amount
 import roundUpEther from '@/lib/helpers/round-up-ether';
 import { STABLECOIN_ABI, STABLECOIN_ADDRESS } from '@/lib/abi/stablecoin';
 import { ROYALTY_PAYMENT_POOL_ABI, ROYALTY_PAYMENT_POOL_ADDRESS } from '@/lib/abi/royalty-payment-pool';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
   from: z.string().refine((v) => isAddress(v), {
@@ -53,20 +54,29 @@ export default function DepositRoyaltiesForm() {
   });
 
   async function onSubmit(values: FormValues) {
-    // approve stablecoins
-    const approveStablecoinsHash = await approveStablecoins.writeAsync({
-      args: [ROYALTY_PAYMENT_POOL_ADDRESS, parseEther(values.amount.toString())],
-    });
-    await publicClient.waitForTransactionReceipt({
-      hash: approveStablecoinsHash.hash,
-    });
-    // deposit royalties
-    const depositRoyaltiesHash = await depositRoyalties.writeAsync({
-      args: [values.from as `0x${string}`, parseEther(values.amount.toString())],
-    });
-    await publicClient.waitForTransactionReceipt({
-      hash: depositRoyaltiesHash.hash,
-    });
+    try {
+      // approve stablecoins
+      const approveStablecoinsHash = await approveStablecoins.writeAsync({
+        args: [ROYALTY_PAYMENT_POOL_ADDRESS, parseEther(values.amount.toString())],
+      });
+      await publicClient.waitForTransactionReceipt({
+        hash: approveStablecoinsHash.hash,
+      });
+
+      toast.success('Stablecoins approved');
+
+      // deposit royalties
+      const depositRoyaltiesHash = await depositRoyalties.writeAsync({
+        args: [values.from as `0x${string}`, parseEther(values.amount.toString())],
+      });
+      await publicClient.waitForTransactionReceipt({
+        hash: depositRoyaltiesHash.hash,
+      });
+
+      toast.success('Royalties deposited');
+    } catch (error: any) {
+      toast.error(error.message);
+    }
   }
 
   return (
