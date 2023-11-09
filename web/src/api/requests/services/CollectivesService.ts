@@ -55,17 +55,20 @@ export class CollectivesService {
   /**
    * Get Proposal
    * @param royaltyTokenSymbol
+   * @param proposalId
    * @returns Proposal Successful Response
    * @throws ApiError
    */
   public static getProposal(
     royaltyTokenSymbol: string,
-  ): CancelablePromise<Array<Proposal>> {
+    proposalId: string,
+  ): CancelablePromise<Proposal> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/collectives/{royalty_token_symbol}/proposals/{proposal_id}',
       path: {
         'royalty_token_symbol': royaltyTokenSymbol,
+        'proposal_id': proposalId,
       },
       errors: {
         422: `Validation Error`,

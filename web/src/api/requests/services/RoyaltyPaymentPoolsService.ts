@@ -13,12 +13,12 @@ export class RoyaltyPaymentPoolsService {
   /**
    * Get Contract Address
    * @param royaltyId
-   * @returns any Successful Response
+   * @returns string Successful Response
    * @throws ApiError
    */
   public static getContractAddress(
     royaltyId: string,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<string> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/royalty-payment-pools/{royalty_id}/contract-address',

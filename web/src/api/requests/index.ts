@@ -19,6 +19,7 @@ export type { ShortenProposal } from './models/ShortenProposal';
 export type { TimeSeriesDataPoint } from './models/TimeSeriesDataPoint';
 export type { ValidationError } from './models/ValidationError';
 export type { ValueIndicator } from './models/ValueIndicator';
+export type { Votes } from './models/Votes';
 
 export { CollectivesService } from './services/CollectivesService';
 export { OtcMarketsService } from './services/OtcMarketsService';

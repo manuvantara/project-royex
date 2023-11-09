@@ -2,13 +2,15 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import type { Votes } from './Votes';
+
 export type ShortenProposal = {
   proposalId: string;
   proposer: string;
   title: string;
   votingDate: number;
   votingDeadline: number;
-  votes: Record<string, any>;
+  votes: Votes;
   isExecuted: boolean;
 };
 

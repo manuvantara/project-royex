@@ -1,5 +1,6 @@
 // generated with @7nohe/openapi-react-query-codegen@0.5.1 
 import { useQuery, useMutation, UseQueryResult, UseQueryOptions, UseMutationOptions, UseMutationResult } from "@tanstack/react-query";
+import { Votes } from "../requests/models/Votes";
 import { ValueIndicator } from "../requests/models/ValueIndicator";
 import { ValidationError } from "../requests/models/ValidationError";
 import { TimeSeriesDataPoint } from "../requests/models/TimeSeriesDataPoint";
@@ -162,8 +163,9 @@ export const useCollectivesServiceFetchProposals = <TQueryKey extends Array<unkn
     data: TData;
 };
 export const useCollectivesServiceGetProposalKey = "CollectivesServiceGetProposal";
-export const useCollectivesServiceGetProposal = <TQueryKey extends Array<unknown> = unknown[], TData = Awaited<ReturnType<typeof CollectivesService.getProposal>>, TError = unknown>({ royaltyTokenSymbol }: {
+export const useCollectivesServiceGetProposal = <TQueryKey extends Array<unknown> = unknown[], TData = Awaited<ReturnType<typeof CollectivesService.getProposal>>, TError = unknown>({ royaltyTokenSymbol, proposalId }: {
     royaltyTokenSymbol: string;
-}, queryKey?: TQueryKey, options?: Omit<UseQueryOptions<Awaited<ReturnType<typeof CollectivesService.getProposal>>, unknown, Awaited<ReturnType<typeof CollectivesService.getProposal>>, unknown[]>, "queryKey" | "queryFn" | "initialData">) => useQuery({ queryKey: [useCollectivesServiceGetProposalKey, ...(queryKey ?? [{ royaltyTokenSymbol }])], queryFn: () => CollectivesService.getProposal(royaltyTokenSymbol), ...options }) as Omit<UseQueryResult<Awaited<ReturnType<typeof CollectivesService.getProposal>>, TError>, "data"> & {
+    proposalId: string;
+}, queryKey?: TQueryKey, options?: Omit<UseQueryOptions<Awaited<ReturnType<typeof CollectivesService.getProposal>>, unknown, Awaited<ReturnType<typeof CollectivesService.getProposal>>, unknown[]>, "queryKey" | "queryFn" | "initialData">) => useQuery({ queryKey: [useCollectivesServiceGetProposalKey, ...(queryKey ?? [{ royaltyTokenSymbol, proposalId }])], queryFn: () => CollectivesService.getProposal(royaltyTokenSymbol, proposalId), ...options }) as Omit<UseQueryResult<Awaited<ReturnType<typeof CollectivesService.getProposal>>, TError>, "data"> & {
     data: TData;
 };
