@@ -6,7 +6,7 @@ router = APIRouter()
 
 
 @router.get("/{royalty_id}/contract-address")
-def get_contract_address(royalty_id: str) -> None:  # address
+def get_contract_address(royalty_id: str) -> str:  # address
     return "0x02651afe41AfE1A7ac1c3D039e6f0B3a57F8AfEd7"
 
 
@@ -20,12 +20,12 @@ def fetch_deposits(royalty_id: str) -> List[Deposit]:
     return [
         Deposit(
             distributor="0x0ecfA66e77d95Cc1484617eb496e6eb49EAbdA96",
-            checkpointKey=1,
+            checkpoint_key=1,
             amount=100
         ),
         Deposit(
             distributor="0xC37713ef41Aff1A7ac1c3D02f6f0B3a57F8A3091",
-            checkpointKey=2,
+            checkpoint_key=2,
             amount=15
         )
     ]
