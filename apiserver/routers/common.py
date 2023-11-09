@@ -10,7 +10,7 @@ def to_camel(string: str) -> str:
 class Response(BaseModel):
     class Config:
         alias_generator = to_camel
-        populate_by_name = True
+        allow_population_by_field_name = True
 
 
 class TimeSeriesDataPoint(Response):
