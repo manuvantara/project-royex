@@ -1,4 +1,4 @@
-from apiserver.routers.common import ShortenProposal, Proposal
+from apiserver.routers.common import ShortenProposal, Proposal, Votes
 from fastapi import APIRouter
 from typing import List
 
@@ -17,7 +17,7 @@ def fetch_proposals(royalty_token_symbol: str) -> List[ShortenProposal]:
             title="Proposal 1",
             voting_date=1,
             voting_deadline=2,
-            votes={"for": 5, "against": 1, "abstain": 2},
+            votes=Votes(for_=5, against=3, abstain=2),
             is_executed=True
         ),
         ShortenProposal(
@@ -26,7 +26,7 @@ def fetch_proposals(royalty_token_symbol: str) -> List[ShortenProposal]:
             title="Proposal 2",
             voting_date=2,
             voting_deadline=3,
-            votes={"for": 3, "against": 15, "abstain": 5},
+            votes=Votes(for_=3, against=15, abstain=2),
             is_executed=False
         ),
         ShortenProposal(
@@ -35,7 +35,7 @@ def fetch_proposals(royalty_token_symbol: str) -> List[ShortenProposal]:
             title="Proposal 3",
             voting_date=4,
             voting_deadline=5,
-            votes={"for": 0, "against": 0, "abstain": 0},
+            votes=Votes(for_=0, against=0, abstain=0),
             is_executed=False
         )
     ]
