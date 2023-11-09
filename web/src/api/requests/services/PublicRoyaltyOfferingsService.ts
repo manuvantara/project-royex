@@ -16,7 +16,7 @@ export class PublicRoyaltyOfferingsService {
    * @returns string Successful Response
    * @throws ApiError
    */
-  public static getContractAddress(
+  public static publicRoyaltyOfferingsGetContractAddress(
     royaltyTokenSymbol: string,
   ): CancelablePromise<string> {
     return __request(OpenAPI, {
@@ -37,7 +37,7 @@ export class PublicRoyaltyOfferingsService {
    * @returns GetRoyaltyOffering Successful Response
    * @throws ApiError
    */
-  public static getRoyaltyOffering(
+  public static publicRoyaltyOfferingsGetRoyaltyOffering(
     royaltyTokenSymbol: string,
   ): CancelablePromise<GetRoyaltyOffering> {
     return __request(OpenAPI, {
@@ -58,7 +58,7 @@ export class PublicRoyaltyOfferingsService {
    * @returns RoyaltyToken Successful Response
    * @throws ApiError
    */
-  public static fetchUpcoming(
+  public static publicRoyaltyOfferingsFetchUpcoming(
     royaltyTokenSymbol: string,
   ): CancelablePromise<Array<RoyaltyToken>> {
     return __request(OpenAPI, {

@@ -16,7 +16,7 @@ export class CollectivesService {
    * @returns string Successful Response
    * @throws ApiError
    */
-  public static getContractAddress(
+  public static collectivesGetContractAddress(
     royaltyTokenSymbol: string,
   ): CancelablePromise<string> {
     return __request(OpenAPI, {
@@ -37,7 +37,7 @@ export class CollectivesService {
    * @returns ShortenProposal Successful Response
    * @throws ApiError
    */
-  public static fetchProposals(
+  public static collectivesFetchProposals(
     royaltyTokenSymbol: string,
   ): CancelablePromise<Array<ShortenProposal>> {
     return __request(OpenAPI, {
@@ -59,7 +59,7 @@ export class CollectivesService {
    * @returns Proposal Successful Response
    * @throws ApiError
    */
-  public static getProposal(
+  public static collectivesGetProposal(
     royaltyTokenSymbol: string,
     proposalId: string,
   ): CancelablePromise<Proposal> {

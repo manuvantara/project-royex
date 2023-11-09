@@ -6,7 +6,7 @@ import type { ValueIndicator } from './ValueIndicator';
 
 export type RoyaltyToken = {
   royaltyTokenSymbol: string;
-  price: (ValueIndicator | null);
+  price?: ValueIndicator;
   depositedRoyaltyIncome: ValueIndicator;
 };
 

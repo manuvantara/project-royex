@@ -15,7 +15,7 @@ export class ProtocolService {
    * @returns GetTradingVolume Successful Response
    * @throws ApiError
    */
-  public static getTradingVolume(): CancelablePromise<GetTradingVolume> {
+  public static protocolGetTradingVolume(): CancelablePromise<GetTradingVolume> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/protocol/trading-volume',
@@ -27,7 +27,7 @@ export class ProtocolService {
    * @returns GetRoyaltyIncomeResponse Successful Response
    * @throws ApiError
    */
-  public static getRoyaltyIncomePerProtocol(): CancelablePromise<GetRoyaltyIncomeResponse> {
+  public static protocolGetRoyaltyIncomePerProtocol(): CancelablePromise<GetRoyaltyIncomeResponse> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/protocol/royalty-income',

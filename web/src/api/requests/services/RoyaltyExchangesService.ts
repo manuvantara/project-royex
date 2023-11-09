@@ -15,7 +15,7 @@ export class RoyaltyExchangesService {
    * @returns string Successful Response
    * @throws ApiError
    */
-  public static getContractAddress(
+  public static royaltyExchangesGetContractAddress(
     royaltyId: string,
   ): CancelablePromise<string> {
     return __request(OpenAPI, {
@@ -36,7 +36,7 @@ export class RoyaltyExchangesService {
    * @returns ValueIndicator Successful Response
    * @throws ApiError
    */
-  public static getPrice(
+  public static royaltyExchangesGetPrice(
     royaltyId: string,
   ): CancelablePromise<ValueIndicator> {
     return __request(OpenAPI, {
@@ -57,7 +57,7 @@ export class RoyaltyExchangesService {
    * @returns ValueIndicator Successful Response
    * @throws ApiError
    */
-  public static getTradingVolume(
+  public static royaltyExchangesGetTradingVolume(
     royaltyId: string,
   ): CancelablePromise<ValueIndicator> {
     return __request(OpenAPI, {

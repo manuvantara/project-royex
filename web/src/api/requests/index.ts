@@ -12,7 +12,6 @@ export type { GetRoyaltyIncomeResponse } from './models/GetRoyaltyIncomeResponse
 export type { GetRoyaltyOffering } from './models/GetRoyaltyOffering';
 export type { GetTradingVolume } from './models/GetTradingVolume';
 export type { HTTPValidationError } from './models/HTTPValidationError';
-export type { Offer } from './models/Offer';
 export type { Proposal } from './models/Proposal';
 export type { RoyaltyToken } from './models/RoyaltyToken';
 export type { ShortenProposal } from './models/ShortenProposal';

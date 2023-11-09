@@ -16,7 +16,7 @@ export class RoyaltyPaymentPoolsService {
    * @returns string Successful Response
    * @throws ApiError
    */
-  public static getContractAddress(
+  public static royaltyPaymentPoolsGetContractAddress(
     royaltyId: string,
   ): CancelablePromise<string> {
     return __request(OpenAPI, {
@@ -37,7 +37,7 @@ export class RoyaltyPaymentPoolsService {
    * @returns GetRoyaltyIncomeResponse Successful Response
    * @throws ApiError
    */
-  public static getRoyaltyIncome(
+  public static royaltyPaymentPoolsGetRoyaltyIncome(
     royaltyId: string,
   ): CancelablePromise<GetRoyaltyIncomeResponse> {
     return __request(OpenAPI, {
@@ -58,7 +58,7 @@ export class RoyaltyPaymentPoolsService {
    * @returns Deposit Successful Response
    * @throws ApiError
    */
-  public static fetchDeposits(
+  public static royaltyPaymentPoolsFetchDeposits(
     royaltyId: string,
   ): CancelablePromise<Array<Deposit>> {
     return __request(OpenAPI, {

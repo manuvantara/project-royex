@@ -15,7 +15,7 @@ export class RoyaltyTokensService {
    * @returns string Successful Response
    * @throws ApiError
    */
-  public static getContractAddress(
+  public static royaltyTokensGetContractAddress(
     royaltyTokenSymbol: string,
   ): CancelablePromise<string> {
     return __request(OpenAPI, {
@@ -36,7 +36,7 @@ export class RoyaltyTokensService {
    * @returns RoyaltyToken Successful Response
    * @throws ApiError
    */
-  public static fetchPublic(
+  public static royaltyTokensFetchPublic(
     royaltyTokenSymbol: string,
   ): CancelablePromise<Array<RoyaltyToken>> {
     return __request(OpenAPI, {
@@ -57,7 +57,7 @@ export class RoyaltyTokensService {
    * @returns RoyaltyToken Successful Response
    * @throws ApiError
    */
-  public static fetchPrivate(
+  public static royaltyTokensFetchPrivate(
     royaltyTokenSymbol: string,
   ): CancelablePromise<Array<RoyaltyToken>> {
     return __request(OpenAPI, {
