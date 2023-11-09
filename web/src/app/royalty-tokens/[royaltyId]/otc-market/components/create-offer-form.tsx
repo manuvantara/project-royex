@@ -23,7 +23,7 @@ const formSchema = z.object({
     message: 'Royalty tokens must be > 0',
   }),
   stablecoins: z.coerce.number().positive({
-    message: 'Price slippage must be > 0',
+    message: 'Stablecoins must be > 0',
   }),
 });
 

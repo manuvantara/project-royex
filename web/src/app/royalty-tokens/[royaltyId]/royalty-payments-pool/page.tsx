@@ -3,6 +3,7 @@ import { RoyaltyPaymentPoolsService } from '@/api/requests';
 import Card from '@/components/card';
 import Report from '@/components/report';
 import PageLayout from '../components/page-layout';
+import DepositRoyaltiesForm from './components/deposit-royalties-form';
 import RoyaltyPaymentsTable from './components/royalty-payments-table';
 
 const fakeStats = Array.from({ length: 4 }, (_) => ({
@@ -14,8 +15,10 @@ const fakeStats = Array.from({ length: 4 }, (_) => ({
 export const revalidate = 60;
 
 export default async function Page({ params }: { params: { id: string } }) {
-  const contractAddress = await RoyaltyPaymentPoolsService.getContractAddress(params.id);
-  const royaltyPayments = await RoyaltyPaymentPoolsService.fetchDeposits(params.id);
+  // const contractAddress = await RoyaltyPaymentPoolsService.getContractAddress(params.id);
+  // const royaltyPayments = await RoyaltyPaymentPoolsService.fetchDeposits(params.id);
+
+  const contractAddress = '0x59CDac4907845357A13F9520899278CD62Db9950';
 
   return (
     <PageLayout contractAddress={contractAddress}>
@@ -27,7 +30,10 @@ export default async function Page({ params }: { params: { id: string } }) {
         </div>
         <div className="grid gap-4 px-4 pb-8 pt-4 md:grid-cols-2">
           <Report />
-          <RoyaltyPaymentsTable data={royaltyPayments} />
+          {/* <RoyaltyPaymentsTable data={royaltyPayments} /> */}
+        </div>
+        <div className="w-[400px]">
+          <DepositRoyaltiesForm />
         </div>
       </div>
     </PageLayout>
