@@ -54,7 +54,6 @@ def get_proposal(royalty_token_symbol: str, proposal_id: str) -> Proposal:
         signatures=["0x0000000000000000000000000000000000000005"],
         calldatas=["0x0000000000000000000000000000000000000006"],
         proposer="0x0000000000000000000000000000000000000003",
-        title="Proposal 3",
         voting_date=4,
         voting_deadline=5,
         votes=Votes(for_=0, against=0, abstain=0),
