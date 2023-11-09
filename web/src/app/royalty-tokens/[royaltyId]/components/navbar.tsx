@@ -5,79 +5,71 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Explorers } from '@/config/explorers';
 import { cn } from '@/lib/utils';
 
-const examples = [
+const links = [
   {
     name: 'Initial Royalty Offering',
     href: 'initial-royalty-offering',
-    contract: 'https://github.com/shadcn/ui/tree/main/apps/www/app/examples/dashboard',
   },
   {
     name: 'OTC Market',
     href: 'otc-market',
-    contract: 'https://github.com/shadcn/ui/tree/main/apps/www/app/examples/cards',
   },
   {
     name: 'Royalty Exchange',
     href: 'royalty-exchange',
-    contract: 'https://github.com/shadcn/ui/tree/main/apps/www/app/examples/tasks',
   },
   {
     name: 'Royalty Payments Pool',
     href: 'royalty-payments-pool',
-    contract: 'https://github.com/shadcn/ui/tree/main/apps/www/app/examples/playground',
   },
   {
     name: 'Collective',
     href: 'collective',
-    contract: 'https://github.com/shadcn/ui/tree/main/apps/www/app/examples/forms',
   },
 ];
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {}
+interface Props extends React.HTMLAttributes<HTMLDivElement> {
+  contractAddress: string;
+}
 
-export default function Navbar({ className, ...props }: Props) {
+export default function Navbar({ className, contractAddress, ...props }: Props) {
   const pathname = usePathname();
 
   return (
     <div className="relative">
       <ScrollArea className="max-w-[600px] lg:max-w-none">
         <div className={cn('flex items-center', className)} {...props}>
-          {examples.map((example) => (
+          {links.map((link) => (
             <Link
-              href={example.href}
-              key={example.href}
+              href={link.href}
+              key={link.href}
               className={cn(
                 'flex items-center px-4',
-                pathname?.includes(example.href) ? 'font-bold text-foreground' : 'font-medium text-muted-foreground'
+                pathname?.includes(link.href) ? 'font-bold text-foreground' : 'font-medium text-muted-foreground'
               )}
             >
-              {example.name}
+              {link.name}
             </Link>
           ))}
         </div>
         <ScrollBar orientation="horizontal" className="invisible" />
       </ScrollArea>
-      <ContractLink pathname={pathname} />
+      <ContractLink contractAddress={contractAddress} />
     </div>
   );
 }
 
-interface ContractLinkProps {
-  pathname: string | null;
-}
-
-export function ContractLink({ pathname }: ContractLinkProps) {
-  const example = examples.find((example) => pathname?.includes(example.href));
-
-  if (!example?.contract) {
+export function ContractLink({ contractAddress }: { contractAddress: string }) {
+  if (!contractAddress) {
     return null;
   }
 
   return (
     <Link
-      href={example?.contract}
+      href={`${Explorers['aurora-testnet']}/address/${contractAddress}`}
       target="_blank"
       rel="nofollow"
       className="absolute right-0 top-0 hidden items-center rounded-[0.5rem] text-sm font-medium md:flex"

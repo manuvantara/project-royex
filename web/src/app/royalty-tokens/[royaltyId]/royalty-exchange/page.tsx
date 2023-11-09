@@ -5,6 +5,7 @@ import { useContractRead } from 'wagmi';
 import Card from '@/components/card';
 import { ROYALTY_EXCHANGE_ABI, ROYALTY_EXCHANGE_ADDRESS } from '@/lib/abi/royalty-exchange';
 import roundUpEther from '@/lib/helpers/round-up-ether';
+import PageLayout from '../components/page-layout';
 import ExchangeForm from './components/exchange-form';
 
 export default function Page() {
@@ -36,15 +37,17 @@ export default function Page() {
   ];
 
   return (
-    <div className="flex items-start justify-center gap-4">
-      <div className="w-[400px]">
-        <ExchangeForm />
+    <PageLayout contractAddress={ROYALTY_EXCHANGE_ADDRESS}>
+      <div className="flex items-start justify-center gap-4">
+        <div className="w-[400px]">
+          <ExchangeForm />
+        </div>
+        <div className="grid gap-4">
+          {stats.map((stat) => (
+            <Card key={stat.title} {...stat} />
+          ))}
+        </div>
       </div>
-      <div className="grid gap-4">
-        {stats.map((stat) => (
-          <Card key={stat.title} {...stat} />
-        ))}
-      </div>
-    </div>
+    </PageLayout>
   );
 }

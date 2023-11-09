@@ -6,6 +6,7 @@ import Card from '@/components/card';
 import { IRO_ABI, IRO_ADDRESS } from '@/lib/abi/iro';
 import { ROYALTY_TOKEN_ABI, ROYALTY_TOKEN_ADDRESS } from '@/lib/abi/royalty-token';
 import roundUpEther from '@/lib/helpers/round-up-ether';
+import PageLayout from '../components/page-layout';
 import IroForm from './components/iro-form';
 
 export default function Page() {
@@ -38,15 +39,17 @@ export default function Page() {
   ];
 
   return (
-    <div className="flex items-start justify-center gap-4">
-      <div className="w-[400px]">
-        <IroForm />
+    <PageLayout contractAddress="0x">
+      <div className="flex items-start justify-center gap-4">
+        <div className="w-[400px]">
+          <IroForm />
+        </div>
+        <div className="grid gap-4">
+          {stats.map((stat) => (
+            <Card key={stat.title} {...stat} />
+          ))}
+        </div>
       </div>
-      <div className="grid gap-4">
-        {stats.map((stat) => (
-          <Card key={stat.title} {...stat} />
-        ))}
-      </div>
-    </div>
+    </PageLayout>
   );
 }
