@@ -16,9 +16,9 @@ def get_estimated_portfolio_value(
     stakeholder_address: str,
 ) -> GetEstimatedPortfolioValue:  # address
     return GetEstimatedPortfolioValue(
-        onOtcMarket=ValueIndicator(
+        on_otc_market=ValueIndicator(
             current=TimeSeriesDataPoint(timestamp=10, value=6640),
-            recentValuesDataset=[
+            recent_values_dataset=[
                 TimeSeriesDataPoint(timestamp=1, value=320),
                 TimeSeriesDataPoint(timestamp=2, value=540),
                 TimeSeriesDataPoint(timestamp=3, value=1259),
@@ -30,9 +30,9 @@ def get_estimated_portfolio_value(
                 TimeSeriesDataPoint(timestamp=9, value=6598),
             ]
         ),
-        atRoyaltyExchange=ValueIndicator(
+        at_royalty_exchange=ValueIndicator(
             current=TimeSeriesDataPoint(timestamp=10, value=4023),
-            recentValuesDataset=[
+            recent_values_dataset=[
                 TimeSeriesDataPoint(timestamp=1, value=547),
                 TimeSeriesDataPoint(timestamp=2, value=654),
                 TimeSeriesDataPoint(timestamp=3, value=745),
@@ -56,11 +56,11 @@ def calculate_royalty_income(stakeholder_address: str) -> GetRoyaltyIncomeRespon
 def fetch_public_royalty_tokens(stakeholder_address: str) -> List[RoyaltyToken]:  # address
     return [
         RoyaltyToken(
-            royaltyTokenSymbol="OVN",
-            royaltyTokenAddress="0x000000000000000000000000000000000000000a",
+            royalty_token_symbol="OVN",
+            royalty_token_address="0x000000000000000000000000000000000000000a",
             price=ValueIndicator(
                 current=TimeSeriesDataPoint(timestamp=10, value=543),
-                recentValuesDataset=[
+                recent_values_dataset=[
                     TimeSeriesDataPoint(timestamp=1, value=234),
                     TimeSeriesDataPoint(timestamp=2, value=251),
                     TimeSeriesDataPoint(timestamp=3, value=250),
@@ -80,11 +80,11 @@ def fetch_public_royalty_tokens(stakeholder_address: str) -> List[RoyaltyToken]:
 def fetch_private_royalty_tokens(stakeholder_address: str) -> List[RoyaltyToken]:  # address
     return [
         RoyaltyToken(
-            royaltyTokenSymbol="SRD",
-            royaltyTokenAddress="0x000000000000000000000000000000000000000b",
+            royalty_token_symbol="SRD",
+            royalty_token_address="0x000000000000000000000000000000000000000b",
             price=ValueIndicator(
                 current=TimeSeriesDataPoint(timestamp=10, value=678),
-                recentValuesDataset=[
+                recent_values_dataset=[
                     TimeSeriesDataPoint(timestamp=1, value=234),
                     TimeSeriesDataPoint(timestamp=2, value=215),
                     TimeSeriesDataPoint(timestamp=3, value=205),
