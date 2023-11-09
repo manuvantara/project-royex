@@ -6,6 +6,7 @@ const coreContracts = [
   "Stablecoin",
   "OtcMarket",
   "StakeholderCollective",
+  "RoyaltyExchange"
 ];
 
 async function main() {
