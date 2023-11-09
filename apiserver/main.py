@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from fastapi.openapi.utils import get_openapi
+from fastapi.middleware.cors import CORSMiddleware
 
 from apiserver.routers import (
     collectives,
@@ -39,6 +40,21 @@ app.include_router(
     royalty_payment_pools.router,
     prefix="/royalty-payment-pools",
     tags=["royalty-payment-pools"],
+)
+
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost:3000",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
