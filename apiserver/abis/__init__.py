@@ -11,3 +11,4 @@ def load_json_as_module(file: pathlib.Path):
 directory = pathlib.Path(__file__).parent
     
 OtcMarket = load_json_as_module(directory / "OtcMarket.json")
+StakeholderCollective = load_json_as_module(directory / "StakeholderCollective.json")

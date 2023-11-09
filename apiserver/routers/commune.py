@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 
 
 def to_camel(string: str) -> str:
@@ -20,58 +20,71 @@ class TimeSeriesDataPoint(Response):
 
 class ValueIndicator(Response):
     current: TimeSeriesDataPoint
-    recent_values_dataset: List[TimeSeriesDataPoint]
+    recent_values_dataset: Optional[List[TimeSeriesDataPoint]] = None
 
 
 class GetRoyaltyIncomeResponse(Response):
-    reported: int
-    deposited: int
-    
+    reported: ValueIndicator
+    deposited: ValueIndicator
+
+
 class RoyaltyToken(Response):
     royalty_token_symbol: str
     price: ValueIndicator | None
-    deposited_royalty_income: ValueIndicator
+
 
 class GetRoyaltyOffering(Response):
     offering_date: int
     offering_price: int
     royalty_token_reserve: ValueIndicator
     stablecoin_reserve: ValueIndicator
-    
+
+
 class Deposit(Response):
-    distributor: str # address
+    distributor: str  # address
     checkpoint_key: int
     amount: int
-    
+
+
 class GetEstimatedPortfolioValue(Response):
     on_otc_market: ValueIndicator
     at_royalty_exchange: ValueIndicator
-    
+
+
 class Offer(Response):
     seller: str
     royalty_token_amount: int
     stablecoin_amount: int
 
-class Votes(Response):
-    for_: int = Field(alias="for")
-    against: int
+
+class ProposalVotes(Response):
+    pro: int
+    contra: int
     abstain: int
 
-class ShortenProposal(Response):
+
+class ProposalInfo(Response):
     proposal_id: str
     proposer: str
     title: str
     voting_date: int
     voting_deadline: int
-    votes: Votes
+    votes: ProposalVotes
     is_executed: bool
 
-class Proposal(ShortenProposal):
+
+class ProposalDescription(Response):
     description: str
     targets: list[str]
     values: list[int]
     signatures: list[str]
     calldatas: list[str]
+
+
+class Proposal(Response):
+    info: ProposalInfo
+    description: ProposalDescription
+
 
 class GetTradingVolume(Response):
     otc_market: ValueIndicator

@@ -22,11 +22,7 @@ class EventBase(SQLModel):
 
 
 class RoyaltyToken(SQLModel, table=True):
-<<<<<<< Updated upstream
-    __tablename__ = 'royalty_tokens'
-=======
     __tablename__ = "royalty_tokens"
->>>>>>> Stashed changes
 
     symbol: constr(max_length=11) = Field(primary_key=True)
     name: str = Field(max_length=250)
@@ -34,17 +30,6 @@ class RoyaltyToken(SQLModel, table=True):
 
 
 class RoyaltyPaymentPool(ContractBase, table=True):
-<<<<<<< Updated upstream
-    __tablename__ = 'royalty_payment_pools'
-
-
-class StakeholderCollective(ContractBase, table=True):
-    __tablename__ = 'stakeholder_collectives'
-
-
-class StakeholderCollectiveProposal(ElementBase, table=True):
-    __tablename__ = 'stakeholder_collective_proposals'
-=======
     __tablename__ = "royalty_payment_pools"
 
 
@@ -54,7 +39,6 @@ class StakeholderCollective(ContractBase, table=True):
 
 class StakeholderCollectiveProposal(ElementBase, table=True):
     __tablename__ = "stakeholder_collective_proposals"
->>>>>>> Stashed changes
 
     proposal_id: constr(max_length=77) = Field(primary_key=True)
 
@@ -62,22 +46,6 @@ class StakeholderCollectiveProposal(ElementBase, table=True):
     title: str = Field(max_length=250)
     description: str = Field(max_length=4000)
 
-<<<<<<< Updated upstream
-    votes_for: Decimal = Field(default=Decimal('0'))
-    votes_against: Decimal = Field(default=Decimal('0'))
-    votes_abstain: Decimal = Field(default=Decimal('0'))
-
-    is_executed: bool = Field(default=False)
-    
-
-class OtcMarket(ContractBase, table=True):
-    __tablename__ = 'otc_markets'
-
-
-class OtcMarketOffer(ElementBase, table=True):
-    __tablename__ = 'otc_market_offers'
-    
-=======
     votes_for: Decimal = Field(default=Decimal("0"))
     votes_against: Decimal = Field(default=Decimal("0"))
     votes_abstain: Decimal = Field(default=Decimal("0"))
@@ -92,23 +60,15 @@ class OtcMarket(ContractBase, table=True):
 class OtcMarketOffer(ElementBase, table=True):
     __tablename__ = "otc_market_offers"
 
->>>>>>> Stashed changes
     offer_id: constr(max_length=77) = Field(primary_key=True)
 
     seller: constr(max_length=42)
     royalty_token_amount: Decimal
     stablecoin_amount: Decimal
-<<<<<<< Updated upstream
-    
-
-class OtcMarketFloorPriceChangedEvent(EventBase, table=True):
-    __tablename__ = 'otc_market_floor_price_changed_events'
-=======
 
 
 class OtcMarketFloorPriceChangedEvent(EventBase, table=True):
     __tablename__ = "otc_market_floor_price_changed_events"
->>>>>>> Stashed changes
 
     floor_price: condecimal(max_digits=78, decimal_places=18)
 
@@ -117,17 +77,10 @@ class OtcMarketFloorPriceChangedEvent(EventBase, table=True):
 
 
 class OtcMarketOfferAcceptedEvent(EventBase, table=True):
-<<<<<<< Updated upstream
-    __tablename__ = 'otc_market_offer_accepted_events'
-
-    offer_id: constr(max_length=77) = Field(primary_key=True)
-    
-=======
     __tablename__ = "otc_market_offer_accepted_events"
 
     offer_id: constr(max_length=77) = Field(primary_key=True)
 
->>>>>>> Stashed changes
     seller: constr(max_length=42)
     royalty_token_amount: condecimal(max_digits=78, decimal_places=0)
     stablecoin_amount: condecimal(max_digits=78, decimal_places=0)
@@ -138,16 +91,8 @@ class OtcMarketOfferAcceptedEvent(EventBase, table=True):
 
 
 class InitialRoyaltyOffering(ContractBase, table=True):
-<<<<<<< Updated upstream
-    __tablename__ = 'initial_royalty_offerings'
-
-
-class RoyaltyExchange(ContractBase, table=True):
-    __tablename__ = 'royalty_exchanges'
-=======
     __tablename__ = "initial_royalty_offerings"
 
 
 class RoyaltyExchange(ContractBase, table=True):
     __tablename__ = "royalty_exchanges"
->>>>>>> Stashed changes
