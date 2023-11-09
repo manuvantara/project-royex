@@ -17,7 +17,7 @@ import apiserver.database as database
 import apiserver.database.models as models
 import apiserver.abis as abis
 
-from apiserver.database.models import OtcMarketOffer
+from apiserver.database.models import OtcMarketOffer, StakeholderCollectiveProposal
 
 
 def fetch_symbols() -> List[str]:
@@ -142,6 +142,80 @@ logging.info(f"AURORA_ENDPOINT={config.AURORA_ENDPOINT}")
 w3 = web3.Web3(web3.Web3.HTTPProvider(config.AURORA_ENDPOINT))
 logging.info("w3: created")
 
+def new_stakeholder_proposal(
+    *,
+    session: Session,
+    contract_address: str,
+    proposal_id: str,
+    proposer: str,
+    title: str,
+    description: str
+):
+    proposal = models.StakeholderCollectiveProposal(
+        contract_address=contract_address,
+        proposal_id=proposal_id,
+        proposer=proposer,
+        title=title,
+        description=description,
+        votes_for=0,
+        votes_against=0,
+        votes_abstain=0,
+        is_executed=False,
+    )
+
+    session.add(proposal)
+
+def delete_stakeholder_proposal(*, session: Session, contract_address: str, proposal_id: str):
+    statement = select(StakeholderCollectiveProposal).where(
+        (StakeholderCollectiveProposal.contract_address == contract_address)
+        & (StakeholderCollectiveProposal.proposal_id == proposal_id)
+    )
+
+    results = session.exec(statement)
+    proposal = results.first()
+
+    if proposal is None:
+        logging.info(f"Is None: StakeholderCollectiveProposal={proposal}")
+
+    session.delete(proposal)
+
+def execute_stakeholder_proposal(*, session: Session, contract_address: str, proposal_id: str):
+    statement = select(StakeholderCollectiveProposal).where(
+        (StakeholderCollectiveProposal.contract_address == contract_address)
+        & (StakeholderCollectiveProposal.proposal_id == proposal_id)
+    )
+
+    results = session.exec(statement)
+    proposal = results.first()
+
+    if proposal is None:
+        logging.info(f"Is None: StakeholderCollectiveProposal={proposal}")
+
+    proposal.is_executed = True
+
+    session.add(proposal)
+
+def cast_vote_to_stakeholder_proposal(*, session: Session, contract_address: str, proposal_id: str, support: int, weight: int):
+    statement = select(StakeholderCollectiveProposal).where(
+        (StakeholderCollectiveProposal.contract_address == contract_address)
+        & (StakeholderCollectiveProposal.proposal_id == proposal_id)
+    )
+
+    results = session.exec(statement)
+    proposal = results.first()
+
+    if proposal is None:
+        logging.info(f"Is None: StakeholderCollectiveProposal={proposal}")
+
+    if support == 1:
+        proposal.votes_for += weight
+    elif support == -1:
+        proposal.votes_against += weight
+    elif support == 0:
+        proposal.votes_abstain += weight
+    
+    session.add(proposal)
+
 
 def update():
     symbols = fetch_symbols()
@@ -149,11 +223,12 @@ def update():
     logging.info("symbols fetched")
 
     for symbol in symbols:
-        contracts = fetch_contracts(model=models.OtcMarket, symbol=symbol)
+        otc_market_contracts = fetch_contracts(model=models.OtcMarket, symbol=symbol)
+        stakeholder_collective_contracts = fetch_contracts(model=models.StakeholderCollective, symbol=symbol)
 
         logging.info("contracts fetched")
 
-        for [contract_address, block_number] in contracts:
+        for [contract_address, block_number] in otc_market_contracts:
             # get metadata
             latest_block = w3.eth.get_block("latest")
 
@@ -161,8 +236,6 @@ def update():
             logging.info(f"latest_block_number={latest_block.number}")
 
             entries = []
-
-            # create OtcMarket Contract
 
             OtcMarket = w3.eth.contract(address=contract_address, abi=abis.OtcMarket)
 
@@ -235,95 +308,107 @@ def update():
 
                 session.commit()
 
-            # event OfferCreated
-
-            # filter = OtcMarket.events.OfferCreated.create_filter(
-            #     fromBlock=block_number, toBlock=latest_block.number
-            # )
-
-            # entries = filter.get_new_entries()
-            # logging.info(f"otc_market_offer_created_events={entries}")
-
-            # for entry in entries:
-            #     logging.debug(f"offer_created_event_entry={entry}")
-
-            #     block = w3.eth.get_block(entry["blockNumber"])
-
-            #     block_timestamp = block.timestamp
-            #     offer_id = str(entry["args"]["offerId"])
-            #     seller = entry["args"]["seller"]
-            #     royalty_token_amount = entry["args"]["royaltyTokenAmount"]
-            #     stablecoin_amount = entry["args"]["stablecoinAmount"]
-
-            #     new_otc_market_offer(
-            #         contract_address=contract_address,
-            #         block_timestamp=block.timestamp,
-            #         offer_id=offer_id,
-            #         seller=seller,
-            #         royalty_token_amount=royalty_token_amount,
-            #         stablecoin_amount=stablecoin_amount,
-            #     )
-
-            # # event OfferCancelled
-
-            # filter = OtcMarket.events.OfferCancelled.create_filter(
-            #     fromBlock=block_number, toBlock=latest_block.number
-            # )
-
-            # entries = filter.get_new_entries()
-            # logging.info(f"otc_market_offer_cancelled_events={entries}")
-
-            # for entry in entries:
-            #     logging.info(f"otc_market_offer_cancelled_event_entry={entries}")
-
-            #     offer_id = str(entry["args"]["offerId"])
-
-            #     delete_otc_market_offer(
-            #         contract_address=contract_address, offer_id=offer_id
-            #     )
-
-            # # event OfferAccepted
-
-            # filter = OtcMarket.events.OfferAccepted.create_filter(
-            #     fromBlock=block_number, toBlock=latest_block.number
-            # )
-
-            # entries = filter.get_new_entries()
-            # logging.info(f"otc_market_offer_accepted_events={entries}")
-
-            # for entry in entries:
-            #     logging.debug(f"offer_accepted_event_entry={entry}")
-
-            #     block = w3.eth.get_block(entry["blockNumber"])
-
-            #     block_timestamp = block.timestamp
-            #     offer_id = str(entry["args"]["offerId"])
-            #     seller = entry["args"]["seller"]
-            #     royalty_token_amount = entry["args"]["royaltyTokenAmount"]
-            #     stablecoin_amount = entry["args"]["stablecoinAmount"]
-            #     buyer = entry["args"]["buyer"]
-
-            #     new_otc_market_offer_accepted_event(
-            #         contract_address=contract_address,
-            #         block_timestamp=block_timestamp,
-            #         offer_id=offer_id,
-            #         seller=seller,
-            #         royalty_token_amount=royalty_token_amount,
-            #         stablecoin_amount=stablecoin_amount,
-            #         buyer=buyer,
-            #     )
-
-            #     delete_otc_market_offer(
-            #         contract_address=contract_address, offer_id=offer_id
-            #     )
-
-            # update metadata
-
             update_latest_block(
                 model=models.OtcMarket, symbol=symbol, value=latest_block.number
             )
 
         logging.info(f"symbol={symbol}")
+
+    for [contract_address, block_number] in stakeholder_collective_contracts:
+        # get metadata
+        latest_block = w3.eth.get_block("latest")
+
+        logging.info(f"block_number={block_number}")
+        logging.info(f"latest_block_number={latest_block.number}")
+
+        entries = []
+
+        StakeholderCollective = w3.eth.contract(address=contract_address, abi=abis.StakeholderCollective)	
+
+        entries += StakeholderCollective.events.ProposalCreated.create_filter(
+            fromBlock=block_number, toBlock=latest_block.number
+        ).get_new_entries()
+
+        entries += StakeholderCollective.events.ProposalCanceled.create_filter(
+            fromBlock=block_number, toBlock=latest_block.number
+        ).get_new_entries()
+
+        entries += StakeholderCollective.events.ProposalExecuted.create_filter(
+            fromBlock=block_number, toBlock=latest_block.number
+        ).get_new_entries()
+
+        entries += StakeholderCollective.events.VoteCast.create_filter(
+            fromBlock=block_number, toBlock=latest_block.number
+        ).get_new_entries()
+
+        entries += StakeholderCollective.events.VoteCastWithParams.create_filter(
+            fromBlock=block_number, toBlock=latest_block.number
+        ).get_new_entries()
+
+        logging.info(f"len(entries)={len(entries)}")
+
+        sorted_entries = sorted(entries, key=lambda entry: entry.blockNumber)
+        logging.info(f"sorted_entries={sorted_entries}")
+
+        if len(entries) == 0:
+            continue
+
+        with Session(database.engine) as session:
+            for entry in sorted_entries:
+                logging.info(f"entry={entry}")
+                block = w3.eth.get_block(entry["blockNumber"])
+
+                if entry["event"] == "ProposalCreated":
+                    proposal_id = str(entry["args"]["proposalId"])
+                    proposer = entry["args"]["proposer"]
+                    description = entry["args"]["description"]
+
+                    new_stakeholder_proposal(
+                        session=session,
+                        contract_address=contract_address,
+                        proposal_id=proposal_id,
+                        proposer=proposer,
+                        title=f"Proposal {proposal_id}",
+                        description=description
+                    )
+
+                elif entry["event"] == "ProposalCanceled":
+                    proposal_id = str(entry["args"]["proposalId"])
+
+                    delete_stakeholder_proposal(
+                        session=session,
+                        contract_address=contract_address,
+                        proposal_id=proposal_id,
+                    )
+
+                elif entry["event"] == "ProposalExecuted":
+                    proposal_id = str(entry["args"]["proposalId"])
+
+                    execute_stakeholder_proposal(
+                        session=session,
+                        contract_address=contract_address,
+                        proposal_id=proposal_id,
+                    )
+
+                elif entry["event"] in ("VoteCast", "VoteCastWithParams"):
+                    proposal_id = str(entry["args"]["proposalId"])
+                    support = entry["args"]["support"]
+                    weight = entry["args"]["weight"]
+
+                    cast_vote_to_stakeholder_proposal(
+                        session=session,
+                        contract_address=contract_address,
+                        proposal_id=proposal_id,
+                        support=support,
+                        weight=weight
+                    )
+
+                session.commit()
+
+            update_latest_block(
+                model=models.StakeholderCollective, symbol=symbol, value=latest_block.number
+            )
+
 
     time.sleep(10)
 
