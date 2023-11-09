@@ -3,7 +3,7 @@
 import { ResponsiveContainer, LineChart, Line, Tooltip, XAxis } from 'recharts';
 import { formatEther } from 'viem';
 import { useContractRead } from 'wagmi';
-import { useRoyaltyExchangesServiceGetPrice } from '@/api/queries';
+import { useRoyaltyExchangesServiceRoyaltyExchangesGetPrice } from '@/api/queries';
 import Card from '@/components/card';
 import { Card as UICard, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROYALTY_EXCHANGE_ABI, ROYALTY_EXCHANGE_ADDRESS } from '@/lib/abi/royalty-exchange';
@@ -12,7 +12,7 @@ import PageLayout from '../components/page-layout';
 import ExchangeForm from './components/exchange-form';
 
 export default function Page({ params }: { params: { royaltyId: string } }) {
-  const { data } = useRoyaltyExchangesServiceGetPrice({ royaltyId: params.royaltyId });
+  const { data } = useRoyaltyExchangesServiceRoyaltyExchangesGetPrice({ royaltyId: params.royaltyId });
 
   const priceData = data
     ? [
