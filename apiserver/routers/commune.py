@@ -31,6 +31,7 @@ class GetRoyaltyIncomeResponse(Response):
 class RoyaltyToken(Response):
     royalty_token_symbol: str
     price: ValueIndicator | None
+    deposited_royalty_income: ValueIndicator | None
 
 
 class GetRoyaltyOffering(Response):
