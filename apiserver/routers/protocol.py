@@ -1,12 +1,14 @@
-from apiserver.routers.common import (
+from fastapi import APIRouter
+
+from apiserver.routers.commune import (
     GetRoyaltyIncomeResponse,
     ValueIndicator,
     GetTradingVolume,
     TimeSeriesDataPoint,
 )
-from fastapi import APIRouter
 
 router = APIRouter()
+
 
 # Must be updated every time individual royalty's trading volume is updated.
 @router.get("/trading-volume")
@@ -24,7 +26,7 @@ def get_trading_volume() -> GetTradingVolume:
                 TimeSeriesDataPoint(timestamp=7, value=997),
                 TimeSeriesDataPoint(timestamp=8, value=1124),
                 TimeSeriesDataPoint(timestamp=9, value=1233),
-            ]
+            ],
         ),
         royalty_exchange=ValueIndicator(
             current=TimeSeriesDataPoint(timestamp=10, value=5467),
@@ -38,10 +40,28 @@ def get_trading_volume() -> GetTradingVolume:
                 TimeSeriesDataPoint(timestamp=7, value=2354),
                 TimeSeriesDataPoint(timestamp=8, value=3854),
                 TimeSeriesDataPoint(timestamp=9, value=5037),
-            ]
-        )
+            ],
+        ),
     )
+
 
 @router.get("/royalty-income")
 def get_royalty_income_per_protocol() -> GetRoyaltyIncomeResponse:
-    return GetRoyaltyIncomeResponse(reported=3250, deposited=3178)
+    return GetRoyaltyIncomeResponse(
+        reported=ValueIndicator(
+            current=TimeSeriesDataPoint(timestamp=0, value=0),
+            recent_values_dataset=[
+                TimeSeriesDataPoint(timestamp=0, value=0),
+                TimeSeriesDataPoint(timestamp=0, value=0),
+                TimeSeriesDataPoint(timestamp=0, value=0),
+            ],
+        ),
+        deposited=ValueIndicator(
+            current=TimeSeriesDataPoint(timestamp=0, value=0),
+            recent_values_dataset=[
+                TimeSeriesDataPoint(timestamp=0, value=0),
+                TimeSeriesDataPoint(timestamp=0, value=0),
+                TimeSeriesDataPoint(timestamp=0, value=0),
+            ],
+        ),
+    )
