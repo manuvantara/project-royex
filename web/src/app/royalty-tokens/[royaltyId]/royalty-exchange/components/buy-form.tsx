@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ROYALTY_EXCHANGE_ABI, ROYALTY_EXCHANGE_ADDRESS } from '@/lib/abi/royalty-exchange';
 import { STABLECOIN_ABI, STABLECOIN_ADDRESS } from '@/lib/abi/stablecoin';
@@ -165,14 +166,27 @@ export default function BuyForm() {
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <div>
-                  You will pay at most $
-                  {!!buyConfig.desiredStablecoinAmount && !!buyConfig.maxStablecoinAmount ? (
-                    <span className="text-xl">{roundUpEther(formatEther(buyConfig.maxStablecoinAmount))}</span>
-                  ) : (
-                    <Skeleton className="h-[20px] w-[20px] rounded-full" />
-                  )}
+                <div className="flex items-center gap-4 py-4">
+                  <p>Quote</p>
+                  <Separator orientation="vertical" />
+                  <p>
+                    expected $
+                    <span className="text-xl">{roundUpEther(formatEther(buyConfig.desiredStablecoinAmount))}</span>
+                  </p>
+                  <Separator orientation="vertical" />
+                  <p>
+                    max $
+                    {!!buyConfig.desiredStablecoinAmount && !!buyConfig.maxStablecoinAmount ? (
+                      <span className="text-xl">{roundUpEther(formatEther(buyConfig.maxStablecoinAmount))}</span>
+                    ) : (
+                      <Skeleton className="h-[20px] w-[20px] rounded-full" />
+                    )}
+                  </p>
                 </div>
+                <p className="max-w-sm text-sm text-muted-foreground">
+                  This includes 0.3% fee to ensure the best experience with Royex. It has already been factored into the
+                  quote.
+                </p>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
