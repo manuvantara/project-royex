@@ -11,18 +11,18 @@ export class RoyaltyExchangesService {
 
   /**
    * Get Contract Address
-   * @param royaltyId
+   * @param royaltyTokenSymbol
    * @returns string Successful Response
    * @throws ApiError
    */
-  public static royaltyExchangesGetContractAddress(
-    royaltyId: string,
+  public static getContractAddress(
+    royaltyTokenSymbol: string,
   ): CancelablePromise<string> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/royalty-exchanges/{royalty_id}/contract-address',
+      url: '/royalty-exchanges/{royalty_token_symbol}/contract-address',
       path: {
-        'royalty_id': royaltyId,
+        'royalty_token_symbol': royaltyTokenSymbol,
       },
       errors: {
         422: `Validation Error`,
@@ -32,18 +32,18 @@ export class RoyaltyExchangesService {
 
   /**
    * Get Price
-   * @param royaltyId
+   * @param royaltyTokenSymbol
    * @returns ValueIndicator Successful Response
    * @throws ApiError
    */
-  public static royaltyExchangesGetPrice(
-    royaltyId: string,
+  public static getPrice(
+    royaltyTokenSymbol: string,
   ): CancelablePromise<ValueIndicator> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/royalty-exchanges/{royalty_id}/price',
+      url: '/royalty-exchanges/{royalty_token_symbol}/price',
       path: {
-        'royalty_id': royaltyId,
+        'royalty_token_symbol': royaltyTokenSymbol,
       },
       errors: {
         422: `Validation Error`,
@@ -53,18 +53,18 @@ export class RoyaltyExchangesService {
 
   /**
    * Get Trading Volume
-   * @param royaltyId
+   * @param royaltyTokenSymbol
    * @returns ValueIndicator Successful Response
    * @throws ApiError
    */
-  public static royaltyExchangesGetTradingVolume(
-    royaltyId: string,
+  public static getTradingVolume(
+    royaltyTokenSymbol: string,
   ): CancelablePromise<ValueIndicator> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/royalty-exchanges/{royalty_id}/trading-volume',
+      url: '/royalty-exchanges/{royalty_token_symbol}/trading-volume',
       path: {
-        'royalty_id': royaltyId,
+        'royalty_token_symbol': royaltyTokenSymbol,
       },
       errors: {
         422: `Validation Error`,

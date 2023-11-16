@@ -2,7 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { Proposal } from '../models/Proposal';
-import type { ShortenProposal } from '../models/ShortenProposal';
+import type { ProposalInfo } from '../models/ProposalInfo';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -16,7 +16,7 @@ export class CollectivesService {
    * @returns string Successful Response
    * @throws ApiError
    */
-  public static collectivesGetContractAddress(
+  public static getContractAddress(
     royaltyTokenSymbol: string,
   ): CancelablePromise<string> {
     return __request(OpenAPI, {
@@ -34,12 +34,12 @@ export class CollectivesService {
   /**
    * Fetch Proposals
    * @param royaltyTokenSymbol
-   * @returns ShortenProposal Successful Response
+   * @returns ProposalInfo Successful Response
    * @throws ApiError
    */
-  public static collectivesFetchProposals(
+  public static fetchProposals(
     royaltyTokenSymbol: string,
-  ): CancelablePromise<Array<ShortenProposal>> {
+  ): CancelablePromise<Array<ProposalInfo>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/collectives/{royalty_token_symbol}/proposals',
@@ -59,7 +59,7 @@ export class CollectivesService {
    * @returns Proposal Successful Response
    * @throws ApiError
    */
-  public static collectivesGetProposal(
+  public static getProposal(
     royaltyTokenSymbol: string,
     proposalId: string,
   ): CancelablePromise<Proposal> {

@@ -12,18 +12,18 @@ export class RoyaltyPaymentPoolsService {
 
   /**
    * Get Contract Address
-   * @param royaltyId
+   * @param royaltyTokenSymbol
    * @returns string Successful Response
    * @throws ApiError
    */
-  public static royaltyPaymentPoolsGetContractAddress(
-    royaltyId: string,
+  public static getContractAddress(
+    royaltyTokenSymbol: string,
   ): CancelablePromise<string> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/royalty-payment-pools/{royalty_id}/contract-address',
+      url: '/royalty-payment-pools/{royalty_token_symbol}/contract-address',
       path: {
-        'royalty_id': royaltyId,
+        'royalty_token_symbol': royaltyTokenSymbol,
       },
       errors: {
         422: `Validation Error`,
@@ -33,18 +33,18 @@ export class RoyaltyPaymentPoolsService {
 
   /**
    * Get Royalty Income
-   * @param royaltyId
+   * @param royaltyTokenSymbol
    * @returns GetRoyaltyIncomeResponse Successful Response
    * @throws ApiError
    */
-  public static royaltyPaymentPoolsGetRoyaltyIncome(
-    royaltyId: string,
+  public static getRoyaltyIncome(
+    royaltyTokenSymbol: string,
   ): CancelablePromise<GetRoyaltyIncomeResponse> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/royalty-payment-pools/{royalty_id}/royalty-income',
+      url: '/royalty-payment-pools/{royalty_token_symbol}/royalty-income',
       path: {
-        'royalty_id': royaltyId,
+        'royalty_token_symbol': royaltyTokenSymbol,
       },
       errors: {
         422: `Validation Error`,
@@ -54,18 +54,18 @@ export class RoyaltyPaymentPoolsService {
 
   /**
    * Fetch Deposits
-   * @param royaltyId
+   * @param royaltyTokenSymbol
    * @returns Deposit Successful Response
    * @throws ApiError
    */
-  public static royaltyPaymentPoolsFetchDeposits(
-    royaltyId: string,
+  public static fetchDeposits(
+    royaltyTokenSymbol: string,
   ): CancelablePromise<Array<Deposit>> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/royalty-payment-pools/{royalty_id}/deposits',
+      url: '/royalty-payment-pools/{royalty_token_symbol}/deposits',
       path: {
-        'royalty_id': royaltyId,
+        'royalty_token_symbol': royaltyTokenSymbol,
       },
       errors: {
         422: `Validation Error`,

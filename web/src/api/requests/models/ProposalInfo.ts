@@ -2,15 +2,15 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Votes } from './Votes';
+import type { ProposalVotes } from './ProposalVotes';
 
-export type ShortenProposal = {
+export type ProposalInfo = {
   proposalId: string;
   proposer: string;
   title: string;
   votingDate: number;
   votingDeadline: number;
-  votes: Votes;
+  votes: ProposalVotes;
   isExecuted: boolean;
 };
 

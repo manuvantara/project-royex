@@ -2,8 +2,10 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import type { ValueIndicator } from './ValueIndicator';
+
 export type GetRoyaltyIncomeResponse = {
-  reported: number;
-  deposited: number;
+  reported: ValueIndicator;
+  deposited: ValueIndicator;
 };
 

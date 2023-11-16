@@ -2,9 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type Votes = {
-  for: number;
-  against: number;
+export type ProposalVotes = {
+  pro: number;
+  contra: number;
   abstain: number;
 };
 

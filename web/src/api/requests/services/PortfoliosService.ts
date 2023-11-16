@@ -17,7 +17,7 @@ export class PortfoliosService {
    * @returns GetEstimatedPortfolioValue Successful Response
    * @throws ApiError
    */
-  public static portfoliosGetEstimatedPortfolioValue(
+  public static getEstimatedPortfolioValue(
     stakeholderAddress: string,
   ): CancelablePromise<GetEstimatedPortfolioValue> {
     return __request(OpenAPI, {
@@ -38,7 +38,7 @@ export class PortfoliosService {
    * @returns GetRoyaltyIncomeResponse Successful Response
    * @throws ApiError
    */
-  public static portfoliosCalculateRoyaltyIncome(
+  public static calculateRoyaltyIncome(
     stakeholderAddress: string,
   ): CancelablePromise<GetRoyaltyIncomeResponse> {
     return __request(OpenAPI, {
@@ -59,7 +59,7 @@ export class PortfoliosService {
    * @returns RoyaltyToken Successful Response
    * @throws ApiError
    */
-  public static portfoliosFetchPublicRoyaltyTokens(
+  public static fetchPublicRoyaltyTokens(
     stakeholderAddress: string,
   ): CancelablePromise<Array<RoyaltyToken>> {
     return __request(OpenAPI, {
@@ -80,7 +80,7 @@ export class PortfoliosService {
    * @returns RoyaltyToken Successful Response
    * @throws ApiError
    */
-  public static portfoliosFetchPrivateRoyaltyTokens(
+  public static fetchPrivateRoyaltyTokens(
     stakeholderAddress: string,
   ): CancelablePromise<Array<RoyaltyToken>> {
     return __request(OpenAPI, {

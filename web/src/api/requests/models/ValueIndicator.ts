@@ -6,6 +6,6 @@ import type { TimeSeriesDataPoint } from './TimeSeriesDataPoint';
 
 export type ValueIndicator = {
   current: TimeSeriesDataPoint;
-  recentValuesDataset: Array<TimeSeriesDataPoint>;
+  recentValuesDataset?: Array<TimeSeriesDataPoint>;
 };
 
