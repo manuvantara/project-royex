@@ -248,6 +248,42 @@ def new_royalty_token_operation(
 
     session.add(royalty_token_bought_event)
 
+def new_pool_withdrawal(
+    *,
+    session: Session,
+    contract_address: str,
+    checkpoint_key: int,
+    investor: str,
+    amount: int,
+    block_timestamp: int
+):
+    withdrawal = models.RoyaltyPoolWithdrawnEvent(
+        contract_address=contract_address,
+        block_timestamp=block_timestamp,
+        checkpoint_key=checkpoint_key,
+        investor=investor,
+        amount=amount,
+    )
+
+    session.add(withdrawal)
+
+def new_pool_deposit(
+    *,
+    session: Session,
+    contract_address: str,
+    sender: str,
+    deposit: int,
+    block_timestamp: int
+):
+    deposit = models.RoyaltyPoolDepositedEvent(
+        contract_address=contract_address,
+        block_timestamp=block_timestamp,
+        sender=sender,
+        deposit=deposit,
+    )
+
+    session.add(deposit)
+
 
 def update():
     symbols = fetch_symbols()
@@ -258,6 +294,7 @@ def update():
         otc_market_contracts = fetch_contracts(model=models.OtcMarket, symbol=symbol)
         stakeholder_collective_contracts = fetch_contracts(model=models.StakeholderCollective, symbol=symbol)
         royalty_exchange_contracts = fetch_contracts(model=models.RoyaltyExchange, symbol=symbol)
+        royalty_payment_pool_contract = fetch_contracts(model=models.RoyaltyPaymentPool, symbol=symbol)
 
         logging.info("contracts fetched")
 
@@ -295,7 +332,6 @@ def update():
             with Session(database.engine) as session:
                 for entry in sorted_entries:
                     logging.info(f"entry={entry}")
-                    block = w3.eth.get_block(entry["blockNumber"])
 
                     if entry["event"] == "OfferCreated":
                         offer_id = str(entry["args"]["offerId"])
@@ -338,7 +374,7 @@ def update():
                             offer_id=offer_id,
                             buyer=buyer,
                         )
-
+                
                 session.commit()
 
             update_latest_block(
@@ -435,11 +471,11 @@ def update():
                             weight=weight
                         )
 
-                    session.commit()
+                session.commit()
 
-                update_latest_block(
-                    model=models.StakeholderCollective, symbol=symbol, value=latest_block.number
-                )
+            update_latest_block(
+                model=models.StakeholderCollective, symbol=symbol, value=latest_block.number
+            )
 
         for [contract_address, block_number] in royalty_exchange_contracts:
             # get metadata
@@ -489,13 +525,74 @@ def update():
                         block_timestamp=entry["blockNumber"],
                         model=models.RoyaltyTokenBoughtEvent if entry["event"] == "RoyaltyTokenBought" else models.RoyaltyTokenSoldEvent
                     )
-
-                    session.commit()
+                
+                session.commit()
 
             update_latest_block(
                 model=models.RoyaltyExchange, symbol=symbol, value=latest_block.number
             )
 
+        for [contract_address, block_number] in royalty_payment_pool_contract:
+            # get metadata
+            latest_block = w3.eth.get_block("latest")
+
+            logging.info(f"block_number={block_number}")
+            logging.info(f"latest_block_number={latest_block.number}")
+
+            entries = []
+
+            RoyaltyPaymentPool = w3.eth.contract(address=contract_address, abi=abis.RoyaltyPaymentPool)	
+
+            entries += RoyaltyPaymentPool.events.RoyaltiesWithdrawn.create_filter(
+                fromBlock=block_number, toBlock=latest_block.number
+            ).get_new_entries()
+
+            entries += RoyaltyPaymentPool.events.RoyaltiesDeposited.create_filter(
+                fromBlock=block_number, toBlock=latest_block.number
+            ).get_new_entries()
+
+            logging.info(f"len(entries)={len(entries)}")
+
+            sorted_entries = sorted(entries, key=lambda entry: entry.blockNumber)
+            logging.info(f"sorted_entries={sorted_entries}")
+
+            if len(entries) == 0:
+                continue
+
+            with Session(database.engine) as session:
+                for entry in sorted_entries:
+                    logging.info(f"entry={entry}")
+
+                    if entry["event"] == "RoyaltiesWithdrawn":
+                        checkpoint_key = entry["args"]["checkpointKey"]
+                        investor = entry["args"]["investor"]
+                        amount = entry["args"]["amount"]
+
+                        new_pool_withdrawal(
+                            session=session,
+                            contract_address=contract_address,
+                            checkpoint_key=checkpoint_key,
+                            investor=investor,
+                            amount=amount,
+                            block_timestamp=entry["blockNumber"],
+                        )
+                    elif entry["event"] == "RoyaltiesDeposited":
+                        sender = entry["args"]["from"]
+                        deposit = entry["args"]["deposit"]
+
+                        new_pool_deposit(
+                            session=session,
+                            contract_address=contract_address,
+                            sender=sender,
+                            deposit=deposit,
+                            block_timestamp=entry["blockNumber"]
+                        )
+
+                    session.commit()
+            
+            update_latest_block(
+                model=models.RoyaltyPaymentPool, symbol=symbol, value=latest_block.number
+            )
 
     time.sleep(10)
 

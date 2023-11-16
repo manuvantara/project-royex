@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from time import time
 import numpy as np
 
@@ -12,7 +10,7 @@ from sqlmodel import Session, select
 
 from apiserver.database import get_session
 
-from apiserver.routers.commune import Offer, ValueIndicator, TimeSeriesDataPoint
+from apiserver.routers.commune import ValueIndicator, TimeSeriesDataPoint
 
 from apiserver.database.models import (
     RoyaltyExchange,

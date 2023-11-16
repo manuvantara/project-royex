@@ -1,7 +1,6 @@
 from sqlmodel import Field, SQLModel
 from pydantic import condecimal, constr
 
-from typing import Optional
 from decimal import Decimal
 
 
@@ -40,7 +39,7 @@ class StakeholderCollective(ContractBase, table=True):
 class StakeholderCollectiveProposal(ElementBase, table=True):
     __tablename__ = "stakeholder_collective_proposals"
 
-    proposal_id: constr(max_length=77) = Field(primary_key=True)
+    proposal_id: constr(max_length=100) = Field(primary_key=True)
 
     proposer: constr(max_length=42)
     title: str = Field(max_length=250)
@@ -115,3 +114,16 @@ class InitialRoyaltyOffering(ContractBase, table=True):
 
 class RoyaltyExchange(ContractBase, table=True):
     __tablename__ = "royalty_exchanges"
+
+class RoyaltyPoolWithdrawnEvent(EventBase, table=True):
+    __tablename__ = "royalty_pool_withdrawn_events"
+
+    checkpoint_key: condecimal(max_digits=78, decimal_places=0)
+    investor: constr(max_length=42)
+    amount: condecimal(max_digits=78, decimal_places=0)
+
+class RoyaltyPoolDepositedEvent(EventBase, table=True):
+    __tablename__ = "royalty_pool_deposited_events"
+
+    sender: constr(max_length=42)
+    deposit: condecimal(max_digits=78, decimal_places=0)
