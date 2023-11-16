@@ -1,6 +1,7 @@
 from typing import List, Optional
 
-# *
+from time import time
+import numpy as np
 
 from fastapi import APIRouter, Depends, HTTPException
 from requests import Session
@@ -14,6 +15,9 @@ from apiserver.routers.commune import Offer, ValueIndicator, TimeSeriesDataPoint
 
 from apiserver.database.models import (
     OtcMarket,
+    OtcMarketFloorPriceChangedEvent,
+    OtcMarketOffer,
+    OtcMarketOfferAcceptedEvent,
 )
 
 router = APIRouter()
@@ -43,12 +47,46 @@ def get_contract_address(
 def get_floor_price(
     *, royalty_token_symbol: str, session: Session = Depends(get_session)
 ) -> ValueIndicator:
+    current_timestamp = int(time())
+    hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
+    hour_prices = np.array([])
+
+    otc_market = (
+        session.query(OtcMarket)
+        .where(OtcMarket.royalty_token_symbol == royalty_token_symbol)
+        .one()
+    )  # For last 24 hours
+
+    last_price = 0
+    for hour in hour_timestamps:
+        latest_price = (
+            session.query(
+                OtcMarketFloorPriceChangedEvent.block_timestamp,
+                OtcMarketFloorPriceChangedEvent.floor_price,
+            )
+            .where(
+                OtcMarketFloorPriceChangedEvent.contract_address
+                == otc_market.contract_address,
+                OtcMarketFloorPriceChangedEvent.block_timestamp <= int(hour),
+            )
+            .order_by(OtcMarketFloorPriceChangedEvent.block_timestamp.desc())
+        ).first()
+
+        if latest_price:
+            hour_prices = np.append(hour_prices, latest_price.floor_price)
+            last_price = latest_price.floor_price
+        else:
+            hour_prices = np.append(hour_prices, last_price)
+
     return ValueIndicator(
-        current=TimeSeriesDataPoint(timestamp=0, value=0),
+        current=TimeSeriesDataPoint(
+            timestamp=hour_timestamps[0], value=hour_prices[0]
+        ),
         recent_values_dataset=[
-            TimeSeriesDataPoint(timestamp=0, value=0),
-            TimeSeriesDataPoint(timestamp=0, value=0),
-            TimeSeriesDataPoint(timestamp=0, value=0),
+            TimeSeriesDataPoint(
+                timestamp=hour_timestamps[i], value=hour_prices[i]
+            )
+            for i in range(1, len(hour_prices))
         ],
     )
 
@@ -57,12 +95,47 @@ def get_floor_price(
 def get_trading_volume(
     *, royalty_token_symbol: str, session: Session = Depends(get_session)
 ) -> ValueIndicator:
+    current_timestamp = int(time())
+    hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
+    hour_volumes = np.array([])
+
+    otc_market = (
+        session.query(OtcMarket)
+        .where(OtcMarket.royalty_token_symbol == royalty_token_symbol)
+        .one()
+    )
+
+    last_volume = 0
+    for hour in hour_timestamps:
+        latest_volume = (
+            session.query(
+                OtcMarketOfferAcceptedEvent.block_timestamp,
+                OtcMarketOfferAcceptedEvent.stablecoin_amount,
+            )
+            .where(
+                OtcMarketOfferAcceptedEvent.contract_address
+                == otc_market.contract_address,
+                OtcMarketOfferAcceptedEvent.block_timestamp <= int(hour)
+            )
+            .order_by(OtcMarketOfferAcceptedEvent.block_timestamp.desc())
+        )
+
+        if latest_volume.count() > 0:
+            volume_sum = sum([stablecoin_amount for _, stablecoin_amount in latest_volume])
+            hour_volumes = np.append(hour_volumes, volume_sum)
+            last_volume = volume_sum
+        else:
+            hour_volumes = np.append(hour_volumes, last_volume)
+
     return ValueIndicator(
-        current=TimeSeriesDataPoint(timestamp=0, value=0),
+        current=TimeSeriesDataPoint(
+            timestamp=hour_timestamps[0], value=hour_volumes[0]
+        ),
         recent_values_dataset=[
-            TimeSeriesDataPoint(timestamp=0, value=0),
-            TimeSeriesDataPoint(timestamp=0, value=0),
-            TimeSeriesDataPoint(timestamp=0, value=0),
+            TimeSeriesDataPoint(
+                timestamp=hour_timestamps[i], value=hour_volumes[i]
+            )
+            for i in range(1, len(hour_volumes))
         ],
     )
 
@@ -71,4 +144,20 @@ def get_trading_volume(
 def fetch_offers(
     *, royalty_token_symbol: str, session: Session = Depends(get_session)
 ) -> List[Offer]:
-    return [Offer(seller="pantemon", royalty_token_amount=100, stablecoin_amount=100)]
+    otc_market = (
+        session.query(OtcMarket)
+        .where(OtcMarket.royalty_token_symbol == royalty_token_symbol)
+        .one()
+    )
+    offers = session.query(OtcMarketOffer).where(
+        OtcMarketOffer.contract_address == otc_market.contract_address
+    )
+
+    return [
+        Offer(
+            seller=offer.seller,
+            royalty_token_amount=offer.royalty_token_amount,
+            stablecoin_amount=offer.stablecoin_amount,
+        )
+        for offer in offers
+    ]

@@ -29,7 +29,7 @@ For example:
 ```poetry run python script.py```
 
 #### Running Indexer
-```poetry run python3 -m apiserver.indexer```
+```poetry run python -m apiserver.indexer```
 
 ----
 

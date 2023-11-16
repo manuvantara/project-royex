@@ -62,6 +62,7 @@ def new_otc_market_offer(
         royalty_token_amount=royalty_token_amount,
         stablecoin_amount=stablecoin_amount,
     )
+    offer.offer_id = offer_id
 
     session.add(offer)
 
@@ -77,6 +78,7 @@ def delete_otc_market_offer(*, session: Session, contract_address: str, offer_id
 
     results = session.exec(statement)
     offer = results.first()
+    offer.offer_id = offer_id
     # logging.info(f"OtcMarketOffer={offer}")
 
     session.delete(offer)
@@ -131,6 +133,7 @@ def new_otc_market_offer_accepted_event(
         stablecoin_amount=offer.royalty_token_amount,
         buyer=buyer,
     )
+    offer_accepted_event.offer_id = offer_id
 
     session.add(offer_accepted_event)
 
@@ -163,6 +166,8 @@ def new_stakeholder_proposal(
         is_executed=False,
     )
 
+    proposal.proposal_id = proposal_id
+
     session.add(proposal)
 
 def delete_stakeholder_proposal(*, session: Session, contract_address: str, proposal_id: str):
@@ -173,6 +178,7 @@ def delete_stakeholder_proposal(*, session: Session, contract_address: str, prop
 
     results = session.exec(statement)
     proposal = results.first()
+    proposal.proposal_id = proposal_id
 
     if proposal is None:
         logging.info(f"Is None: StakeholderCollectiveProposal={proposal}")
@@ -187,6 +193,7 @@ def execute_stakeholder_proposal(*, session: Session, contract_address: str, pro
 
     results = session.exec(statement)
     proposal = results.first()
+    proposal_id = proposal.proposal_id
 
     if proposal is None:
         logging.info(f"Is None: StakeholderCollectiveProposal={proposal}")
@@ -203,6 +210,7 @@ def cast_vote_to_stakeholder_proposal(*, session: Session, contract_address: str
 
     results = session.exec(statement)
     proposal = results.first()
+    proposal_id = proposal.proposal_id
 
     if proposal is None:
         logging.info(f"Is None: StakeholderCollectiveProposal={proposal}")
