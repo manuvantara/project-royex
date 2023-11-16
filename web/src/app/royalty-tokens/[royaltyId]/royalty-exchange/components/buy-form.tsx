@@ -59,6 +59,7 @@ export default function BuyForm() {
     priceSlippage: 0,
   });
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const buy = useContractWrite({
     address: ROYALTY_EXCHANGE_ADDRESS,
@@ -98,6 +99,8 @@ export default function BuyForm() {
 
   async function handleBuy(buyConfig: BuyConfig) {
     try {
+      setIsLoading(true);
+
       // approve the maximum permissible stablecoin amount
       const approveStablecoinsResult = await approveStablecoins.writeAsync({
         args: [ROYALTY_EXCHANGE_ADDRESS, buyConfig.maxStablecoinAmount],
@@ -117,6 +120,8 @@ export default function BuyForm() {
       toast.success(`${roundUpEther(formatEther(buyConfig.royaltyTokenAmount))} royalty token(s) bought!`);
     } catch (error: any) {
       toast.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -160,7 +165,9 @@ export default function BuyForm() {
             />
           </CardContent>
           <CardFooter className="grid grid-cols-2 gap-4">
-            <Button type="submit">Buy</Button>
+            <Button type="submit" disabled={isLoading}>
+              Buy
+            </Button>
           </CardFooter>
           <AlertDialog onOpenChange={setOpen} open={open}>
             <AlertDialogContent>
