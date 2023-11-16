@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, condecimal
 from typing import List, Optional
 
 
@@ -15,7 +15,7 @@ class Response(BaseModel):
 
 class TimeSeriesDataPoint(Response):
     timestamp: int
-    value: int
+    value: condecimal(max_digits=156, decimal_places=78)
 
 
 class ValueIndicator(Response):
