@@ -347,99 +347,99 @@ def update():
 
         logging.info(f"symbol={symbol}")
 
-    for [contract_address, block_number] in stakeholder_collective_contracts:
-        # get metadata
-        latest_block = w3.eth.get_block("latest")
+        for [contract_address, block_number] in stakeholder_collective_contracts:
+            # get metadata
+            latest_block = w3.eth.get_block("latest")
 
-        logging.info(f"block_number={block_number}")
-        logging.info(f"latest_block_number={latest_block.number}")
+            logging.info(f"block_number={block_number}")
+            logging.info(f"latest_block_number={latest_block.number}")
 
-        entries = []
+            entries = []
 
-        StakeholderCollective = w3.eth.contract(address=contract_address, abi=abis.StakeholderCollective)	
+            StakeholderCollective = w3.eth.contract(address=contract_address, abi=abis.StakeholderCollective)	
 
-        entries += StakeholderCollective.events.ProposalCreated.create_filter(
-            fromBlock=block_number, toBlock=latest_block.number
-        ).get_new_entries()
+            entries += StakeholderCollective.events.ProposalCreated.create_filter(
+                fromBlock=block_number, toBlock=latest_block.number
+            ).get_new_entries()
 
-        entries += StakeholderCollective.events.ProposalCanceled.create_filter(
-            fromBlock=block_number, toBlock=latest_block.number
-        ).get_new_entries()
+            entries += StakeholderCollective.events.ProposalCanceled.create_filter(
+                fromBlock=block_number, toBlock=latest_block.number
+            ).get_new_entries()
 
-        entries += StakeholderCollective.events.ProposalExecuted.create_filter(
-            fromBlock=block_number, toBlock=latest_block.number
-        ).get_new_entries()
+            entries += StakeholderCollective.events.ProposalExecuted.create_filter(
+                fromBlock=block_number, toBlock=latest_block.number
+            ).get_new_entries()
 
-        entries += StakeholderCollective.events.VoteCast.create_filter(
-            fromBlock=block_number, toBlock=latest_block.number
-        ).get_new_entries()
+            entries += StakeholderCollective.events.VoteCast.create_filter(
+                fromBlock=block_number, toBlock=latest_block.number
+            ).get_new_entries()
 
-        entries += StakeholderCollective.events.VoteCastWithParams.create_filter(
-            fromBlock=block_number, toBlock=latest_block.number
-        ).get_new_entries()
+            entries += StakeholderCollective.events.VoteCastWithParams.create_filter(
+                fromBlock=block_number, toBlock=latest_block.number
+            ).get_new_entries()
 
-        logging.info(f"len(entries)={len(entries)}")
+            logging.info(f"len(entries)={len(entries)}")
 
-        sorted_entries = sorted(entries, key=lambda entry: entry.blockNumber)
-        logging.info(f"sorted_entries={sorted_entries}")
+            sorted_entries = sorted(entries, key=lambda entry: entry.blockNumber)
+            logging.info(f"sorted_entries={sorted_entries}")
 
-        if len(entries) == 0:
-            continue
+            if len(entries) == 0:
+                continue
 
-        with Session(database.engine) as session:
-            for entry in sorted_entries:
-                logging.info(f"entry={entry}")
+            with Session(database.engine) as session:
+                for entry in sorted_entries:
+                    logging.info(f"entry={entry}")
 
-                if entry["event"] == "ProposalCreated":
-                    proposal_id = str(entry["args"]["proposalId"])
-                    proposer = entry["args"]["proposer"]
-                    description = entry["args"]["description"]
+                    if entry["event"] == "ProposalCreated":
+                        proposal_id = str(entry["args"]["proposalId"])
+                        proposer = entry["args"]["proposer"]
+                        description = entry["args"]["description"]
 
-                    new_stakeholder_proposal(
-                        session=session,
-                        contract_address=contract_address,
-                        proposal_id=proposal_id,
-                        proposer=proposer,
-                        title=f"Proposal {proposal_id}",
-                        description=description
-                    )
+                        new_stakeholder_proposal(
+                            session=session,
+                            contract_address=contract_address,
+                            proposal_id=proposal_id,
+                            proposer=proposer,
+                            title=f"Proposal {proposal_id}",
+                            description=description
+                        )
 
-                elif entry["event"] == "ProposalCanceled":
-                    proposal_id = str(entry["args"]["proposalId"])
+                    elif entry["event"] == "ProposalCanceled":
+                        proposal_id = str(entry["args"]["proposalId"])
 
-                    delete_stakeholder_proposal(
-                        session=session,
-                        contract_address=contract_address,
-                        proposal_id=proposal_id,
-                    )
+                        delete_stakeholder_proposal(
+                            session=session,
+                            contract_address=contract_address,
+                            proposal_id=proposal_id,
+                        )
 
-                elif entry["event"] == "ProposalExecuted":
-                    proposal_id = str(entry["args"]["proposalId"])
+                    elif entry["event"] == "ProposalExecuted":
+                        proposal_id = str(entry["args"]["proposalId"])
 
-                    execute_stakeholder_proposal(
-                        session=session,
-                        contract_address=contract_address,
-                        proposal_id=proposal_id,
-                    )
+                        execute_stakeholder_proposal(
+                            session=session,
+                            contract_address=contract_address,
+                            proposal_id=proposal_id,
+                        )
 
-                elif entry["event"] in ("VoteCast", "VoteCastWithParams"):
-                    proposal_id = str(entry["args"]["proposalId"])
-                    support = entry["args"]["support"]
-                    weight = entry["args"]["weight"]
+                    elif entry["event"] in ("VoteCast", "VoteCastWithParams"):
+                        proposal_id = str(entry["args"]["proposalId"])
+                        support = entry["args"]["support"]
+                        weight = entry["args"]["weight"]
 
-                    cast_vote_to_stakeholder_proposal(
-                        session=session,
-                        contract_address=contract_address,
-                        proposal_id=proposal_id,
-                        support=support,
-                        weight=weight
-                    )
+                        cast_vote_to_stakeholder_proposal(
+                            session=session,
+                            contract_address=contract_address,
+                            proposal_id=proposal_id,
+                            support=support,
+                            weight=weight
+                        )
 
-                session.commit()
+                    session.commit()
 
-            update_latest_block(
-                model=models.StakeholderCollective, symbol=symbol, value=latest_block.number
-            )
+                update_latest_block(
+                    model=models.StakeholderCollective, symbol=symbol, value=latest_block.number
+                )
 
         for [contract_address, block_number] in royalty_exchange_contracts:
             # get metadata
