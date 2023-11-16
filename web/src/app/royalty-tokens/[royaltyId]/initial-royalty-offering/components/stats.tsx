@@ -30,14 +30,13 @@ export default function Stats() {
       icon: <div></div>,
     },
     {
-      title: 'Offering price per RT',
-      value: offeringPrice.data ? `$${offeringPrice.data}` : undefined,
+      title: 'Offering price',
+      value: offeringPrice.data ? `1 RT = $${offeringPrice.data}` : undefined,
       icon: <div></div>,
     },
   ];
-
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-6">
       {stats.map((stat) => (
         <Card key={stat.title} {...stat} />
       ))}
