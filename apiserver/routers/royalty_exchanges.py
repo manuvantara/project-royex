@@ -1,3 +1,8 @@
+from typing import List, Optional
+
+from time import time
+import numpy as np
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from apiserver.routers.commune import TimeSeriesDataPoint, ValueIndicator
@@ -10,7 +15,9 @@ from apiserver.database import get_session
 from apiserver.routers.commune import Offer, ValueIndicator, TimeSeriesDataPoint
 
 from apiserver.database.models import (
-    RoyaltyExchange
+    RoyaltyExchange,
+    RoyaltyTokenSoldEvent,
+    RoyaltyTokenBoughtEvent,
 )
 
 router = APIRouter()
@@ -39,24 +46,50 @@ def get_contract_address(
 
 
 @router.get("/{royalty_token_symbol}/price")
-def get_price(royalty_token_symbol: str) -> ValueIndicator:
+def get_price(royalty_token_symbol: str, session: Session = Depends(get_session)) -> ValueIndicator:
+    current_timestamp = int(time())
+    hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
+    hour_prices = np.array([])
+
+    last_price = 0
+    for hour in hour_timestamps:
+        statement = select(RoyaltyTokenSoldEvent.block_timestamp, 
+                           RoyaltyTokenSoldEvent.updated_stablecoin_reserve, 
+                           RoyaltyTokenSoldEvent.updated_royalty_token_reserve).where(
+            RoyaltyTokenSoldEvent.contract_address == royalty_token_symbol,
+            RoyaltyTokenSoldEvent.block_timestamp <= int(hour),
+        ).order_by(RoyaltyTokenSoldEvent.block_timestamp.desc())
+
+        sold = session.exec(statement).first()
+
+        statement = select(RoyaltyTokenBoughtEvent.block_timestamp,
+                           RoyaltyTokenBoughtEvent.updated_stablecoin_reserve,
+                           RoyaltyTokenBoughtEvent.updated_royalty_token_reserve).where(
+            RoyaltyTokenBoughtEvent.contract_address == royalty_token_symbol,
+            RoyaltyTokenBoughtEvent.block_timestamp <= int(hour),
+        ).order_by(RoyaltyTokenBoughtEvent.block_timestamp.desc())
+
+        bought = session.exec(statement).first()
+
+        if sold and bought:
+            latest_operation = sold if sold.block_timestamp > bought.block_timestamp else bought
+            latest_price = latest_operation.updated_stablecoin_reserve / latest_operation.updated_royalty_token_reserve
+            hour_prices = np.append(hour_prices, latest_price)
+            last_price = latest_price
+        else:
+            hour_prices = np.append(hour_prices, last_price)
+
     return ValueIndicator(
-        current=TimeSeriesDataPoint(timestamp=100, value=543),
+        current=TimeSeriesDataPoint(
+            timestamp=hour_timestamps[0], value=hour_prices[0]
+        ),
         recent_values_dataset=[
-            TimeSeriesDataPoint(timestamp=90, value=234),
-            TimeSeriesDataPoint(timestamp=91, value=251),
-            TimeSeriesDataPoint(timestamp=92, value=250),
-            TimeSeriesDataPoint(timestamp=93, value=274),
-            TimeSeriesDataPoint(timestamp=94, value=312),
-            TimeSeriesDataPoint(timestamp=95, value=349),
-            TimeSeriesDataPoint(timestamp=96, value=378),
-            TimeSeriesDataPoint(timestamp=97, value=402),
-            TimeSeriesDataPoint(timestamp=98, value=427),
-            TimeSeriesDataPoint(timestamp=99, value=540),
+            TimeSeriesDataPoint(
+                timestamp=hour_timestamps[i], value=hour_prices[i]
+            )
+            for i in range(1, len(hour_prices))
         ],
     )
-
-
 @router.get("/{royalty_token_symbol}/trading-volume")
 def get_trading_volume(royalty_token_symbol: str) -> ValueIndicator:
     return ValueIndicator(

@@ -255,13 +255,13 @@ def update():
     logging.info("symbols fetched")
 
     for symbol in symbols:
-        #otc_market_contracts = fetch_contracts(model=models.OtcMarket, symbol=symbol)
-        #stakeholder_collective_contracts = fetch_contracts(model=models.StakeholderCollective, symbol=symbol)
+        otc_market_contracts = fetch_contracts(model=models.OtcMarket, symbol=symbol)
+        stakeholder_collective_contracts = fetch_contracts(model=models.StakeholderCollective, symbol=symbol)
         royalty_exchange_contracts = fetch_contracts(model=models.RoyaltyExchange, symbol=symbol)
 
         logging.info("contracts fetched")
 
-        """for [contract_address, block_number] in otc_market_contracts:
+        for [contract_address, block_number] in otc_market_contracts:
             # get metadata
             latest_block = w3.eth.get_block("latest")
 
@@ -439,7 +439,7 @@ def update():
 
             update_latest_block(
                 model=models.StakeholderCollective, symbol=symbol, value=latest_block.number
-            )"""
+            )
 
         for [contract_address, block_number] in royalty_exchange_contracts:
             # get metadata
