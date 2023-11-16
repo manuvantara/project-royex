@@ -44,20 +44,14 @@ const fakeStats = Array.from({ length: 4 }, (_) => ({
 export default function Page() {
   const { address } = useAccount();
 
-  const { data: privateRoyaltyTokens, isLoading: isLoadingPrivate } = usePortfoliosServicePortfoliosFetchPrivateRoyaltyTokens(
-    { stakeholderAddress: address! },
-    undefined,
-    {
+  const { data: privateRoyaltyTokens, isLoading: isLoadingPrivate } =
+    usePortfoliosServicePortfoliosFetchPrivateRoyaltyTokens({ stakeholderAddress: address! }, undefined, {
       enabled: !!address,
-    }
-  );
-  const { data: publicRoyaltyTokens, isLoading: isLoadingPublic } = usePortfoliosServicePortfoliosFetchPublicRoyaltyTokens(
-    { stakeholderAddress: address! },
-    undefined,
-    {
+    });
+  const { data: publicRoyaltyTokens, isLoading: isLoadingPublic } =
+    usePortfoliosServicePortfoliosFetchPublicRoyaltyTokens({ stakeholderAddress: address! }, undefined, {
       enabled: !!address,
-    }
-  );
+    });
 
   return (
     <div className="container">

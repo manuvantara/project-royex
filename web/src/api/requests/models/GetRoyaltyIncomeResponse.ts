@@ -8,4 +8,3 @@ export type GetRoyaltyIncomeResponse = {
   reported: ValueIndicator;
   deposited: ValueIndicator;
 };
-

@@ -8,4 +8,3 @@ export type ValueIndicator = {
   current: TimeSeriesDataPoint;
   recentValuesDataset?: Array<TimeSeriesDataPoint>;
 };
-

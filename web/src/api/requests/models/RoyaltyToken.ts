@@ -9,4 +9,3 @@ export type RoyaltyToken = {
   price?: ValueIndicator;
   depositedRoyaltyIncome?: ValueIndicator;
 };
-

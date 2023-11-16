@@ -8,21 +8,18 @@ import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 
 export class RoyaltyTokensService {
-
   /**
    * Get Contract Address
    * @param royaltyTokenSymbol
    * @returns string Successful Response
    * @throws ApiError
    */
-  public static getContractAddress(
-    royaltyTokenSymbol: string,
-  ): CancelablePromise<string> {
+  public static getContractAddress(royaltyTokenSymbol: string): CancelablePromise<string> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/royalty-tokens/{royalty_token_symbol}/contract-address',
       path: {
-        'royalty_token_symbol': royaltyTokenSymbol,
+        royalty_token_symbol: royaltyTokenSymbol,
       },
       errors: {
         422: `Validation Error`,
@@ -36,14 +33,12 @@ export class RoyaltyTokensService {
    * @returns RoyaltyToken Successful Response
    * @throws ApiError
    */
-  public static fetchPublic(
-    royaltyTokenSymbol: string,
-  ): CancelablePromise<Array<RoyaltyToken>> {
+  public static fetchPublic(royaltyTokenSymbol: string): CancelablePromise<Array<RoyaltyToken>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/royalty-tokens/{royalty_token_symbol}/public',
       path: {
-        'royalty_token_symbol': royaltyTokenSymbol,
+        royalty_token_symbol: royaltyTokenSymbol,
       },
       errors: {
         422: `Validation Error`,
@@ -57,19 +52,16 @@ export class RoyaltyTokensService {
    * @returns RoyaltyToken Successful Response
    * @throws ApiError
    */
-  public static fetchPrivate(
-    royaltyTokenSymbol: string,
-  ): CancelablePromise<Array<RoyaltyToken>> {
+  public static fetchPrivate(royaltyTokenSymbol: string): CancelablePromise<Array<RoyaltyToken>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/royalty-tokens/{royalty_token_symbol}/private',
       path: {
-        'royalty_token_symbol': royaltyTokenSymbol,
+        royalty_token_symbol: royaltyTokenSymbol,
       },
       errors: {
         422: `Validation Error`,
       },
     });
   }
-
 }

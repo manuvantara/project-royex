@@ -9,21 +9,18 @@ import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 
 export class CollectivesService {
-
   /**
    * Get Contract Address
    * @param royaltyTokenSymbol
    * @returns string Successful Response
    * @throws ApiError
    */
-  public static getContractAddress(
-    royaltyTokenSymbol: string,
-  ): CancelablePromise<string> {
+  public static getContractAddress(royaltyTokenSymbol: string): CancelablePromise<string> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/collectives/{royalty_token_symbol}/contract-address',
       path: {
-        'royalty_token_symbol': royaltyTokenSymbol,
+        royalty_token_symbol: royaltyTokenSymbol,
       },
       errors: {
         422: `Validation Error`,
@@ -37,14 +34,12 @@ export class CollectivesService {
    * @returns ProposalInfo Successful Response
    * @throws ApiError
    */
-  public static fetchProposals(
-    royaltyTokenSymbol: string,
-  ): CancelablePromise<Array<ProposalInfo>> {
+  public static fetchProposals(royaltyTokenSymbol: string): CancelablePromise<Array<ProposalInfo>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/collectives/{royalty_token_symbol}/proposals',
       path: {
-        'royalty_token_symbol': royaltyTokenSymbol,
+        royalty_token_symbol: royaltyTokenSymbol,
       },
       errors: {
         422: `Validation Error`,
@@ -59,21 +54,17 @@ export class CollectivesService {
    * @returns Proposal Successful Response
    * @throws ApiError
    */
-  public static getProposal(
-    royaltyTokenSymbol: string,
-    proposalId: string,
-  ): CancelablePromise<Proposal> {
+  public static getProposal(royaltyTokenSymbol: string, proposalId: string): CancelablePromise<Proposal> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/collectives/{royalty_token_symbol}/proposals/{proposal_id}',
       path: {
-        'royalty_token_symbol': royaltyTokenSymbol,
-        'proposal_id': proposalId,
+        royalty_token_symbol: royaltyTokenSymbol,
+        proposal_id: proposalId,
       },
       errors: {
         422: `Validation Error`,
       },
     });
   }
-
 }

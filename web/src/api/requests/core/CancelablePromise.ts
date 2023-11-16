@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export class CancelError extends Error {
-
   constructor(message: string) {
     super(message);
     this.name = 'CancelError';
@@ -31,11 +30,7 @@ export class CancelablePromise<T> implements Promise<T> {
   #reject?: (reason?: any) => void;
 
   constructor(
-    executor: (
-      resolve: (value: T | PromiseLike<T>) => void,
-      reject: (reason?: any) => void,
-      onCancel: OnCancel
-    ) => void
+    executor: (resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void, onCancel: OnCancel) => void
   ) {
     this.#isResolved = false;
     this.#isRejected = false;
@@ -84,9 +79,9 @@ export class CancelablePromise<T> implements Promise<T> {
     });
   }
 
-   get [Symbol.toStringTag]() {
-            return "Cancellable Promise";
-     }
+  get [Symbol.toStringTag]() {
+    return 'Cancellable Promise';
+  }
 
   public then<TResult1 = T, TResult2 = never>(
     onFulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null,

@@ -1,6 +1,6 @@
+import { OtcMarketsService } from '@/api/requests';
 import PageLayout from '../components/page-layout';
 import CreateOfferForm from './components/create-offer-form';
-import { OtcMarketsService } from '@/api/requests';
 
 export default async function Page({ params: { royaltyId } }: { params: { royaltyId: string } }) {
   const contractAddress = await OtcMarketsService.getContractAddress(royaltyId);

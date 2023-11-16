@@ -9,7 +9,6 @@ import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 
 export class ProtocolService {
-
   /**
    * Get Trading Volume
    * @returns GetTradingVolume Successful Response
@@ -33,5 +32,4 @@ export class ProtocolService {
       url: '/protocol/royalty-income',
     });
   }
-
 }

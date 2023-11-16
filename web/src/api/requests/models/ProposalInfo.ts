@@ -13,4 +13,3 @@ export type ProposalInfo = {
   votes: ProposalVotes;
   isExecuted: boolean;
 };
-

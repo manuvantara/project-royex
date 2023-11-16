@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useMounted } from '@/hooks/use-mounted';
 import { Card as UICard, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Skeleton } from './ui/skeleton';
-import { useMounted } from '@/hooks/use-mounted';
 
 type Props = {
   title?: string;

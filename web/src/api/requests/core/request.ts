@@ -56,7 +56,7 @@ const getQueryString = (params: Record<string, any>): string => {
   const process = (key: string, value: any) => {
     if (isDefined(value)) {
       if (Array.isArray(value)) {
-        value.forEach(v => {
+        value.forEach((v) => {
           process(key, v);
         });
       } else if (typeof value === 'object') {
@@ -115,7 +115,7 @@ const getFormData = (options: ApiRequestOptions): FormData | undefined => {
       .filter(([_, value]) => isDefined(value))
       .forEach(([key, value]) => {
         if (Array.isArray(value)) {
-          value.forEach(v => process(key, v));
+          value.forEach((v) => process(key, v));
         } else {
           process(key, value);
         }
@@ -147,10 +147,13 @@ const getHeaders = async (config: OpenAPIConfig, options: ApiRequestOptions): Pr
     ...options.headers,
   })
     .filter(([_, value]) => isDefined(value))
-    .reduce((headers, [key, value]) => ({
-      ...headers,
-      [key]: String(value),
-    }), {} as Record<string, string>);
+    .reduce(
+      (headers, [key, value]) => ({
+        ...headers,
+        [key]: String(value),
+      }),
+      {} as Record<string, string>
+    );
 
   if (isStringWithValue(token)) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -179,7 +182,7 @@ const getHeaders = async (config: OpenAPIConfig, options: ApiRequestOptions): Pr
 const getRequestBody = (options: ApiRequestOptions): any => {
   if (options.body !== undefined) {
     if (options.mediaType?.includes('/json')) {
-      return JSON.stringify(options.body)
+      return JSON.stringify(options.body);
     } else if (isString(options.body) || isBlob(options.body) || isFormData(options.body)) {
       return options.body;
     } else {
@@ -231,8 +234,8 @@ const getResponseBody = async (response: Response): Promise<any> => {
     try {
       const contentType = response.headers.get('Content-Type');
       if (contentType) {
-        const jsonTypes = ['application/json', 'application/problem+json']
-        const isJSON = jsonTypes.some(type => contentType.toLowerCase().startsWith(type));
+        const jsonTypes = ['application/json', 'application/problem+json'];
+        const isJSON = jsonTypes.some((type) => contentType.toLowerCase().startsWith(type));
         if (isJSON) {
           return await response.json();
         } else {
@@ -256,7 +259,7 @@ const catchErrorCodes = (options: ApiRequestOptions, result: ApiResult): void =>
     502: 'Bad Gateway',
     503: 'Service Unavailable',
     ...options.errors,
-  }
+  };
 
   const error = errors[result.status];
   if (error) {

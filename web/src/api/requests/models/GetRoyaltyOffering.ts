@@ -10,4 +10,3 @@ export type GetRoyaltyOffering = {
   royaltyTokenReserve: ValueIndicator;
   stablecoinReserve: ValueIndicator;
 };
-

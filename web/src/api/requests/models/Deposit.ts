@@ -7,4 +7,3 @@ export type Deposit = {
   checkpointKey: number;
   amount: number;
 };
-

@@ -7,4 +7,3 @@ export type Offer = {
   royaltyTokenAmount: number;
   stablecoinAmount: number;
 };
-

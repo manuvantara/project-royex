@@ -100,12 +100,12 @@ export default function RoyaltyPaymentsTable({ data }: Props) {
   });
 
   return (
-    <Card className='flex flex-col'>
+    <Card className="flex flex-col">
       <CardHeader>
         <CardTitle>Royalty Payments</CardTitle>
         <CardDescription>Manage your royalty.</CardDescription>
       </CardHeader>
-      <CardContent className='flex flex-col flex-1'>
+      <CardContent className="flex flex-1 flex-col">
         <div className="mb-4 flex items-center justify-between gap-4">
           <Input
             placeholder="Filter distributors..."
@@ -137,7 +137,7 @@ export default function RoyaltyPaymentsTable({ data }: Props) {
                 table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="[&:has([role=checkbox])]:pl-3 py-4">
+                      <TableCell key={cell.id} className="py-4 [&:has([role=checkbox])]:pl-3">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
@@ -153,7 +153,7 @@ export default function RoyaltyPaymentsTable({ data }: Props) {
             </TableBody>
           </Table>
         </div>
-        <div className="flex items-center justify-end space-x-2 pt-4 mt-auto">
+        <div className="mt-auto flex items-center justify-end space-x-2 pt-4">
           <div className="flex-1 text-sm text-muted-foreground">
             {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
             selected.

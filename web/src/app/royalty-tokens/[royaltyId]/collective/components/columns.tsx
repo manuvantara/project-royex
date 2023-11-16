@@ -8,7 +8,7 @@ import { DataTableColumnHeader } from './data-table-column-header';
 export const columns: ColumnDef<ShortenProposal>[] = [
   {
     accessorKey: 'title',
-    header: () => <div className='text-xs'>Title</div>,
+    header: () => <div className="text-xs">Title</div>,
     cell: ({ row }) => {
       return (
         <div className="flex flex-col">

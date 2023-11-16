@@ -4,8 +4,8 @@ import './globals.css';
 import { Toaster } from 'sonner';
 import Footer from '@/components/footer';
 import Header from '@/components/header';
+import { siteConfig } from '@/config/site';
 import { cn } from '@/lib/utils';
-import { siteConfig } from '../config/site';
 import Providers from './providers';
 
 const sans = FontSans({ subsets: ['latin'], variable: '--font-sans' });

@@ -9,21 +9,18 @@ import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 
 export class RoyaltyPaymentPoolsService {
-
   /**
    * Get Contract Address
    * @param royaltyTokenSymbol
    * @returns string Successful Response
    * @throws ApiError
    */
-  public static getContractAddress(
-    royaltyTokenSymbol: string,
-  ): CancelablePromise<string> {
+  public static getContractAddress(royaltyTokenSymbol: string): CancelablePromise<string> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/royalty-payment-pools/{royalty_token_symbol}/contract-address',
       path: {
-        'royalty_token_symbol': royaltyTokenSymbol,
+        royalty_token_symbol: royaltyTokenSymbol,
       },
       errors: {
         422: `Validation Error`,
@@ -37,14 +34,12 @@ export class RoyaltyPaymentPoolsService {
    * @returns GetRoyaltyIncomeResponse Successful Response
    * @throws ApiError
    */
-  public static getRoyaltyIncome(
-    royaltyTokenSymbol: string,
-  ): CancelablePromise<GetRoyaltyIncomeResponse> {
+  public static getRoyaltyIncome(royaltyTokenSymbol: string): CancelablePromise<GetRoyaltyIncomeResponse> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/royalty-payment-pools/{royalty_token_symbol}/royalty-income',
       path: {
-        'royalty_token_symbol': royaltyTokenSymbol,
+        royalty_token_symbol: royaltyTokenSymbol,
       },
       errors: {
         422: `Validation Error`,
@@ -58,19 +53,16 @@ export class RoyaltyPaymentPoolsService {
    * @returns Deposit Successful Response
    * @throws ApiError
    */
-  public static fetchDeposits(
-    royaltyTokenSymbol: string,
-  ): CancelablePromise<Array<Deposit>> {
+  public static fetchDeposits(royaltyTokenSymbol: string): CancelablePromise<Array<Deposit>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/royalty-payment-pools/{royalty_token_symbol}/deposits',
       path: {
-        'royalty_token_symbol': royaltyTokenSymbol,
+        royalty_token_symbol: royaltyTokenSymbol,
       },
       errors: {
         422: `Validation Error`,
       },
     });
   }
-
 }
