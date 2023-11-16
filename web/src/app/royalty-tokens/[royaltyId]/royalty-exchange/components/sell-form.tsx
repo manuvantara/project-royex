@@ -59,6 +59,7 @@ export default function SellForm() {
     priceSlippage: 0,
   });
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const sell = useContractWrite({
     address: ROYALTY_EXCHANGE_ADDRESS,
@@ -98,6 +99,8 @@ export default function SellForm() {
 
   async function handleSell(sellConfig: BuyConfig) {
     try {
+      setIsLoading(true);
+
       // approve royalty token amount
       const approveRoyaltyTokenAmountResult = await approveRoyaltyTokens.writeAsync({
         args: [ROYALTY_EXCHANGE_ADDRESS, sellConfig.royaltyTokenAmount],
@@ -117,6 +120,8 @@ export default function SellForm() {
       toast.success(`${roundUpEther(formatEther(sellConfig.royaltyTokenAmount))} royalty token(s) sold`);
     } catch (error: any) {
       toast.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -160,7 +165,9 @@ export default function SellForm() {
             />
           </CardContent>
           <CardFooter className="grid grid-cols-2 gap-4">
-            <Button type="submit">Sell</Button>
+            <Button type="submit" disabled={isLoading}>
+              Sell
+            </Button>
           </CardFooter>
           <AlertDialog onOpenChange={setOpen} open={open}>
             <AlertDialogContent>
@@ -192,7 +199,9 @@ export default function SellForm() {
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => handleSell(sellConfig)}
-                  disabled={!sellConfig.desiredStablecoinAmount || !sellConfig.minStablecoinAmount || !isConnected}
+                  disabled={
+                    !sellConfig.desiredStablecoinAmount || !sellConfig.minStablecoinAmount || !isConnected || isLoading
+                  }
                 >
                   Continue
                 </AlertDialogAction>
