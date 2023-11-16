@@ -1,3 +1,5 @@
+'use client';
+
 import { formatEther } from 'viem';
 import { useContractRead } from 'wagmi';
 import Card from '@/components/card';

@@ -1,9 +1,12 @@
 import PageLayout from '../components/page-layout';
 import CreateOfferForm from './components/create-offer-form';
+import { OtcMarketsService } from '@/api/requests';
 
-export default function Page() {
+export default async function Page({ params: { royaltyId } }: { params: { royaltyId: string } }) {
+  const contractAddress = await OtcMarketsService.getContractAddress(royaltyId);
+
   return (
-    <PageLayout contractAddress="0x">
+    <PageLayout contractAddress={contractAddress}>
       <div className="my-8 rounded-md border p-6">
         <div className="space-y-1.5 p-6 ">
           <h1 className="font-semibold">Royalty Exchange</h1>
