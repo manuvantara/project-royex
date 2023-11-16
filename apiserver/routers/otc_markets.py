@@ -51,26 +51,21 @@ def get_floor_price(
     hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
     hour_prices = np.array([])
 
-    otc_market = (
-        session.query(OtcMarket)
-        .where(OtcMarket.royalty_token_symbol == royalty_token_symbol)
-        .one()
-    )  # For last 24 hours
+    statement = select(OtcMarket).where(OtcMarket.royalty_token_symbol == royalty_token_symbol) # For last 24 hours
+    otc_market = session.exec(statement).first()
 
     last_price = 0
     for hour in hour_timestamps:
-        latest_price = (
-            session.query(
+        statement = select(
                 OtcMarketFloorPriceChangedEvent.block_timestamp,
                 OtcMarketFloorPriceChangedEvent.floor_price,
-            )
-            .where(
+            ).where(
                 OtcMarketFloorPriceChangedEvent.contract_address
                 == otc_market.contract_address,
                 OtcMarketFloorPriceChangedEvent.block_timestamp <= int(hour),
-            )
-            .order_by(OtcMarketFloorPriceChangedEvent.block_timestamp.desc())
-        ).first()
+            ).order_by(OtcMarketFloorPriceChangedEvent.block_timestamp.desc())
+        
+        latest_price = session.exec(statement).first()
 
         if latest_price:
             hour_prices = np.append(hour_prices, latest_price.floor_price)
@@ -99,28 +94,23 @@ def get_trading_volume(
     hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
     hour_volumes = np.array([])
 
-    otc_market = (
-        session.query(OtcMarket)
-        .where(OtcMarket.royalty_token_symbol == royalty_token_symbol)
-        .one()
-    )
+    statement = select(OtcMarket).where(OtcMarket.royalty_token_symbol == royalty_token_symbol)
+    otc_market = session.exec(statement).first()
 
     last_volume = 0
     for hour in hour_timestamps:
-        latest_volume = (
-            session.query(
+        statement = select(
                 OtcMarketOfferAcceptedEvent.block_timestamp,
                 OtcMarketOfferAcceptedEvent.stablecoin_amount,
-            )
-            .where(
+            ).where(
                 OtcMarketOfferAcceptedEvent.contract_address
                 == otc_market.contract_address,
                 OtcMarketOfferAcceptedEvent.block_timestamp <= int(hour)
-            )
-            .order_by(OtcMarketOfferAcceptedEvent.block_timestamp.desc())
-        )
+            ).order_by(OtcMarketOfferAcceptedEvent.block_timestamp.desc())
+        
+        latest_volume = session.exec(statement)
 
-        if latest_volume.count() > 0:
+        if len(latest_volume.all()) > 0:
             volume_sum = sum([stablecoin_amount for _, stablecoin_amount in latest_volume])
             hour_volumes = np.append(hour_volumes, volume_sum)
             last_volume = volume_sum
@@ -144,14 +134,11 @@ def get_trading_volume(
 def fetch_offers(
     *, royalty_token_symbol: str, session: Session = Depends(get_session)
 ) -> List[Offer]:
-    otc_market = (
-        session.query(OtcMarket)
-        .where(OtcMarket.royalty_token_symbol == royalty_token_symbol)
-        .one()
-    )
-    offers = session.query(OtcMarketOffer).where(
-        OtcMarketOffer.contract_address == otc_market.contract_address
-    )
+    statement = select(OtcMarket).where(OtcMarket.royalty_token_symbol == royalty_token_symbol)
+    otc_market = session.exec(statement).one()
+
+    statement = select(OtcMarketOffer).where(OtcMarketOffer.contract_address == otc_market.contract_address)
+    offers = session.exec(statement)
 
     return [
         Offer(
