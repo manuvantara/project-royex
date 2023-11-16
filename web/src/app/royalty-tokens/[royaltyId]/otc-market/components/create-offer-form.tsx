@@ -9,23 +9,21 @@ import { useContractWrite, usePublicClient, useAccount } from 'wagmi';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useMounted } from '@/hooks/use-mounted';
 import { OTC_MARKET_ABI, OTC_MARKET_ADDRESS } from '@/lib/abi/otc-market';
 import { ROYALTY_TOKEN_ABI, ROYALTY_TOKEN_ADDRESS } from '@/lib/abi/royalty-token';
 
 const formSchema = z.object({
-  royaltyTokens: z.coerce.number().positive({
-    message: 'Royalty tokens must be > 0',
-  }),
-  stablecoins: z.coerce.number().positive({
-    message: 'Stablecoins must be > 0',
-  }),
+  royaltyTokens: z.coerce.number().positive(),
+  stablecoins: z.coerce.number().positive(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 export default function CreateOfferForm() {
+  const isMounted = useMounted();
   const publicClient = usePublicClient();
   const { isConnected } = useAccount();
 
@@ -88,7 +86,7 @@ export default function CreateOfferForm() {
       await publicClient.waitForTransactionReceipt({
         hash: approveRoyaltyTokenAmountResult.hash,
       });
-      toast.success(`${values.royaltyTokens} royalty tokens approved`);
+      toast.success(`${values.royaltyTokens} royalty token(s) approved`);
 
       // create offer
       const createOfferResult = await createOffer.writeAsync({
@@ -153,8 +151,9 @@ export default function CreateOfferForm() {
                 <FormItem>
                   <FormLabel>Royalty Tokens</FormLabel>
                   <FormControl>
-                    <Input placeholder="Amount of royalty tokens to sell" {...field} />
+                    <Input placeholder="1" {...field} />
                   </FormControl>
+                  <FormDescription>The amount of royalty tokens to sell.</FormDescription>
                 </FormItem>
               )}
             />
@@ -165,14 +164,15 @@ export default function CreateOfferForm() {
                 <FormItem>
                   <FormLabel>Stablecoins $</FormLabel>
                   <FormControl>
-                    <Input placeholder="Amount of stablecoins to receive" {...field} />
+                    <Input placeholder="5" {...field} />
                   </FormControl>
+                  <FormDescription>Total stablecoin amount you want a buyer to pay.</FormDescription>
                 </FormItem>
               )}
             />
           </CardContent>
           <CardFooter className="grid grid-cols-2 gap-4">
-            <Button type="submit" disabled={!isConnected || isLoading}>
+            <Button type="submit" disabled={isMounted && (!isConnected || isLoading)}>
               Create offer
             </Button>
           </CardFooter>

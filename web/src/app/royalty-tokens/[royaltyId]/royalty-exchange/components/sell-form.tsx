@@ -22,6 +22,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useMounted } from '@/hooks/use-mounted';
 import { ROYALTY_EXCHANGE_ABI, ROYALTY_EXCHANGE_ADDRESS } from '@/lib/abi/royalty-exchange';
 import { ROYALTY_TOKEN_ABI, ROYALTY_TOKEN_ADDRESS } from '@/lib/abi/royalty-token';
 import calculateStablecoinAmount from '@/lib/helpers/calculate-stablecoin-amount';
@@ -41,6 +42,7 @@ type BuyConfig = {
 };
 
 export default function SellForm() {
+  const isMounted = useMounted();
   const publicClient = usePublicClient();
   const { isConnected } = useAccount();
 
@@ -92,8 +94,8 @@ export default function SellForm() {
       });
 
       setOpen(true);
-    } catch (error) {
-      toast.error('You have exceeded reserves. Try with a smaller value.');
+    } catch (error: any) {
+      toast.error(error.message);
     }
   }
 
@@ -200,7 +202,11 @@ export default function SellForm() {
                 <AlertDialogAction
                   onClick={() => handleSell(sellConfig)}
                   disabled={
-                    !sellConfig.desiredStablecoinAmount || !sellConfig.minStablecoinAmount || !isConnected || isLoading
+                    isMounted &&
+                    (!sellConfig.desiredStablecoinAmount ||
+                      !sellConfig.minStablecoinAmount ||
+                      !isConnected ||
+                      isLoading)
                   }
                 >
                   Continue

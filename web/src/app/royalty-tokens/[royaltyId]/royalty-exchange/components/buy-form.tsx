@@ -22,6 +22,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useMounted } from '@/hooks/use-mounted';
 import { ROYALTY_EXCHANGE_ABI, ROYALTY_EXCHANGE_ADDRESS } from '@/lib/abi/royalty-exchange';
 import { STABLECOIN_ABI, STABLECOIN_ADDRESS } from '@/lib/abi/stablecoin';
 import calculateStablecoinAmount from '@/lib/helpers/calculate-stablecoin-amount';
@@ -41,6 +42,7 @@ type BuyConfig = {
 };
 
 export default function BuyForm() {
+  const isMounted = useMounted();
   const publicClient = usePublicClient();
   const { isConnected } = useAccount();
 
@@ -108,7 +110,7 @@ export default function BuyForm() {
       await publicClient.waitForTransactionReceipt({
         hash: approveStablecoinsResult.hash,
       });
-      toast.success(`Approved ${roundUpEther(formatEther(buyConfig.maxStablecoinAmount))} stablecoins.`);
+      toast.success(`Approved ${roundUpEther(formatEther(buyConfig.maxStablecoinAmount))} stablecoin(s).`);
 
       // buy royalty token amount
       const buyResult = await buy.writeAsync({
@@ -199,7 +201,9 @@ export default function BuyForm() {
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => handleBuy(buyConfig)}
-                  disabled={!buyConfig.desiredStablecoinAmount || !buyConfig.maxStablecoinAmount || !isConnected}
+                  disabled={
+                    isMounted && (!buyConfig.desiredStablecoinAmount || !buyConfig.maxStablecoinAmount || !isConnected)
+                  }
                 >
                   Continue
                 </AlertDialogAction>

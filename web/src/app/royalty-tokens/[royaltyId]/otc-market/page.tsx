@@ -9,7 +9,7 @@ export default async function Page({ params: { royaltyId } }: { params: { royalt
     <PageLayout contractAddress={contractAddress}>
       <div className="my-8 rounded-md border p-6">
         <div className="space-y-1.5 p-6 ">
-          <h1 className="font-semibold">Royalty Exchange</h1>
+          <h1 className="font-semibold">OTC Market</h1>
           <p className="max-w-sm text-sm text-muted-foreground">
             Over-the-counter Market is a decentralized market in which stakeholders trade p2p with each other.
           </p>
