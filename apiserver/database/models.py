@@ -89,6 +89,25 @@ class OtcMarketOfferAcceptedEvent(EventBase, table=True):
     class Config:
         arbitrary_types_allowed = True
 
+class RoyaltyTokenEvent(EventBase):
+    trader: constr(max_length=42)
+    royalty_token_amount: condecimal(max_digits=78, decimal_places=0)
+    stablecoin_amount: condecimal(max_digits=78, decimal_places=0)
+    updated_royalty_token_reserve: condecimal(max_digits=78, decimal_places=0)
+    updated_stablecoin_reserve: condecimal(max_digits=78, decimal_places=0)
+
+class RoyaltyTokenSoldEvent(RoyaltyTokenEvent, table=True):
+    __tablename__ = "royalty_token_sold_events"
+
+    class Config:
+        arbitrary_types_allowed = True
+
+class RoyaltyTokenBoughtEvent(RoyaltyTokenEvent, table=True):
+    __tablename__ = "royalty_token_bought_events"
+
+    class Config:
+        arbitrary_types_allowed = True
+
 
 class InitialRoyaltyOffering(ContractBase, table=True):
     __tablename__ = "initial_royalty_offerings"

@@ -1,13 +1,41 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 
 from apiserver.routers.commune import TimeSeriesDataPoint, ValueIndicator
+
+from sqlalchemy import exc
+from sqlmodel import Session, select
+
+from apiserver.database import get_session
+
+from apiserver.routers.commune import Offer, ValueIndicator, TimeSeriesDataPoint
+
+from apiserver.database.models import (
+    RoyaltyExchange
+)
 
 router = APIRouter()
 
 
 @router.get("/{royalty_token_symbol}/contract-address")
-def get_contract_address(royalty_token_symbol: str) -> str:  # address
-    return "0xEC9273ed41AfE1A7ac1c3A039e6f0B3a57F8A4517"
+def get_contract_address(
+    *,
+    royalty_token_symbol: str,
+    session: Session = Depends(get_session)
+) -> str:  # address
+    statement = select(RoyaltyExchange).where(
+        RoyaltyExchange.royalty_token_symbol == royalty_token_symbol
+    )
+    results = session.exec(statement)
+
+    try:
+        royalty_token = results.one()
+    except exc.NoResultFound:
+        raise HTTPException(
+            status_code=404,
+            detail="Royalty Exchange Not Found",
+        )
+
+    return royalty_token.contract_address
 
 
 @router.get("/{royalty_token_symbol}/price")

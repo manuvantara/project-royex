@@ -84,3 +84,29 @@ CREATE TABLE royalty_exchanges (
   royalty_token_symbol CHAR(11) REFERENCES royalty_tokens(symbol),
   latest_block_number BIGINT DEFAULT 0 NOT NULL
 );
+
+CREATE TABLE royalty_token_sold_events (
+  contract_address CHAR(42),
+  block_timestamp BIGINT,
+  trader CHAR(42),
+  royalty_token_amount BIGINT NOT NULL,
+  stablecoin_amount BIGINT NOT NULL,
+  updated_royalty_token_reserve BIGINT NOT NULL,
+  updated_stablecoin_reserve BIGINT NOT NULL,
+
+  PRIMARY KEY (contract_address, block_timestamp),
+  FOREIGN KEY (contract_address) REFERENCES royalty_exchanges(contract_address)
+);
+
+CREATE TABLE royalty_token_bought_events (
+  contract_address CHAR(42),
+  block_timestamp BIGINT,
+  trader CHAR(42),
+  royalty_token_amount BIGINT NOT NULL,
+  stablecoin_amount BIGINT NOT NULL,
+  updated_royalty_token_reserve BIGINT NOT NULL,
+  updated_stablecoin_reserve BIGINT NOT NULL,
+
+  PRIMARY KEY (contract_address, block_timestamp),
+  FOREIGN KEY (contract_address) REFERENCES royalty_exchanges(contract_address)
+);

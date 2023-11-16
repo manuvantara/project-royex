@@ -6,7 +6,7 @@ logging.basicConfig(
 
 import time
 
-from typing import List, Tuple
+from typing import List, Tuple, Type
 
 from sqlmodel import Session, select
 
@@ -224,6 +224,30 @@ def cast_vote_to_stakeholder_proposal(*, session: Session, contract_address: str
     
     session.add(proposal)
 
+def new_royalty_token_operation(
+    *,
+    session: Session,
+    contract_address: str,
+    trader: str,
+    royalty_token_amount: int,
+    stablecoin_amount: int,
+    updated_royalty_token_reserve: int,
+    updated_stablecoin_reserve: int,
+    block_timestamp: int,
+    model: Type[models.RoyaltyTokenEvent]
+):
+    royalty_token_bought_event = model(
+        contract_address=contract_address,
+        trader=trader,
+        royalty_token_amount=royalty_token_amount // 10**18,
+        stablecoin_amount=stablecoin_amount // 10**18,
+        updated_royalty_token_reserve=updated_royalty_token_reserve // 10**18,
+        updated_stablecoin_reserve=updated_stablecoin_reserve // 10**18,
+        block_timestamp=block_timestamp,
+    )
+
+    session.add(royalty_token_bought_event)
+
 
 def update():
     symbols = fetch_symbols()
@@ -231,12 +255,13 @@ def update():
     logging.info("symbols fetched")
 
     for symbol in symbols:
-        otc_market_contracts = fetch_contracts(model=models.OtcMarket, symbol=symbol)
-        stakeholder_collective_contracts = fetch_contracts(model=models.StakeholderCollective, symbol=symbol)
+        #otc_market_contracts = fetch_contracts(model=models.OtcMarket, symbol=symbol)
+        #stakeholder_collective_contracts = fetch_contracts(model=models.StakeholderCollective, symbol=symbol)
+        royalty_exchange_contracts = fetch_contracts(model=models.RoyaltyExchange, symbol=symbol)
 
         logging.info("contracts fetched")
 
-        for [contract_address, block_number] in otc_market_contracts:
+        """for [contract_address, block_number] in otc_market_contracts:
             # get metadata
             latest_block = w3.eth.get_block("latest")
 
@@ -364,7 +389,6 @@ def update():
         with Session(database.engine) as session:
             for entry in sorted_entries:
                 logging.info(f"entry={entry}")
-                block = w3.eth.get_block(entry["blockNumber"])
 
                 if entry["event"] == "ProposalCreated":
                     proposal_id = str(entry["args"]["proposalId"])
@@ -415,6 +439,61 @@ def update():
 
             update_latest_block(
                 model=models.StakeholderCollective, symbol=symbol, value=latest_block.number
+            )"""
+
+        for [contract_address, block_number] in royalty_exchange_contracts:
+            # get metadata
+            latest_block = w3.eth.get_block("latest")
+
+            logging.info(f"block_number={block_number}")
+            logging.info(f"latest_block_number={latest_block.number}")
+
+            entries = []
+
+            RoyaltyExchange = w3.eth.contract(address=contract_address, abi=abis.RoyaltyExchange)	
+
+            entries += RoyaltyExchange.events.RoyaltyTokenBought.create_filter(
+                fromBlock=block_number, toBlock=latest_block.number
+            ).get_new_entries()
+
+            entries += RoyaltyExchange.events.RoyaltyTokenSold.create_filter(
+                fromBlock=block_number, toBlock=latest_block.number
+            ).get_new_entries()
+
+            logging.info(f"len(entries)={len(entries)}")
+
+            sorted_entries = sorted(entries, key=lambda entry: entry.blockNumber)
+            logging.info(f"sorted_entries={sorted_entries}")
+
+            if len(entries) == 0:
+                continue
+
+            with Session(database.engine) as session:
+                for entry in sorted_entries:
+                    logging.info(f"entry={entry}")
+
+                    trader = entry["args"]["trader"]
+                    royalty_token_amount = entry["args"]["royaltyTokenAmount"]
+                    stablecoin_amount = entry["args"]["stablecoinAmount"]
+                    updated_royalty_token_reserve = entry["args"]["updatedRoyaltyTokenReserve"]
+                    updated_stablecoin_reserve = entry["args"]["updatedStablecoinReserve"]
+
+                    new_royalty_token_operation(
+                        session=session,
+                        contract_address=contract_address,
+                        trader=trader,
+                        royalty_token_amount=royalty_token_amount,
+                        stablecoin_amount=stablecoin_amount,
+                        updated_royalty_token_reserve=updated_royalty_token_reserve,
+                        updated_stablecoin_reserve=updated_stablecoin_reserve,
+                        block_timestamp=entry["blockNumber"],
+                        model=models.RoyaltyTokenBoughtEvent if entry["event"] == "RoyaltyTokenBought" else models.RoyaltyTokenSoldEvent
+                    )
+
+                    session.commit()
+
+            update_latest_block(
+                model=models.RoyaltyExchange, symbol=symbol, value=latest_block.number
             )
 
 
