@@ -1,16 +1,11 @@
 'use client';
 
 import { ResponsiveContainer, LineChart, Line, Tooltip, XAxis } from 'recharts';
-import { formatEther } from 'viem';
-import { useContractRead } from 'wagmi';
 import { useRoyaltyExchangesServiceRoyaltyExchangesGetPrice } from '@/api/queries';
-import Card from '@/components/card';
 import { Card as UICard, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ROYALTY_EXCHANGE_ABI, ROYALTY_EXCHANGE_ADDRESS } from '@/lib/abi/royalty-exchange';
-import roundUpEther from '@/lib/helpers/round-up-ether';
+import { ROYALTY_EXCHANGE_ADDRESS } from '@/lib/abi/royalty-exchange';
 import PageLayout from '../components/page-layout';
-import BuyForm from './components/buy-form';
-import SellForm from './components/sell-form';
+import Exchanger from './components/exchanger';
 
 export default function Page({ params }: { params: { royaltyId: string } }) {
   const { data } = useRoyaltyExchangesServiceRoyaltyExchangesGetPrice({ royaltyId: params.royaltyId });
@@ -35,41 +30,6 @@ export default function Page({ params }: { params: { royaltyId: string } }) {
         },
       ]
     : [];
-
-  const royaltyTokenReserve = useContractRead({
-    address: ROYALTY_EXCHANGE_ADDRESS,
-    abi: ROYALTY_EXCHANGE_ABI,
-    functionName: 'royaltyTokenReserve',
-    watch: true,
-  });
-
-  const stablecoinReserve = useContractRead({
-    address: ROYALTY_EXCHANGE_ADDRESS,
-    abi: ROYALTY_EXCHANGE_ABI,
-    functionName: 'stablecoinReserve',
-    watch: true,
-  });
-
-  const stats = [
-    {
-      title: 'Royalty Token Reserve',
-      value: royaltyTokenReserve.data ? roundUpEther(formatEther(royaltyTokenReserve.data)) : undefined,
-      icon: <div></div>,
-    },
-    {
-      title: 'Stablecoin Reserve',
-      value: stablecoinReserve.data ? `$${roundUpEther(formatEther(stablecoinReserve.data))}` : undefined,
-      icon: <div></div>,
-    },
-    {
-      title: 'Price',
-      value:
-        royaltyTokenReserve.data && stablecoinReserve.data
-          ? `1 RT = $${stablecoinReserve.data / royaltyTokenReserve.data}`
-          : undefined, // TODO: use some library to have precise division
-      icon: <div></div>,
-    },
-  ];
 
   return (
     <PageLayout contractAddress={ROYALTY_EXCHANGE_ADDRESS}>
@@ -133,26 +93,7 @@ export default function Page({ params }: { params: { royaltyId: string } }) {
           </CardContent>
         </UICard>
       </div>
-      <div className="rounded-md border p-6">
-        <div className="space-y-1.5 p-6 ">
-          <h1 className="font-semibold">Royalty Exchange</h1>
-          <p className="max-w-sm text-sm text-muted-foreground">
-            Powered by AMM, Royalty Exchange gives you an opportunity to trade royalty tokens at a price determined by
-            the market rate.
-          </p>
-        </div>
-        <div className="mt-8 grid grid-cols-3 gap-6">
-          <div className="col-span-2 grid grid-cols-2 gap-6">
-            <BuyForm />
-            <SellForm />
-          </div>
-          <div className="grid gap-6">
-            {stats.map((stat) => (
-              <Card key={stat.title} {...stat} />
-            ))}
-          </div>
-        </div>
-      </div>
+      <Exchanger />
     </PageLayout>
   );
 }
