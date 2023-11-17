@@ -279,7 +279,7 @@ describe("RoyaltyPaymentPool", function () {
           ),
         )
           .to.emit(royaltyPaymentPool, "RoyaltiesDeposited")
-          .withArgs(distributor.address, DEPOSIT_AMOUNT);
+          .withArgs(distributor.address, DEPOSIT_AMOUNT, 1n);
       });
 
       it("should update balances", async function () {
