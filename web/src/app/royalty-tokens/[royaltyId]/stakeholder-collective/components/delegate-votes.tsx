@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ROYALTY_TOKEN_ABI, ROYALTY_TOKEN_ADDRESS } from '@/config/contracts';
 import { Explorers } from '@/config/explorers';
-import { ROYALTY_TOKEN_ABI, ROYALTY_TOKEN_ADDRESS } from '@/lib/abi/royalty-token';
 
 export default function DelegateVotes() {
   const [open, setOpen] = useState(false);

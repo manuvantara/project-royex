@@ -22,12 +22,12 @@ const links = [
     href: 'royalty-exchange',
   },
   {
-    name: 'Royalty Payments Pool',
-    href: 'royalty-payments-pool',
+    name: 'Royalty Payment Pool',
+    href: 'royalty-payment-pool',
   },
   {
-    name: 'Collective',
-    href: 'collective',
+    name: 'Stakeholder Collective',
+    href: 'stakeholder-collective',
   },
 ];
 
