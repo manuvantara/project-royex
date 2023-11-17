@@ -22,9 +22,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  INITIAL_ROYALTY_OFFERING_ABI,
+  INITIAL_ROYALTY_OFFERING_ADDRESS,
+  STABLECOIN_ABI,
+  STABLECOIN_ADDRESS,
+} from '@/config/contracts';
 import { useMounted } from '@/hooks/use-mounted';
-import { IRO_ABI, IRO_ADDRESS } from '@/lib/abi/iro';
-import { STABLECOIN_ABI, STABLECOIN_ADDRESS } from '@/lib/abi/stablecoin';
 
 const formSchema = z.object({
   royaltyTokens: z.coerce.number().positive(),
@@ -54,14 +58,14 @@ export default function IroForm() {
   });
 
   const buy = useContractWrite({
-    address: IRO_ADDRESS,
-    abi: IRO_ABI,
+    address: INITIAL_ROYALTY_OFFERING_ADDRESS,
+    abi: INITIAL_ROYALTY_OFFERING_ABI,
     functionName: 'buy',
   });
 
   const offeringPrice = useContractRead({
-    address: IRO_ADDRESS,
-    abi: IRO_ABI,
+    address: INITIAL_ROYALTY_OFFERING_ADDRESS,
+    abi: INITIAL_ROYALTY_OFFERING_ABI,
     functionName: 'offeringPrice',
   });
 
@@ -78,7 +82,7 @@ export default function IroForm() {
 
       // approve stablecoins
       const approveStablecoinsResult = await approveStablecoins.writeAsync({
-        args: [IRO_ADDRESS, stablecoinAmount],
+        args: [INITIAL_ROYALTY_OFFERING_ADDRESS, stablecoinAmount],
       });
       await publicClient.waitForTransactionReceipt({
         hash: approveStablecoinsResult.hash,

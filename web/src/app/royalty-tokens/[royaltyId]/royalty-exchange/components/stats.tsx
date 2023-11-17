@@ -3,7 +3,7 @@
 import { formatEther } from 'viem';
 import { useContractRead } from 'wagmi';
 import Card from '@/components/card';
-import { ROYALTY_EXCHANGE_ABI, ROYALTY_EXCHANGE_ADDRESS } from '@/lib/abi/royalty-exchange';
+import { ROYALTY_EXCHANGE_ABI, ROYALTY_EXCHANGE_ADDRESS } from '@/config/contracts';
 import roundUpEther from '@/lib/helpers/round-up-ether';
 
 export default function Stats() {
@@ -36,7 +36,9 @@ export default function Stats() {
       title: 'Price',
       value:
         royaltyTokenReserve.data && stablecoinReserve.data
-          ? `1 RT = $${stablecoinReserve.data / royaltyTokenReserve.data}`
+          ? `1 RT = $${roundUpEther(
+              (Number(formatEther(stablecoinReserve.data)) / Number(formatEther(royaltyTokenReserve.data))).toString()
+            )}`
           : undefined, // TODO: use some library to have precise division
       icon: <div></div>,
     },

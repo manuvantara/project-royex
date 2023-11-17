@@ -3,8 +3,12 @@
 import { formatEther } from 'viem';
 import { useContractRead } from 'wagmi';
 import Card from '@/components/card';
-import { IRO_ABI, IRO_ADDRESS } from '@/lib/abi/iro';
-import { ROYALTY_TOKEN_ABI, ROYALTY_TOKEN_ADDRESS } from '@/lib/abi/royalty-token';
+import {
+  INITIAL_ROYALTY_OFFERING_ABI,
+  INITIAL_ROYALTY_OFFERING_ADDRESS,
+  ROYALTY_TOKEN_ABI,
+  ROYALTY_TOKEN_ADDRESS,
+} from '@/config/contracts';
 import roundUpEther from '@/lib/helpers/round-up-ether';
 
 export default function Stats() {
@@ -12,13 +16,13 @@ export default function Stats() {
     address: ROYALTY_TOKEN_ADDRESS,
     abi: ROYALTY_TOKEN_ABI,
     functionName: 'balanceOf',
-    args: [IRO_ADDRESS],
+    args: [INITIAL_ROYALTY_OFFERING_ADDRESS],
     watch: true,
   });
 
   const offeringPrice = useContractRead({
-    address: IRO_ADDRESS,
-    abi: IRO_ABI,
+    address: INITIAL_ROYALTY_OFFERING_ADDRESS,
+    abi: INITIAL_ROYALTY_OFFERING_ABI,
     functionName: 'offeringPrice',
     watch: true,
   });

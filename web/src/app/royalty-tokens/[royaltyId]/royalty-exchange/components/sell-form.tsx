@@ -22,9 +22,13 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  ROYALTY_TOKEN_ABI,
+  ROYALTY_TOKEN_ADDRESS,
+  ROYALTY_EXCHANGE_ABI,
+  ROYALTY_EXCHANGE_ADDRESS,
+} from '@/config/contracts';
 import { useMounted } from '@/hooks/use-mounted';
-import { ROYALTY_EXCHANGE_ABI, ROYALTY_EXCHANGE_ADDRESS } from '@/lib/abi/royalty-exchange';
-import { ROYALTY_TOKEN_ABI, ROYALTY_TOKEN_ADDRESS } from '@/lib/abi/royalty-token';
 import calculateStablecoinAmount from '@/lib/helpers/calculate-stablecoin-amount';
 import roundUpEther from '@/lib/helpers/round-up-ether';
 
