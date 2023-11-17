@@ -12,9 +12,9 @@ npx hardhat node
 npx hardhat run scripts/deploy.ts
 ```
 
-To extract abi for core contracts
+To extract abi of the core contracts
 
 ```shell
 npx hardhat compile
-npx hardhat run scripts/extract-abi.ts
+npx hardhat extract-abi
 ```
