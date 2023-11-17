@@ -15,10 +15,8 @@ from apiserver.database import get_session
 from apiserver.routers.commune import ValueIndicator, TimeSeriesDataPoint
 
 from apiserver.database.models import (
-    RoyaltyExchange,
-    RoyaltyTokenSoldEvent,
-    RoyaltyTokenBoughtEvent,
-    RoyaltyPaymentPool
+    RoyaltyPaymentPool,
+    RoyaltyPoolDepositedEvent,
 )
 
 router = APIRouter()
@@ -44,38 +42,73 @@ def get_contract_address(royalty_token_symbol: str, session: Session = Depends(g
 
 
 @router.get("/{royalty_token_symbol}/royalty-income")
-def get_royalty_income(royalty_token_symbol: str) -> GetRoyaltyIncomeResponse:
+def get_royalty_income(royalty_token_symbol: str, session: Session = Depends(get_session)) -> GetRoyaltyIncomeResponse:
+    current_timestamp = int(time())
+    hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
+    hour_deposits = np.array([])
+
+    statement = select(RoyaltyPaymentPool.contract_address).where(
+        RoyaltyPaymentPool.royalty_token_symbol == royalty_token_symbol
+    )
+    royalty_pool_contract = session.exec(statement).one()
+
+    for hour in hour_timestamps:
+        statement = select(RoyaltyPoolDepositedEvent.block_timestamp,
+                           RoyaltyPoolDepositedEvent.deposit).where(
+            RoyaltyPoolDepositedEvent.contract_address == royalty_pool_contract,
+            RoyaltyPoolDepositedEvent.block_timestamp <= int(hour)
+        ).order_by(RoyaltyPoolDepositedEvent.block_timestamp.desc())
+
+        deposits = session.exec(statement).all()
+
+        if len(deposits) > 0:
+            deposit_amounts = [d.deposit for d in deposits]
+            hour_deposits = np.append(hour_deposits, sum(deposit_amounts))
+        else:
+            hour_deposits = np.append(hour_deposits, 0)
+
     return GetRoyaltyIncomeResponse(
         reported=ValueIndicator(
             current=TimeSeriesDataPoint(timestamp=0, value=0),
             recent_values_dataset=[
-                TimeSeriesDataPoint(timestamp=0, value=0),
-                TimeSeriesDataPoint(timestamp=0, value=0),
-                TimeSeriesDataPoint(timestamp=0, value=0),
+                TimeSeriesDataPoint(timestamp=1700177341, value=0),
+                TimeSeriesDataPoint(timestamp=1700178341, value=0),
+                TimeSeriesDataPoint(timestamp=1700187341, value=0),
             ],
         ),
         deposited=ValueIndicator(
-            current=TimeSeriesDataPoint(timestamp=0, value=0),
+            current=TimeSeriesDataPoint(
+                timestamp=hour_timestamps[0], value=hour_deposits[0]
+            ),
             recent_values_dataset=[
-                TimeSeriesDataPoint(timestamp=0, value=0),
-                TimeSeriesDataPoint(timestamp=0, value=0),
-                TimeSeriesDataPoint(timestamp=0, value=0),
+                TimeSeriesDataPoint(
+                    timestamp=hour_timestamps[i], value=hour_deposits[i]
+                )
+                for i in range(1, len(hour_deposits))
             ],
-        ),
+        )
     )
 
 
 @router.get("/{royalty_token_symbol}/deposits")
-def fetch_deposits(royalty_token_symbol: str) -> List[Deposit]:
+def fetch_deposits(royalty_token_symbol: str, session: Session = Depends(get_session)) -> List[Deposit]:
+    statement = select(RoyaltyPaymentPool.contract_address).where(
+        RoyaltyPaymentPool.royalty_token_symbol == royalty_token_symbol
+    )
+
+    royalty_pool_contract = session.exec(statement).one()
+
+    statement = select(RoyaltyPoolDepositedEvent).where(
+        RoyaltyPoolDepositedEvent.contract_address == royalty_pool_contract
+    ).order_by(RoyaltyPoolDepositedEvent.block_timestamp.desc())
+
+    deposits = session.exec(statement)
+
     return [
         Deposit(
-            distributor="0x0ecfA66e77d95Cc1484617eb496e6eb49EAbdA96",
-            checkpoint_key=1,
-            amount=100,
-        ),
-        Deposit(
-            distributor="0xC37713ef41Aff1A7ac1c3D02f6f0B3a57F8A3091",
-            checkpoint_key=2,
-            amount=15,
-        ),
+            distributor=d.sender,
+            checkpoint_key=d.block_timestamp,
+            amount=d.deposit,
+        )
+        for d in deposits
     ]
