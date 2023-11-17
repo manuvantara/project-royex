@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import Balancer from 'react-wrap-balancer';
 import { RoyaltyPaymentPoolsService } from '@/api/requests';
 import Card from '@/components/card';
 import Report from '@/components/report';
@@ -23,22 +24,30 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   return (
     <PageLayout contractAddress={contractAddress}>
-      <div>
-        <div className="grid gap-4 px-4 pb-8 pt-8 md:grid-cols-2 md:pt-12 lg:grid-cols-4">
+      <div className="py-8">
+        <div className="grid gap-4 md:grid-cols-2 md:pt-12 lg:grid-cols-4">
           {fakeStats.map((stat) => (
             <Card key={stat.title} {...stat} />
           ))}
         </div>
-        <div className="grid gap-4 px-4 pb-8 pt-4 md:grid-cols-2">
+        <div className="grid gap-4 pb-8 pt-4 md:grid-cols-2">
           <Report />
           {/* <RoyaltyPaymentsTable data={royaltyPayments} /> */}
         </div>
-        <div className="flex gap-4">
-          <div className="w-[400px]">
+      </div>
+      <div className="rounded-md border p-6">
+        <div className="space-y-1 p-6">
+          <h3 className="text-2xl font-semibold tracking-tight">Royalty Payment Pool</h3>
+          <p className="max-w-sm text-sm text-muted-foreground">
+            <Balancer>
+              Distributors deposit royalties into a payment pool, creating a checkpoint. Investors can then withdraw
+              revenues proportional to their royalty rates at the checkpoint.
+            </Balancer>
+          </p>
+        </div>
+        <div className="mt-8 grid grid-cols-3 gap-6">
+          <div className="col-span-2 grid grid-cols-2 gap-6">
             <DepositRoyaltiesForm />
-          </div>
-          <div className="w-[400px]">
-            <WithdrawRoyaltiesForm />
           </div>
         </div>
       </div>

@@ -1,32 +1,25 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { isAddress, parseEther } from 'viem';
-import { useContractRead, useContractWrite, usePublicClient } from 'wagmi';
+import { useContractWrite, usePublicClient } from 'wagmi';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
-import { OTC_MARKET_ABI, OTC_MARKET_ADDRESS } from '@/lib/abi/otc-market';
-import { ROYALTY_EXCHANGE_ABI, ROYALTY_EXCHANGE_ADDRESS } from '@/lib/abi/royalty-exchange';
-import { ROYALTY_PAYMENT_POOL_ABI, ROYALTY_PAYMENT_POOL_ADDRESS } from '@/lib/abi/royalty-payment-pool';
-import { ROYALTY_TOKEN_ABI, ROYALTY_TOKEN_ADDRESS } from '@/lib/abi/royalty-token';
-import { STABLECOIN_ABI, STABLECOIN_ADDRESS } from '@/lib/abi/stablecoin';
-import calculateStablecoinAmount from '@/lib/helpers/calculate-stablecoin-amount';
-import roundUpEther from '@/lib/helpers/round-up-ether';
+import {
+  STABLECOIN_ABI,
+  STABLECOIN_ADDRESS,
+  ROYALTY_PAYMENT_POOL_ADDRESS,
+  ROYALTY_PAYMENT_POOL_ABI,
+} from '@/config/contracts';
 
 const formSchema = z.object({
-  from: z.string().refine((v) => isAddress(v), {
-    message: 'Invalid address',
-  }),
-  amount: z.coerce.number().positive({
-    message: 'Deposit must be > 0',
-  }),
+  from: z.string().refine((v) => isAddress(v.trim())),
+  amount: z.coerce.number().positive(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -56,24 +49,22 @@ export default function DepositRoyaltiesForm() {
   async function onSubmit(values: FormValues) {
     try {
       // approve stablecoins
-      const approveStablecoinsHash = await approveStablecoins.writeAsync({
+      const approveStablecoinsResult = await approveStablecoins.writeAsync({
         args: [ROYALTY_PAYMENT_POOL_ADDRESS, parseEther(values.amount.toString())],
       });
       await publicClient.waitForTransactionReceipt({
-        hash: approveStablecoinsHash.hash,
+        hash: approveStablecoinsResult.hash,
       });
-
-      toast.success('Stablecoins approved');
+      toast.success(`${values.amount} stablecoins approved`);
 
       // deposit royalties
-      const depositRoyaltiesHash = await depositRoyalties.writeAsync({
-        args: [values.from as `0x${string}`, parseEther(values.amount.toString())],
+      const depositRoyaltiesResult = await depositRoyalties.writeAsync({
+        args: [values.from.trim() as `0x${string}`, parseEther(values.amount.toString())],
       });
       await publicClient.waitForTransactionReceipt({
-        hash: depositRoyaltiesHash.hash,
+        hash: depositRoyaltiesResult.hash,
       });
-
-      toast.success('Royalties deposited');
+      toast.success(`${values.amount} stablecoins deposited`);
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -83,7 +74,7 @@ export default function DepositRoyaltiesForm() {
     <Card>
       <CardHeader>
         <CardTitle>Deposit Royalties</CardTitle>
-        <CardDescription>Enter the amount of stablecoins to deposit.</CardDescription>
+        <CardDescription>Have reported royalties revenue? It`s time to make a deposit!</CardDescription>
       </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -105,7 +96,7 @@ export default function DepositRoyaltiesForm() {
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>USDC $</FormLabel>
+                  <FormLabel>Stablecoins $</FormLabel>
                   <FormControl>
                     <Input placeholder="Amount of stablecoins to deposit" {...field} />
                   </FormControl>
