@@ -14,7 +14,10 @@ interface IRXRC2 {
      * @dev Amount to withdraw must be less than or equal to the amount available to
      * withdraw at the checkpoint.
      */
-    error ExcessiveWithdrawalAmount(uint256 amountRequested, uint256 amountAvailable);
+    error ExcessiveWithdrawalAmount(
+        uint256 amountRequested,
+        uint256 amountAvailable
+    );
 
     /**
      * @dev Zero was provided as a withdrawal amount or deposit amount.
@@ -25,7 +28,11 @@ interface IRXRC2 {
      * @dev Emitted by {depositRoyalties} when royalties are deposited
      * from the distributor.
      */
-    event RoyaltiesDeposited(address indexed from, uint256 deposit);
+    event RoyaltiesDeposited(
+        address indexed from,
+        uint256 indexed deposit,
+        uint48 indexed checkpointKey
+    );
 
     /**
      * @dev Emitted by {withdrawRoyalties} when royalties are claimed.

@@ -37,24 +37,32 @@ abstract contract RXRC2 is IRXRC2, Ownable {
     /**
      * @dev See IRXRC2
      */
-    function depositRoyalties(address from, uint256 deposit) external virtual override {
+    function depositRoyalties(
+        address from,
+        uint256 deposit
+    ) external virtual override {
         if (deposit > type(uint128).max) {
             revert SafeCast.SafeCastOverflowedUintDowncast(128, deposit);
         }
         if (deposit == 0) revert InvalidAmount();
 
-        emit RoyaltiesDeposited(from, deposit);
-
         uint48 newCheckpointKey = royaltyToken.checkpoint();
+        emit RoyaltiesDeposited(from, deposit, newCheckpointKey);
 
         stablecoin.transferFrom(from, address(this), deposit);
-        _royaltyDepositCheckpoints.push(newCheckpointKey, SafeCast.toUint208(deposit));
+        _royaltyDepositCheckpoints.push(
+            newCheckpointKey,
+            SafeCast.toUint208(deposit)
+        );
     }
 
     /**
      * @dev See IRXRC2
      */
-    function withdrawRoyalties(uint48 checkpointKey, uint256 amount) external virtual override {
+    function withdrawRoyalties(
+        uint48 checkpointKey,
+        uint256 amount
+    ) external virtual override {
         if (amount == 0) revert InvalidAmount();
 
         address to = msg.sender;
@@ -67,10 +75,12 @@ abstract contract RXRC2 is IRXRC2, Ownable {
         ) = getRoyaltyPaymentDetails(checkpointKey, to);
         if (royaltyBalance == 0) revert InsufficientRoyaltyRate();
 
-        uint256 dividend = (royaltyBalance * royaltyDeposit) / royaltyTotalSupply;
+        uint256 dividend = (royaltyBalance * royaltyDeposit) /
+            royaltyTotalSupply;
 
         uint256 amountAvailable = dividend - amountWithdrawn;
-        if (amount > amountAvailable) revert ExcessiveWithdrawalAmount(amount, amountAvailable);
+        if (amount > amountAvailable)
+            revert ExcessiveWithdrawalAmount(amount, amountAvailable);
 
         _royaltyPayments[checkpointKey][to] += amount;
         emit RoyaltiesWithdrawn(checkpointKey, to, amount);
