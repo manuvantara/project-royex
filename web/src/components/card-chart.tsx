@@ -2,57 +2,33 @@
 
 import { Bar, BarChart, Line, LineChart, ResponsiveContainer } from 'recharts';
 
+import { ValueIndicator } from '@/api/requests';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import parseChartData from '@/lib/helpers/parse-chart-data';
 
-const data = [
-  {
-    revenue: 10400,
-    subscription: 240,
-  },
-  {
-    revenue: 14405,
-    subscription: 300,
-  },
-  {
-    revenue: 9400,
-    subscription: 200,
-  },
-  {
-    revenue: 8200,
-    subscription: 278,
-  },
-  {
-    revenue: 7000,
-    subscription: 189,
-  },
-  {
-    revenue: 9600,
-    subscription: 239,
-  },
-  {
-    revenue: 11244,
-    subscription: 278,
-  },
-  {
-    revenue: 26475,
-    subscription: 189,
-  },
-];
+type Props = {
+  royaltyTokenSymbol: string;
+  price: ValueIndicator;
+  depositedRoyaltyIncome: ValueIndicator;
+};
 
-export default function CardChart() {
+export default function CardChart({ royaltyTokenSymbol, price, depositedRoyaltyIncome }: Props) {
+  const priceData = parseChartData(price);
+  const royaltyIncomeData = parseChartData(depositedRoyaltyIncome);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-normal">Total Revenue</CardTitle>
+        <CardTitle className="text-sm font-normal">{royaltyTokenSymbol}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <div className="text-2xl font-bold">$15,231.89</div>
+          <div className="text-2xl font-bold">${price.current.value}</div>
           <p className="text-xs text-muted-foreground">+20.1% from last month</p>
           <div className="h-[80px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={data}
+                data={priceData}
                 margin={{
                   top: 5,
                   right: 10,
@@ -63,7 +39,7 @@ export default function CardChart() {
                 <Line
                   type="monotone"
                   strokeWidth={2}
-                  dataKey="revenue"
+                  dataKey="value"
                   activeDot={{
                     r: 6,
                     style: { fill: 'hsl(var(--primary))', opacity: 0.25 },
@@ -79,13 +55,13 @@ export default function CardChart() {
           </div>
         </div>
         <div>
-          <div className="text-2xl font-bold">+2030</div>
+          <div className="text-2xl font-bold">+{depositedRoyaltyIncome.current.value}</div>
           <p className="text-xs text-muted-foreground">+20.1% from last month</p>
           <div className="mt-4 h-[80px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data}>
+              <BarChart data={royaltyIncomeData}>
                 <Bar
-                  dataKey="subscription"
+                  dataKey="value"
                   style={
                     {
                       fill: 'hsl(var(--primary))',
