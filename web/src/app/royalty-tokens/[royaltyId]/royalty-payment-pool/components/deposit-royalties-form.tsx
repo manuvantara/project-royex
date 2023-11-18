@@ -86,7 +86,7 @@ export default function DepositRoyaltiesForm() {
                 <FormItem>
                   <FormLabel>From</FormLabel>
                   <FormControl>
-                    <Input placeholder="Distributor's address" {...field} />
+                    <Input placeholder="0x000" {...field} />
                   </FormControl>
                 </FormItem>
               )}
@@ -98,7 +98,7 @@ export default function DepositRoyaltiesForm() {
                 <FormItem>
                   <FormLabel>Stablecoins $</FormLabel>
                   <FormControl>
-                    <Input placeholder="Amount of stablecoins to deposit" {...field} />
+                    <Input placeholder="1000" {...field} />
                   </FormControl>
                 </FormItem>
               )}
