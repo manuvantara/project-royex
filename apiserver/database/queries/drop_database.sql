@@ -1,3 +1,7 @@
+DROP TABLE royalty_pool_deposited_events;
+DROP TABLE royalty_pool_withdrawn_events;
+DROP TABLE royalty_token_sold_events;
+DROP TABLE royalty_token_bought_events;
 DROP TABLE royalty_exchanges;
 DROP TABLE initial_royalty_offerings;
 DROP TABLE otc_market_offer_floor_price_changed_events;

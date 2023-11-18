@@ -1,7 +1,6 @@
 from sqlmodel import Field, SQLModel
 from pydantic import condecimal, constr
 
-from typing import Optional
 from decimal import Decimal
 
 
@@ -40,7 +39,7 @@ class StakeholderCollective(ContractBase, table=True):
 class StakeholderCollectiveProposal(ElementBase, table=True):
     __tablename__ = "stakeholder_collective_proposals"
 
-    proposal_id: constr(max_length=77) = Field(primary_key=True)
+    proposal_id: constr(max_length=100) = Field(primary_key=True)
 
     proposer: constr(max_length=42)
     title: str = Field(max_length=250)
@@ -89,6 +88,25 @@ class OtcMarketOfferAcceptedEvent(EventBase, table=True):
     class Config:
         arbitrary_types_allowed = True
 
+class RoyaltyTokenEvent(EventBase):
+    trader: constr(max_length=42)
+    royalty_token_amount: condecimal(max_digits=78, decimal_places=0)
+    stablecoin_amount: condecimal(max_digits=78, decimal_places=0)
+    updated_royalty_token_reserve: condecimal(max_digits=78, decimal_places=0)
+    updated_stablecoin_reserve: condecimal(max_digits=78, decimal_places=0)
+
+class RoyaltyTokenSoldEvent(RoyaltyTokenEvent, table=True):
+    __tablename__ = "royalty_token_sold_events"
+
+    class Config:
+        arbitrary_types_allowed = True
+
+class RoyaltyTokenBoughtEvent(RoyaltyTokenEvent, table=True):
+    __tablename__ = "royalty_token_bought_events"
+
+    class Config:
+        arbitrary_types_allowed = True
+
 
 class InitialRoyaltyOffering(ContractBase, table=True):
     __tablename__ = "initial_royalty_offerings"
@@ -96,3 +114,16 @@ class InitialRoyaltyOffering(ContractBase, table=True):
 
 class RoyaltyExchange(ContractBase, table=True):
     __tablename__ = "royalty_exchanges"
+
+class RoyaltyPoolWithdrawnEvent(EventBase, table=True):
+    __tablename__ = "royalty_pool_withdrawn_events"
+
+    checkpoint_key: condecimal(max_digits=78, decimal_places=0)
+    investor: constr(max_length=42)
+    amount: condecimal(max_digits=78, decimal_places=0)
+
+class RoyaltyPoolDepositedEvent(EventBase, table=True):
+    __tablename__ = "royalty_pool_deposited_events"
+
+    sender: constr(max_length=42)
+    deposit: condecimal(max_digits=78, decimal_places=0)
