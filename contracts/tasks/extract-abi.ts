@@ -71,7 +71,7 @@ abiScope.task("client", "Extracts ABI for client purposes")
     for (const sourceName of sourceNames) {
       const { abi } = await hre.artifacts.readArtifact(sourceName);
   
-      contents += `export const ${toConstantCase(sourceName)}_ABI = ${JSON.stringify(abi)} as const;`;
+      contents += `export const ${toConstantCase(sourceName)}_ABI = ${JSON.stringify(abi)} as const;\n`;
     }
   
     fs.writeFileSync(`../web/src/config/contracts.ts`, contents);
