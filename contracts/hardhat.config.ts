@@ -24,7 +24,6 @@ const config: HardhatUserConfig = {
       chainId: 1313161555,
     },
   },
-  defaultNetwork: "aurora_testnet",
 };
 
 export default config;
