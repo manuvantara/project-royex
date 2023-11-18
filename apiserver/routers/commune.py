@@ -53,6 +53,7 @@ class GetEstimatedPortfolioValue(Response):
 
 
 class Offer(Response):
+    offer_id: str
     seller: str
     royalty_token_amount: int
     stablecoin_amount: int
