@@ -23,7 +23,7 @@ function toConstantCase(str: string) {
 const abiScope = scope("extract-abi", "Extracts ABI of the contracts");
 
 
-abiScope.task("json", "Extracts ABI in a format of json files for each contract")
+abiScope.task("json", "Extracts ABI in a format of json files of each contract")
   .setAction(async (args, hre) => {
     try {
       await hre.run(TASK_COMPILE);
@@ -40,7 +40,7 @@ abiScope.task("json", "Extracts ABI in a format of json files for each contract"
     console.log(`Check out ABI files at /abi`);
   });
 
-abiScope.task("ts", "Extracts ABI in a format of json files for each contract to /abi")
+abiScope.task("ts", "Extracts ABI in a format of ts files of each contract")
   .setAction(async (args, hre) => {
     try {
       await hre.run(TASK_COMPILE);
@@ -59,7 +59,7 @@ abiScope.task("ts", "Extracts ABI in a format of json files for each contract to
     console.log(`Check out ABI files at /abi`);
   });
 
-abiScope.task("client", "Extracts ABI for a client purposes")
+abiScope.task("client", "Extracts ABI for client purposes")
   .setAction(async (args, hre) => {
     try {
       await hre.run(TASK_COMPILE);
