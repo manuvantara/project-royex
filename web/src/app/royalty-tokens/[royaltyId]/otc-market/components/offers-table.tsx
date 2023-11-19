@@ -15,10 +15,10 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import * as React from 'react';
-
+import { useCountdown } from 'usehooks-ts';
 import { formatEther } from 'viem';
 import AcceptButton from './accept-button';
-import { useOtcMarketsServiceFetchOffers, useOtcMarketsServiceFetchOffersKey } from '@/api/queries';
+import { useOtcMarketsServiceFetchOffersKey } from '@/api/queries';
 import { OtcMarketsService, type Offer } from '@/api/requests';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -96,6 +96,12 @@ export default function OffersTable({ royaltyTokenSymbol }: { royaltyTokenSymbol
     refetchInterval: 15_000,
   });
 
+  const [count, { startCountdown, stopCountdown, resetCountdown }] = useCountdown({
+    countStart: 1,
+    isIncrement: true,
+    intervalMs: 1000,
+  });
+
   const table = useReactTable({
     data,
     columns,
@@ -114,6 +120,15 @@ export default function OffersTable({ royaltyTokenSymbol }: { royaltyTokenSymbol
       columnVisibility,
       rowSelection,
     },
+  });
+
+  React.useEffect(() => {
+    if (!isFetching && !isPending) {
+      startCountdown();
+    } else {
+      stopCountdown();
+      resetCountdown();
+    }
   });
 
   return (
@@ -171,7 +186,7 @@ export default function OffersTable({ royaltyTokenSymbol }: { royaltyTokenSymbol
         <div className="mt-auto flex items-center justify-end space-x-2 pt-4">
           <div className="flex-1 text-sm text-muted-foreground">
             {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
-            selected.
+            selected | updated {count} seconds ago
           </div>
           <div className="space-x-2">
             <Button
