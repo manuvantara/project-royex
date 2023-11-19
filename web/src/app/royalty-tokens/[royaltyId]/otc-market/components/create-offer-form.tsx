@@ -21,7 +21,13 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function CreateOfferForm() {
+export default function CreateOfferForm({
+  marketAddress,
+  royaltyTokenAddress,
+}: {
+  marketAddress: string;
+  royaltyTokenAddress: string;
+}) {
   const isMounted = useMounted();
   const publicClient = usePublicClient();
   const { isConnected } = useAccount();
@@ -37,13 +43,13 @@ export default function CreateOfferForm() {
   });
 
   const approveRoyaltyTokens = useContractWrite({
-    address: ROYALTY_TOKEN_ADDRESS,
+    address: royaltyTokenAddress, // TODO: return 0x string address from backend to generate correct types
     abi: ROYALTY_TOKEN_ABI,
     functionName: 'approve',
   });
 
   const createOffer = useContractWrite({
-    address: OTC_MARKET_ADDRESS,
+    address: marketAddress,
     abi: OTC_MARKET_ABI,
     functionName: 'createOffer',
   });
