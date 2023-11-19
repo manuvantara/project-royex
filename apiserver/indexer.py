@@ -284,6 +284,20 @@ def new_pool_deposit(
 
     session.add(deposit)
 
+def new_initial_royalty_bought(
+    *,
+    session: Session,
+    contract_address: str,
+    amount: int,
+    block_timestamp: int
+):
+    bought = models.InitialRoyaltyBoughtEvent(
+        contract_address=contract_address,
+        block_timestamp=block_timestamp,
+        amount=amount // 10**18,
+    )
+
+    session.add(bought)
 
 def update():
     symbols = fetch_symbols()
@@ -294,7 +308,8 @@ def update():
         otc_market_contracts = fetch_contracts(model=models.OtcMarket, symbol=symbol)
         stakeholder_collective_contracts = fetch_contracts(model=models.StakeholderCollective, symbol=symbol)
         royalty_exchange_contracts = fetch_contracts(model=models.RoyaltyExchange, symbol=symbol)
-        royalty_payment_pool_contract = fetch_contracts(model=models.RoyaltyPaymentPool, symbol=symbol)
+        royalty_payment_pool_contracts = fetch_contracts(model=models.RoyaltyPaymentPool, symbol=symbol)
+        initial_royalty_offering_contracts = fetch_contracts(model=models.InitialRoyaltyOffering, symbol=symbol)
 
         logging.info("contracts fetched")
 
@@ -532,7 +547,7 @@ def update():
                 model=models.RoyaltyExchange, symbol=symbol, value=latest_block.number
             )
 
-        for [contract_address, block_number] in royalty_payment_pool_contract:
+        for [contract_address, block_number] in royalty_payment_pool_contracts:
             # get metadata
             latest_block = w3.eth.get_block("latest")
 
@@ -588,10 +603,52 @@ def update():
                             block_timestamp=entry["blockNumber"]
                         )
 
-                    session.commit()
+                session.commit()
             
             update_latest_block(
                 model=models.RoyaltyPaymentPool, symbol=symbol, value=latest_block.number
+            )
+
+        for [contract_address, block_number] in initial_royalty_offering_contracts:
+            # get metadata
+            latest_block = w3.eth.get_block("latest")
+
+            logging.info(f"block_number={block_number}")
+            logging.info(f"latest_block_number={latest_block.number}")
+
+            entries = []
+
+            InitialRoyaltyOffering = w3.eth.contract(address=contract_address, abi=abis.InitialRoyaltyOffering)	
+
+            entries += InitialRoyaltyOffering.events.RoyaltyTokensBought.create_filter(
+                fromBlock=block_number, toBlock=latest_block.number
+            ).get_new_entries()
+
+            logging.info(f"len(entries)={len(entries)}")
+
+            sorted_entries = sorted(entries, key=lambda entry: entry.blockNumber)
+            logging.info(f"sorted_entries={sorted_entries}")
+
+            if len(entries) == 0:
+                continue
+
+            with Session(database.engine) as session:
+                for entry in sorted_entries:
+                    logging.info(f"entry={entry}")
+                    if entry["event"] == "RoyaltyTokensBought":
+                        amount = entry["args"]["amount"]
+
+                        new_initial_royalty_bought(
+                            session=session,
+                            contract_address=contract_address,
+                            amount=amount,
+                            block_timestamp=entry["blockNumber"]
+                        )
+
+                session.commit()
+
+            update_latest_block(
+                model=models.InitialRoyaltyOffering, symbol=symbol, value=latest_block.number
             )
 
     time.sleep(10)

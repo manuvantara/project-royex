@@ -10,7 +10,7 @@ from apiserver.database import engine
 
 from apiserver.routers import (
     collectives,
-    public_royalty_offerings,
+    initial_royalty_offerings,
     royalty_tokens,
     otc_markets,
     portfolios,
@@ -42,7 +42,7 @@ app = FastAPI(generate_unique_id_function=custom_generate_unique_id, lifespan=li
 app.include_router(collectives.router, prefix="/collectives", tags=["collectives"])
 
 app.include_router(
-    public_royalty_offerings.router,
+    initial_royalty_offerings.router,
     prefix="/public-royalty-offerings",
     tags=["public-royalty-offerings"],
 )

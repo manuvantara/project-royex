@@ -2,6 +2,23 @@ from typing import List
 
 from fastapi import APIRouter
 
+from typing import Dict, List
+
+from time import time
+import numpy as np
+
+from fastapi import APIRouter, Depends, HTTPException
+from requests import Session
+
+from sqlalchemy import exc
+from sqlmodel import Session, select
+
+from apiserver.database import get_session
+
+from apiserver.database.models import (
+    InitialRoyaltyOffering
+)
+
 from apiserver.routers.commune import (
     ValueIndicator,
     RoyaltyToken,
@@ -13,12 +30,48 @@ router = APIRouter()
 
 
 @router.get("/{royalty_token_symbol}/contract-address")
-def get_contract_address(royalty_token_symbol: str) -> str:  # address
-    return "0xF3F713ed41AfE1A7ac1c4e239e6f0B3a57F8A4761"
+def get_contract_address(
+    *, 
+    royalty_token_symbol: str,
+    session: Session = Depends(get_session)
+) -> str:  # address
+    statement = select(InitialRoyaltyOffering).where(
+        InitialRoyaltyOffering.royalty_token_symbol == royalty_token_symbol
+    )
+    results = session.exec(statement)
+
+    try:
+        royalty_token = results.one()
+    except exc.NoResultFound:
+        raise HTTPException(
+            status_code=404,
+            detail="Initial Royalty Offering Not Found",
+        )
+
+    return royalty_token.contract_address
 
 
 @router.get("/{royalty_token_symbol}")
-def get_royalty_offering(royalty_token_symbol: str) -> GetRoyaltyOffering:
+def get_royalty_offering(
+    *, 
+    royalty_token_symbol: str,
+    session: Session = Depends(get_session)
+) -> GetRoyaltyOffering:
+    current_timestamp = int(time())
+    hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
+    royalty_reserve = np.array([])
+    stablecoin_reserve = np.array([])
+
+    for hour in hour_timestamps:
+        statement = select(InitialRoyaltyOffering).where(
+            InitialRoyaltyOffering.royalty_token_symbol == royalty_token_symbol,
+            InitialRoyaltyOffering.offering_date <= int(hour)
+        ).order_by(InitialRoyaltyOffering.offering_date.desc())
+        latest = session.exec(statement).first()
+
+        royalty_reserve = np.append(latest.royalty_token_reserve, 0)
+        stablecoin_reserve = np.append(stablecoin_reserve, 0)
+
     return GetRoyaltyOffering(
         offering_date=100,
         offering_price=235,
@@ -127,7 +180,7 @@ def fetch_live(royalty_token_symbol: str) -> List[RoyaltyToken]:
     ]
 
 
-@router.get("/{royalty_token_symbol}/live")
+@router.get("/{royalty_token_symbol}/upcoming")
 def fetch_upcoming(royalty_token_symbol: str) -> List[RoyaltyToken]:
     return [
         RoyaltyToken(

@@ -131,3 +131,12 @@ CREATE TABLE royalty_pool_deposited_events (
   PRIMARY KEY (contract_address, block_timestamp),
   FOREIGN KEY (contract_address) REFERENCES royalty_payment_pools(contract_address)
 );
+
+CREATE TABLE initial_royalty_tokens_bought_events (
+  contract_address CHAR(42),
+  block_timestamp BIGINT,
+  amount BIGINT NOT NULL,
+
+  PRIMARY KEY (contract_address, block_timestamp),
+  FOREIGN KEY (contract_address) REFERENCES initial_royalty_offerings(contract_address)
+);

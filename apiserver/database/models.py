@@ -127,3 +127,8 @@ class RoyaltyPoolDepositedEvent(EventBase, table=True):
 
     sender: constr(max_length=42)
     deposit: condecimal(max_digits=78, decimal_places=0)
+
+class InitialRoyaltyBoughtEvent(EventBase, table=True):
+    __tablename__ = "initial_royalty_tokens_bought_events"
+
+    amount: condecimal(max_digits=78, decimal_places=0)
