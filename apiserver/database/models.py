@@ -111,6 +111,8 @@ class RoyaltyTokenBoughtEvent(RoyaltyTokenEvent, table=True):
 class InitialRoyaltyOffering(ContractBase, table=True):
     __tablename__ = "initial_royalty_offerings"
 
+    offering_date: int
+
 
 class RoyaltyExchange(ContractBase, table=True):
     __tablename__ = "royalty_exchanges"

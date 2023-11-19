@@ -43,8 +43,8 @@ app.include_router(collectives.router, prefix="/collectives", tags=["collectives
 
 app.include_router(
     initial_royalty_offerings.router,
-    prefix="/public-royalty-offerings",
-    tags=["public-royalty-offerings"],
+    prefix="/initial-royalty-offerings",
+    tags=["initial-royalty-offerings"],
 )
 
 app.include_router(

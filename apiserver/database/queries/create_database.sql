@@ -76,6 +76,7 @@ CREATE TABLE otc_market_offer_accepted_events (
 CREATE TABLE initial_royalty_offerings (
   contract_address CHAR(42) PRIMARY KEY,
   royalty_token_symbol CHAR(11) REFERENCES royalty_tokens(symbol),
+  offering_date BIGINT NOT NULL,
   latest_block_number BIGINT DEFAULT 0 NOT NULL
 );
 
