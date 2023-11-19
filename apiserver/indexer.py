@@ -289,12 +289,19 @@ def new_initial_royalty_bought(
     session: Session,
     contract_address: str,
     amount: int,
-    block_timestamp: int
-):
+    block_timestamp: int,
+    royalty_token_address: str,
+    stablecoin_address: str
+):  
+    royalty_token = w3.eth.contract(address=royalty_token_address, abi=abis.RoyaltyToken)
+    stablecoin = w3.eth.contract(address=stablecoin_address, abi=abis.Stablecoin)
+
     bought = models.InitialRoyaltyBoughtEvent(
         contract_address=contract_address,
         block_timestamp=block_timestamp,
         amount=amount // 10**18,
+        royalty_token_reserve=royalty_token.functions.totalSupply().call() // 10**18,
+        stablecoin_reserve=stablecoin.functions.totalSupply().call() // 10**18,
     )
 
     session.add(bought)
@@ -618,7 +625,10 @@ def update():
 
             entries = []
 
-            InitialRoyaltyOffering = w3.eth.contract(address=contract_address, abi=abis.InitialRoyaltyOffering)	
+            InitialRoyaltyOffering = w3.eth.contract(address=contract_address, abi=abis.InitialRoyaltyOffering)
+
+            royalty_token = InitialRoyaltyOffering.functions.royaltyToken().call()
+            stablecoin = InitialRoyaltyOffering.functions.stablecoin().call()
 
             entries += InitialRoyaltyOffering.events.RoyaltyTokensBought.create_filter(
                 fromBlock=block_number, toBlock=latest_block.number
@@ -642,7 +652,9 @@ def update():
                             session=session,
                             contract_address=contract_address,
                             amount=amount,
-                            block_timestamp=entry["blockNumber"]
+                            block_timestamp=entry["blockNumber"],
+                            royalty_token_address=royalty_token,
+                            stablecoin_address=stablecoin
                         )
 
                 session.commit()

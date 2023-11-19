@@ -132,3 +132,5 @@ class InitialRoyaltyBoughtEvent(EventBase, table=True):
     __tablename__ = "initial_royalty_tokens_bought_events"
 
     amount: condecimal(max_digits=78, decimal_places=0)
+    royalty_token_reserve: condecimal(max_digits=78, decimal_places=0)
+    stablecoin_reserve: condecimal(max_digits=78, decimal_places=0)
