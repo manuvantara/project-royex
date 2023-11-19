@@ -90,3 +90,19 @@ class Proposal(Response):
 class GetTradingVolume(Response):
     otc_market: ValueIndicator
     royalty_exchange: ValueIndicator
+
+class RoyaltySum:
+    count: int
+    price: float
+    timestamp: int
+
+    def __init__(self, count, price, timestamp) -> None:
+        self.count = count
+        self.price = price
+        self.timestamp = timestamp
+
+    def __repr__(self) -> str:
+        return f"RoyaltySum(count={self.count}, price={self.price}, timestamp={self.timestamp})"
+    
+    def __str__(self) -> str:
+        return f"RoyaltySum(count={self.count}, price={self.price}, timestamp={self.timestamp})"
