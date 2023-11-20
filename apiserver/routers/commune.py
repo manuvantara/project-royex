@@ -29,7 +29,7 @@ class GetRoyaltyIncomeResponse(Response):
 
 
 class RoyaltyToken(Response):
-    royalty_token_symbol: str
+    symbol: str
     price: ValueIndicator | None
     deposited_royalty_income: ValueIndicator | None
 
@@ -92,6 +92,7 @@ class GetTradingVolume(Response):
     otc_market: ValueIndicator
     royalty_exchange: ValueIndicator
 
+
 class RoyaltySum:
     count: int
     price: float
@@ -104,6 +105,6 @@ class RoyaltySum:
 
     def __repr__(self) -> str:
         return f"RoyaltySum(count={self.count}, price={self.price}, timestamp={self.timestamp})"
-    
+
     def __str__(self) -> str:
         return f"RoyaltySum(count={self.count}, price={self.price}, timestamp={self.timestamp})"
