@@ -62,6 +62,12 @@ def fetch_proposals(
             status_code=404,
             detail="Proposals Not Found",
         )
+    proposals = session.exec(statement)
+    if len(proposals) == 0:
+        raise HTTPException(
+            status_code=404,
+            detail="Stakeholder Collective Proposal Not Found",
+        )
 
     return [
         ProposalInfo(
@@ -98,6 +104,12 @@ def get_proposal(
         raise HTTPException(
             status_code=404,
             detail="Proposal Not Found",
+        )
+    proposal = session.exec(statement).one()
+    if proposal.royalty_token_symbol != royalty_token_symbol:
+        raise HTTPException(
+            status_code=404,
+            detail="Stakeholder Collective Proposal Not Found",
         )
 
     return Proposal(

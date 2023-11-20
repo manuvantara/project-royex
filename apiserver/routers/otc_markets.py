@@ -53,6 +53,11 @@ def get_floor_price(
 
     statement = select(OtcMarket).where(OtcMarket.royalty_token_symbol == royalty_token_symbol) # For last 24 hours
     otc_market = session.exec(statement).first()
+    if otc_market is None:
+        raise HTTPException(
+            status_code=404,
+            detail="OTC Market Not Found",
+        )
 
     last_price = 0
     for hour in hour_timestamps:
@@ -63,8 +68,7 @@ def get_floor_price(
                 OtcMarketFloorPriceChangedEvent.contract_address
                 == otc_market.contract_address,
                 OtcMarketFloorPriceChangedEvent.block_timestamp <= int(hour),
-            ).order_by(OtcMarketFloorPriceChangedEvent.block_timestamp.desc())
-        
+            ).order_by(OtcMarketFloorPriceChangedEvent.block_timestamp.desc())        
         latest_price = session.exec(statement).first()
 
         if latest_price:
@@ -96,6 +100,11 @@ def get_trading_volume(
 
     statement = select(OtcMarket).where(OtcMarket.royalty_token_symbol == royalty_token_symbol)
     otc_market = session.exec(statement).first()
+    if otc_market is None:
+        raise HTTPException(
+            status_code=404,
+            detail="OTC Market Not Found",
+        )
 
     last_volume = 0
     for hour in hour_timestamps:
@@ -136,9 +145,19 @@ def fetch_offers(
 ) -> List[Offer]:
     statement = select(OtcMarket).where(OtcMarket.royalty_token_symbol == royalty_token_symbol)
     otc_market = session.exec(statement).one()
+    if otc_market is None:
+        raise HTTPException(
+            status_code=404,
+            detail="OTC Market Not Found",
+        )
 
     statement = select(OtcMarketOffer).where(OtcMarketOffer.contract_address == otc_market.contract_address)
     offers = session.exec(statement)
+    if len(offers) == 0:
+        raise HTTPException(
+            status_code=404,
+            detail="Offers Not Found",
+        )
 
     return [
         Offer(
