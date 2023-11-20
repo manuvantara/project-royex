@@ -33,5 +33,5 @@ interface IRXRC5 {
     /**
      * @dev Emmited when some investor buys the amount of royalty tokens.
      */
-    event RoyaltyTokensBought(uint128 amount);
+    event RoyaltyTokensBought(address indexed account, uint128 amount);
 }

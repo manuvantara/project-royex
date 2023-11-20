@@ -32,7 +32,9 @@ abstract contract RXRC5 is IRXRC5, Ownable {
         _;
     }
 
-    function depositRoyaltyTokens(uint128 amount) external onlyOwner checkAmount(amount) {
+    function depositRoyaltyTokens(
+        uint128 amount
+    ) external onlyOwner checkAmount(amount) {
         if (royaltyToken.balanceOf(address(this)) != 0) {
             revert RoyaltyTokensAlreadyDeposited();
         }
@@ -51,8 +53,10 @@ abstract contract RXRC5 is IRXRC5, Ownable {
             revert OfferingNotAvailable(Time.timestamp(), offeringDate);
         }
 
-        emit RoyaltyTokensBought(amount);
-        royaltyToken.transfer(msg.sender, amount);
-        stablecoin.transferFrom(msg.sender, address(this), offeringPrice * amount);
+        address account = msg.sender;
+
+        emit RoyaltyTokensBought(account, amount);
+        royaltyToken.transfer(account, amount);
+        stablecoin.transferFrom(account, address(this), offeringPrice * amount);
     }
 }
