@@ -452,15 +452,15 @@ def update():
                     if entry["event"] == "ProposalCreated":
                         obj = json.loads(entry["args"]["description"])
                         proposer = entry["args"]["proposer"]
-                        proposal_id = entry["args"]["proposal_id"]
+                        proposal_id = entry["args"]["proposalId"]
 
                         new_stakeholder_proposal(
                             session=session,
                             contract_address=contract_address,
                             proposal_id=proposal_id,
                             proposer=proposer,
-                            title=obj.title,
-                            description=obj.description
+                            title=obj['title'],
+                            description=obj['description']
                         )
 
                     elif entry["event"] == "ProposalCanceled":
