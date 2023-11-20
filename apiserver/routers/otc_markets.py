@@ -4,6 +4,7 @@ from time import time
 import numpy as np
 
 from fastapi import APIRouter, Depends, HTTPException
+from requests import Session
 
 from sqlalchemy import exc
 from sqlmodel import Session, select
@@ -141,7 +142,6 @@ def fetch_offers(
 
     return [
         Offer(
-            offer_id=offer.offer_id,
             seller=offer.seller,
             royalty_token_amount=offer.royalty_token_amount,
             stablecoin_amount=offer.stablecoin_amount,

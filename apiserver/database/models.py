@@ -45,9 +45,9 @@ class StakeholderCollectiveProposal(ElementBase, table=True):
     title: str = Field(max_length=250)
     description: str = Field(max_length=4000)
 
-    votes_for: Decimal = Field(default=Decimal("0"))
-    votes_against: Decimal = Field(default=Decimal("0"))
-    votes_abstain: Decimal = Field(default=Decimal("0"))
+    votes_for: condecimal(max_digits=78, decimal_places=0) = Field(default=0)
+    votes_against: condecimal(max_digits=78, decimal_places=0) = Field(default=0)
+    votes_abstain: condecimal(max_digits=78, decimal_places=0) = Field(default=0)
 
     is_executed: bool = Field(default=False)
 
@@ -88,6 +88,7 @@ class OtcMarketOfferAcceptedEvent(EventBase, table=True):
     class Config:
         arbitrary_types_allowed = True
 
+
 class RoyaltyTokenEvent(EventBase):
     trader: constr(max_length=42)
     royalty_token_amount: condecimal(max_digits=78, decimal_places=0)
@@ -95,11 +96,13 @@ class RoyaltyTokenEvent(EventBase):
     updated_royalty_token_reserve: condecimal(max_digits=78, decimal_places=0)
     updated_stablecoin_reserve: condecimal(max_digits=78, decimal_places=0)
 
+
 class RoyaltyTokenSoldEvent(RoyaltyTokenEvent, table=True):
     __tablename__ = "royalty_token_sold_events"
 
     class Config:
         arbitrary_types_allowed = True
+
 
 class RoyaltyTokenBoughtEvent(RoyaltyTokenEvent, table=True):
     __tablename__ = "royalty_token_bought_events"
@@ -111,9 +114,12 @@ class RoyaltyTokenBoughtEvent(RoyaltyTokenEvent, table=True):
 class InitialRoyaltyOffering(ContractBase, table=True):
     __tablename__ = "initial_royalty_offerings"
 
+    offering_date: int
+
 
 class RoyaltyExchange(ContractBase, table=True):
     __tablename__ = "royalty_exchanges"
+
 
 class RoyaltyPoolWithdrawnEvent(EventBase, table=True):
     __tablename__ = "royalty_pool_withdrawn_events"
@@ -122,8 +128,16 @@ class RoyaltyPoolWithdrawnEvent(EventBase, table=True):
     investor: constr(max_length=42)
     amount: condecimal(max_digits=78, decimal_places=0)
 
+
 class RoyaltyPoolDepositedEvent(EventBase, table=True):
     __tablename__ = "royalty_pool_deposited_events"
 
     sender: constr(max_length=42)
     deposit: condecimal(max_digits=78, decimal_places=0)
+
+class InitialRoyaltyBoughtEvent(EventBase, table=True):
+    __tablename__ = "initial_royalty_tokens_bought_events"
+
+    amount: condecimal(max_digits=78, decimal_places=0)
+    royalty_token_reserve: condecimal(max_digits=78, decimal_places=0)
+    stablecoin_reserve: condecimal(max_digits=78, decimal_places=0)
