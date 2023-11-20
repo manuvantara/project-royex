@@ -452,7 +452,7 @@ def update():
                         text = entry["args"]["description"].split("\n")
 
                         proposer = entry["args"]["proposer"]
-                        description = text[1]
+                        description = text[1: ].join("\n")
                         title = text[0]
 
                         new_stakeholder_proposal(
