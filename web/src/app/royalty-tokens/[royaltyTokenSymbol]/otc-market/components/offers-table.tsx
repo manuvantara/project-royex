@@ -62,7 +62,7 @@ const columns: ColumnDef<Offer>[] = [
     accessorKey: 'royaltyTokenAmount',
     header: () => <div className="text-center">Royalty Token Amount</div>,
     cell: ({ row }) => {
-      const amount = formatEther(row.getValue('royaltyTokenAmount'));
+      const amount = parseFloat(formatEther(row.getValue('royaltyTokenAmount')));
 
       return <div className="text-center font-medium">{amount}</div>;
     },
