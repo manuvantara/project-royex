@@ -6,3 +6,4 @@ export type TimeSeriesDataPoint = {
   timestamp: number;
   value: number;
 };
+

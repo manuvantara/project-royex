@@ -7,3 +7,4 @@ export type ProposalVotes = {
   contra: number;
   abstain: number;
 };
+

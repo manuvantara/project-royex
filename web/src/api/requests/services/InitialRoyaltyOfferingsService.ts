@@ -7,22 +7,22 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 
-export class RoyaltyTokensService {
+export class InitialRoyaltyOfferingsService {
 
   /**
    * Get Contract Address
-   * @param symbol
+   * @param royaltyTokenSymbol
    * @returns string Successful Response
    * @throws ApiError
    */
   public static getContractAddress(
-    symbol: string,
+    royaltyTokenSymbol: string,
   ): CancelablePromise<string> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/royalty-tokens/{symbol}/contract-address',
+      url: '/initial-royalty-offerings/{royalty_token_symbol}/contract-address',
       path: {
-        'symbol': symbol,
+        'royalty_token_symbol': royaltyTokenSymbol,
       },
       errors: {
         422: `Validation Error`,
@@ -31,26 +31,26 @@ export class RoyaltyTokensService {
   }
 
   /**
-   * Fetch Public
+   * Fetch Live
    * @returns RoyaltyToken Successful Response
    * @throws ApiError
    */
-  public static fetchPublic(): CancelablePromise<Array<RoyaltyToken>> {
+  public static fetchLive(): CancelablePromise<Array<RoyaltyToken>> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/royalty-tokens/public',
+      url: '/initial-royalty-offerings/live',
     });
   }
 
   /**
-   * Fetch Private
+   * Fetch Upcoming
    * @returns RoyaltyToken Successful Response
    * @throws ApiError
    */
-  public static fetchPrivate(): CancelablePromise<Array<RoyaltyToken>> {
+  public static fetchUpcoming(): CancelablePromise<Array<RoyaltyToken>> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/royalty-tokens/private',
+      url: '/initial-royalty-offerings/upcoming',
     });
   }
 

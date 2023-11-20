@@ -4,10 +4,10 @@ import { Cross2Icon } from '@radix-ui/react-icons';
 import { Table } from '@tanstack/react-table';
 
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { DataTableViewOptions } from './data-table-view-options';
 import DelegateVotes from './delegate-votes';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -35,7 +35,7 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
       <div className="flex w-fit gap-3">
         <DataTableViewOptions table={table} />
         <Button size="sm" asChild>
-          <Link href="collective/proposals/new">Create proposal</Link>
+          <Link href="stakeholder-collective/proposals/new">Create proposal</Link>
         </Button>
         <DelegateVotes />
       </div>

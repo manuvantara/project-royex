@@ -85,7 +85,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                   className="cursor-pointer"
                   onClick={() => {
                     if (row.original && typeof row.original === 'object' && 'proposalId' in row.original) {
-                      router.push(`collective/proposals/${row.original.proposalId}`);
+                      router.push(`stakeholder-collective/proposals/${row.original.proposalId}`);
                     }
                   }}
                 >

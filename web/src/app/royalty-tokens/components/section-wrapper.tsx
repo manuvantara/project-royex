@@ -1,21 +1,21 @@
-import { PublicRoyaltyOfferingsService, RoyaltyTokensService } from '@/api/requests';
+import { InitialRoyaltyOfferingsService, RoyaltyTokensService } from '@/api/requests';
 import RoyaltyTokensSection from '@/components/royalty-tokens-section';
 
 export default async function SectionWrapper() {
-  const [liveInitialRoyaltyOfferings, upcomingInitialRoyaltyOfferings, publicRoyaltyTokens, privateRoyaltyTokens] =
+  const [upcomingInitialRoyaltyOfferings, publicRoyaltyTokens, privateRoyaltyTokens] =
     await Promise.all([
-      PublicRoyaltyOfferingsService.fetchLive(),
-      PublicRoyaltyOfferingsService.fetchUpcoming(),
+      // InitialRoyaltyOfferingsService.fetchLive(),
+      InitialRoyaltyOfferingsService.fetchUpcoming(),
       RoyaltyTokensService.fetchPublic(),
       RoyaltyTokensService.fetchPrivate(),
     ]);
 
   return (
     <>
-      {liveInitialRoyaltyOfferings.length && (
+      {/* {liveInitialRoyaltyOfferings.length && (
         <RoyaltyTokensSection title="Live Initial Royalty Offerings" data={liveInitialRoyaltyOfferings} />
-      )}
-      {upcomingInitialRoyaltyOfferings.length && (
+      )} */}
+      {upcomingInitialRoyaltyOfferings.length > 0 && (
         <RoyaltyTokensSection title="Upcoming Initial Royalty Offerings" data={upcomingInitialRoyaltyOfferings} />
       )}
       {publicRoyaltyTokens.length && <RoyaltyTokensSection title="Public Royalty Tokens" data={publicRoyaltyTokens} />}

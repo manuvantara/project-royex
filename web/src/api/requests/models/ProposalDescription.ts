@@ -9,3 +9,4 @@ export type ProposalDescription = {
   signatures: Array<string>;
   calldatas: Array<string>;
 };
+

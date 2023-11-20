@@ -8,3 +8,4 @@ export type GetTradingVolume = {
   otcMarket: ValueIndicator;
   royaltyExchange: ValueIndicator;
 };
+

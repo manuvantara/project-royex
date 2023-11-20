@@ -9,3 +9,4 @@ export type Proposal = {
   info: ProposalInfo;
   description: ProposalDescription;
 };
+

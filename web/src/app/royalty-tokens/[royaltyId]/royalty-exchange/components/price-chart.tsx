@@ -2,6 +2,7 @@
 
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import { useRoyaltyExchangesServiceGetPrice } from '@/api/queries';
+import parseChartData from '@/lib/helpers/parse-chart-data';
 
 export default function PriceChart({ royaltyId }: { royaltyId: string }) {
   const { data, isLoading } = useRoyaltyExchangesServiceGetPrice({ royaltyTokenSymbol: royaltyId });
@@ -10,31 +11,10 @@ export default function PriceChart({ royaltyId }: { royaltyId: string }) {
     return <div>Loading...</div>;
   }
 
-  const priceData = data.recentValuesDataset
-    ? [
-        ...data.recentValuesDataset.map((d) => ({
-          ...d,
-          timestamp: new Date(d.timestamp).toLocaleDateString(undefined, {
-            year: '2-digit',
-            month: 'short',
-            day: 'numeric',
-          }),
-        })),
-        {
-          ...data.current,
-          timestamp: new Date(data.current.timestamp).toLocaleDateString(undefined, {
-            year: '2-digit',
-            month: 'short',
-            day: 'numeric',
-          }),
-        },
-      ]
-    : [];
-
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart
-        data={priceData}
+        data={parseChartData(data)}
         margin={{
           top: 5,
           right: 10,

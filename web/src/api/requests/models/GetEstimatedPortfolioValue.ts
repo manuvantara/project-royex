@@ -8,3 +8,4 @@ export type GetEstimatedPortfolioValue = {
   onOtcMarket: ValueIndicator;
   atRoyaltyExchange: ValueIndicator;
 };
+

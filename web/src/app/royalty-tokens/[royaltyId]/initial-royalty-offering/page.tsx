@@ -1,11 +1,11 @@
 import Balancer from 'react-wrap-balancer';
-import { PublicRoyaltyOfferingsService } from '@/api/requests';
 import PageLayout from '../components/page-layout';
 import IroForm from './components/iro-form';
 import Stats from './components/stats';
+import { InitialRoyaltyOfferingsService } from '@/api/requests';
 
 export default async function Page({ params: { royaltyId } }: { params: { royaltyId: string } }) {
-  const contractAddress = await PublicRoyaltyOfferingsService.getContractAddress(royaltyId);
+  const contractAddress = await InitialRoyaltyOfferingsService.getContractAddress(royaltyId);
   return (
     <PageLayout contractAddress={contractAddress}>
       <div className="mt-8 rounded-md border p-6">
