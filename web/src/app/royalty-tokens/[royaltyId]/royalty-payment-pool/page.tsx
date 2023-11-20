@@ -1,12 +1,11 @@
 import { faker } from '@faker-js/faker';
 import Balancer from 'react-wrap-balancer';
-import { RoyaltyPaymentPoolsService } from '@/api/requests';
-import Card from '@/components/card';
-import Report from '@/components/report';
 import PageLayout from '../components/page-layout';
 import DepositRoyaltiesForm from './components/deposit-royalties-form';
 import RoyaltyPaymentsTable from './components/royalty-payments-table';
-import WithdrawRoyaltiesForm from './components/withdraw-royalties-form';
+import { RoyaltyPaymentPoolsService } from '@/api/requests';
+import Card from '@/components/card';
+import Report from '@/components/report';
 
 const fakeStats = Array.from({ length: 4 }, (_) => ({
   title: faker.word.words(3),
@@ -16,24 +15,22 @@ const fakeStats = Array.from({ length: 4 }, (_) => ({
 
 export const revalidate = 60;
 
-export default async function Page({ params }: { params: { id: string } }) {
-  // const contractAddress = await RoyaltyPaymentPoolsService.getContractAddress(params.id);
-  // const royaltyPayments = await RoyaltyPaymentPoolsService.fetchDeposits(params.id);
+export default async function Page({ params: { royaltyId } }: { params: { royaltyId: string } }) {
+  const contractAddress = await RoyaltyPaymentPoolsService.getContractAddress(royaltyId);
+  const royaltyPayments = await RoyaltyPaymentPoolsService.fetchDeposits(royaltyId);
 
-  const contractAddress = '0x59CDac4907845357A13F9520899278CD62Db9950';
+  
 
   return (
     <PageLayout contractAddress={contractAddress}>
-      <div className="py-8">
-        <div className="grid gap-4 md:grid-cols-2 md:pt-12 lg:grid-cols-4">
-          {fakeStats.map((stat) => (
-            <Card key={stat.title} {...stat} />
-          ))}
-        </div>
-        <div className="grid gap-4 pb-8 pt-4 md:grid-cols-2">
-          <Report />
-          {/* <RoyaltyPaymentsTable data={royaltyPayments} /> */}
-        </div>
+      <div className="grid gap-4 pt-6 md:grid-cols-2 lg:grid-cols-4">
+        {fakeStats.map((stat) => (
+          <Card key={stat.title} {...stat} />
+        ))}
+      </div>
+      <div className="grid gap-4 py-8 md:grid-cols-2">
+        <Report />
+        <RoyaltyPaymentsTable data={royaltyPayments} />
       </div>
       <div className="rounded-md border p-6">
         <div className="space-y-1 p-6">
@@ -47,7 +44,7 @@ export default async function Page({ params }: { params: { id: string } }) {
         </div>
         <div className="mt-8 grid grid-cols-3 gap-6">
           <div className="col-span-2 grid grid-cols-2 gap-6">
-            <DepositRoyaltiesForm />
+            <DepositRoyaltiesForm royaltyPaymentPoolAddress={contractAddress} />
           </div>
         </div>
       </div>

@@ -8,14 +8,9 @@ import { useContractWrite, usePublicClient } from 'wagmi';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  STABLECOIN_ABI,
-  STABLECOIN_ADDRESS,
-  ROYALTY_PAYMENT_POOL_ADDRESS,
-  ROYALTY_PAYMENT_POOL_ABI,
-} from '@/config/contracts';
+import { ROYALTY_PAYMENT_POOL_ABI, STABLECOIN_ABI, STABLECOIN_ADDRESS } from '@/config/contracts';
 
 const formSchema = z.object({
   from: z.string().refine((v) => isAddress(v.trim())),
@@ -24,7 +19,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function DepositRoyaltiesForm() {
+export default function DepositRoyaltiesForm({ royaltyPaymentPoolAddress }: { royaltyPaymentPoolAddress: string }) {
   const publicClient = usePublicClient();
 
   const form = useForm<FormValues>({
@@ -35,7 +30,7 @@ export default function DepositRoyaltiesForm() {
   });
 
   const depositRoyalties = useContractWrite({
-    address: ROYALTY_PAYMENT_POOL_ADDRESS,
+    address: royaltyPaymentPoolAddress,
     abi: ROYALTY_PAYMENT_POOL_ABI,
     functionName: 'depositRoyalties',
   });
@@ -50,7 +45,7 @@ export default function DepositRoyaltiesForm() {
     try {
       // approve stablecoins
       const approveStablecoinsResult = await approveStablecoins.writeAsync({
-        args: [ROYALTY_PAYMENT_POOL_ADDRESS, parseEther(values.amount.toString())],
+        args: [royaltyPaymentPoolAddress, parseEther(values.amount.toString())],
       });
       await publicClient.waitForTransactionReceipt({
         hash: approveStablecoinsResult.hash,
@@ -74,7 +69,7 @@ export default function DepositRoyaltiesForm() {
     <Card>
       <CardHeader>
         <CardTitle>Deposit Royalties</CardTitle>
-        <CardDescription>Have reported royalties revenue? It`s time to make a deposit!</CardDescription>
+        <CardDescription>Have reported royalties revenue? It&apos;s time to make a deposit!</CardDescription>
       </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
