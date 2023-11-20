@@ -5,6 +5,7 @@ logging.basicConfig(
 )
 
 import time
+import json
 
 from typing import List, Tuple, Type
 
@@ -449,19 +450,16 @@ def update():
                     logging.info(f"entry={entry}")
 
                     if entry["event"] == "ProposalCreated":
-                        text = entry["args"]["description"].split("\n")
-
+                        obj = json.loads(entry["args"]["description"])
                         proposer = entry["args"]["proposer"]
-                        description = text[1: ].join("\n")
-                        title = text[0]
 
                         new_stakeholder_proposal(
                             session=session,
                             contract_address=contract_address,
                             proposal_id=proposal_id,
                             proposer=proposer,
-                            title=f"Proposal {proposal_id}",
-                            description=description
+                            title=obj.title,
+                            description=obj.description
                         )
 
                     elif entry["event"] == "ProposalCanceled":
