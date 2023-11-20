@@ -69,18 +69,6 @@ export default function CreateOfferForm({
   //   }
   // }, [cancelOffer.isSuccess, cancelOffer.isError, cancelOffer.error]);
 
-  // const acceptOfferId = useContractWrite({
-  //   address: OTC_MARKET_ADDRESS,
-  //   abi: OTC_MARKET_ABI,
-  //   functionName: 'acceptOffer',
-  // });
-
-  // const approveStablecoins = useContractWrite({
-  //   address: STABLECOIN_ADDRESS,
-  //   abi: STABLECOIN_ABI,
-  //   functionName: 'approve',
-  // });
-
   async function onSubmit(values: FormValues) {
     try {
       setIsLoading(true);
@@ -107,38 +95,6 @@ export default function CreateOfferForm({
       setIsLoading(false);
     }
   }
-
-  // async function acceptOffer(offerId: bigint) {
-  //   try {
-  //     // fetch offer
-  //     const offerDetails = await publicClient.readContract({
-  //       address: OTC_MARKET_ADDRESS,
-  //       abi: OTC_MARKET_ABI,
-  //       functionName: 'offers',
-  //       args: [offerId],
-  //     });
-
-  //     // approve stablecoins
-  //     const approveStablecoinsHash = await approveStablecoins.writeAsync({
-  //       args: [OTC_MARKET_ADDRESS, offerDetails[2]],
-  //     });
-  //     await publicClient.waitForTransactionReceipt({
-  //       hash: approveStablecoinsHash.hash,
-  //     });
-  //     toast.success('Stablecoins approved');
-
-  //     // accept offer
-  //     const acceptOfferHash = await acceptOfferId.writeAsync({
-  //       args: [offerId],
-  //     });
-  //     await publicClient.waitForTransactionReceipt({
-  //       hash: acceptOfferHash.hash,
-  //     });
-  //     toast.success('Offer accepted');
-  //   } catch (error: any) {
-  //     toast.error(error.message);
-  //   }
-  // }
 
   return (
     <Card>

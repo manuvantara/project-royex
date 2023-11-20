@@ -18,7 +18,7 @@ import * as React from 'react';
 import { useCountdown } from 'usehooks-ts';
 import { formatEther } from 'viem';
 import AcceptButton from './accept-button';
-import { useOtcMarketsServiceFetchOffersKey } from '@/api/queries';
+import { useOtcMarketsServiceFetchOffersKey, useOtcMarketsServiceGetContractAddressKey } from '@/api/queries';
 import { OtcMarketsService, type Offer } from '@/api/requests';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -96,6 +96,11 @@ export default function OffersTable({ royaltyTokenSymbol }: { royaltyTokenSymbol
     refetchInterval: 15_000,
   });
 
+  const { data: marketAddress, isSuccess } = useQuery({
+    queryKey: [useOtcMarketsServiceGetContractAddressKey],
+    queryFn: () => OtcMarketsService.getContractAddress(royaltyTokenSymbol),
+  });
+
   const [count, { startCountdown, stopCountdown, resetCountdown }] = useCountdown({
     countStart: 1,
     isIncrement: true,
@@ -145,7 +150,12 @@ export default function OffersTable({ royaltyTokenSymbol }: { royaltyTokenSymbol
             onChange={(event) => table.getColumn('seller')?.setFilterValue(event.target.value)}
             className="max-w-sm"
           />
-          <AcceptButton selectedRowIds={table.getSelectedRowModel().rows.map((row) => row.original.offerId)} />
+          {isSuccess && (
+            <AcceptButton
+              marketAddress={marketAddress}
+              selectedOffers={table.getSelectedRowModel().rows.map((row) => row.original)}
+            />
+          )}
         </div>
         <div className="overflow-hidden rounded-md border">
           <Table>
