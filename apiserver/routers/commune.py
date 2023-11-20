@@ -68,8 +68,8 @@ class ProposalInfo(Response):
     proposal_id: str
     proposer: str
     title: str
-    voting_date: int
-    voting_deadline: int
+    # voting_date: int
+    # voting_deadline: int
     votes: ProposalVotes
     is_executed: bool
 

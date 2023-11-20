@@ -1,7 +1,6 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from requests import Session
 
 from sqlalchemy import exc
 from sqlmodel import Session, select
@@ -9,8 +8,15 @@ from sqlmodel import Session, select
 from apiserver.database import get_session
 
 from apiserver.database.models import (
+    RoyaltyToken,
     StakeholderCollectiveProposal,
-    StakeholderCollective
+    StakeholderCollective,
+)
+from apiserver.routers.commune import (
+    Proposal,
+    ProposalDescription,
+    ProposalInfo,
+    ProposalVotes,
 )
 
 router = APIRouter()
@@ -39,50 +45,78 @@ def get_contract_address(
 @router.get("/{royalty_token_symbol}/proposals")
 def fetch_proposals(
     *, royalty_token_symbol: str, session: Session = Depends(get_session)
-) -> List[StakeholderCollectiveProposal]:
-    statement = select(StakeholderCollective).where(
-        StakeholderCollective.royalty_token_symbol == royalty_token_symbol
-    )
-    stakeholder_collective = session.exec(statement).one()
-
+) -> List[ProposalInfo]:
     statement = select(StakeholderCollectiveProposal).where(
-        StakeholderCollectiveProposal.contract_address == stakeholder_collective.contract_address
+        (StakeholderCollective.royalty_token_symbol == royalty_token_symbol)
+        & (
+            StakeholderCollectiveProposal.contract_address
+            == StakeholderCollective.contract_address
+        )
     )
-    proposals = session.exec(statement)
+    results = session.exec(statement)
+
+    try:
+        proposals = results.all()
+    except exc.NoResultFound:
+        raise HTTPException(
+            status_code=404,
+            detail="Proposals Not Found",
+        )
 
     return [
-        StakeholderCollectiveProposal(
-            contract_address=p.contract_address,
-            proposal_id=p.proposal_id,
-            proposer=p.proposer,
-            title=p.title,
-            description=p.description,
-            votes_for=p.votes_for,
-            votes_against=p.votes_against,
-            votes_abstain=p.votes_abstain,
-            is_executed=p.is_executed,
+        ProposalInfo(
+            proposal_id=proposal.proposal_id,
+            proposer=proposal.proposer,
+            title=proposal.title,
+            votes=ProposalVotes(
+                pro=proposal.votes_for,
+                contra=proposal.votes_against,
+                abstain=proposal.votes_abstain,
+            ),
+            is_executed=proposal.is_executed,
         )
-        for p in proposals
+        for proposal in proposals
     ]
 
 
 @router.get("/{royalty_token_symbol}/proposals/{proposal_id}")
 def get_proposal(
-    *, royalty_token_symbol: str, proposal_id: str, session: Session = Depends(get_session)
-) -> StakeholderCollectiveProposal:
+    *,
+    royalty_token_symbol: str,
+    proposal_id: str,
+    session: Session = Depends(get_session)
+) -> Proposal:
     statement = select(StakeholderCollectiveProposal).where(
-        StakeholderCollectiveProposal.proposal_id == proposal_id
+        (StakeholderCollective.royalty_token_symbol == royalty_token_symbol)
+        & (StakeholderCollectiveProposal.proposal_id == proposal_id)
     )
-    proposal = session.exec(statement).one()
+    results = session.exec(statement)
 
-    return StakeholderCollectiveProposal(
-        contract_address=proposal.contract_address,
-        proposal_id=proposal.proposal_id,
-        proposer=proposal.proposer,
-        title=proposal.title,
-        description=proposal.description,
-        votes_for=proposal.votes_for,
-        votes_against=proposal.votes_against,
-        votes_abstain=proposal.votes_abstain,
-        is_executed=proposal.is_executed,
+    try:
+        proposal = results.one()
+    except exc.NoResultFound:
+        raise HTTPException(
+            status_code=404,
+            detail="Proposal Not Found",
+        )
+
+    return Proposal(
+        info=ProposalInfo(
+            proposal_id=proposal.proposal_id,
+            proposer=proposal.proposer,
+            title=proposal.title,
+            votes=ProposalVotes(
+                pro=proposal.votes_for,
+                contra=proposal.votes_against,
+                abstain=proposal.votes_abstain,
+            ),
+            is_executed=proposal.is_executed,
+        ),
+        description=ProposalDescription(
+            description=proposal.description,
+            targets=[],
+            values=[],
+            signatures=[],
+            calldatas=[],
+        ),
     )
