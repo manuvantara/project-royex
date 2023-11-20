@@ -3,25 +3,24 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { usePrepareContractWrite, useContractWrite, useWaitForTransaction } from 'wagmi';
+import Editor from './components/editor';
+import TemplateSelector from './components/template-selector';
+import { proposalTemplates, templateTypes } from './data/templates';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PageHeader, PageHeaderHeading } from '@/components/ui/page-header';
-import { COLLECTIVE_ABI, COLLECTIVE_ADDRESS } from '@/lib/abi/collective';
-import Editor from './components/editor';
-import TemplateSelector from './components/template-selector';
-
-import { proposalTemplates, templateTypes } from './data/templates';
+import { STAKEHOLDER_COLLECTIVE_ABI, STAKEHOLDER_ADDRESS } from '@/config/contracts';
 
 export default function Page() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
   const { config } = usePrepareContractWrite({
-    abi: COLLECTIVE_ABI,
-    address: COLLECTIVE_ADDRESS,
+    abi: STAKEHOLDER_COLLECTIVE_ABI,
+    address: STAKEHOLDER_ADDRESS,
     functionName: 'propose',
-    args: [[COLLECTIVE_ADDRESS], [BigInt(0)], ['0x00'], JSON.stringify({ title, description })],
+    args: [[STAKEHOLDER_ADDRESS], [BigInt(0)], ['0x00'], JSON.stringify({ title, description })],
     enabled: Boolean(title) && Boolean(description),
   });
 

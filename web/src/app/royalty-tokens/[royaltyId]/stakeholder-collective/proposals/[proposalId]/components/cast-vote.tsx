@@ -19,8 +19,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
-import { COLLECTIVE_ABI, COLLECTIVE_ADDRESS } from '@/lib/abi/collective';
-import { ROYALTY_TOKEN_ABI, ROYALTY_TOKEN_ADDRESS } from '@/lib/abi/royalty-token';
+import { STAKEHOLDER_ADDRESS, STAKEHOLDER_COLLECTIVE_ABI, ROYALTY_TOKEN_ABI, ROYALTY_TOKEN_ADDRESS } from '@/config/contracts';
 
 const FormSchema = z.object({
   vote: z.enum(['for', 'against', 'abstain'], {
@@ -53,8 +52,8 @@ export default function CastVote({ proposalId }: { proposalId: string }) {
   });
 
   const { write, data } = useContractWrite({
-    abi: COLLECTIVE_ABI,
-    address: COLLECTIVE_ADDRESS,
+    abi: STAKEHOLDER_COLLECTIVE_ABI,
+    address: STAKEHOLDER_ADDRESS,
     functionName: 'castVote',
   });
 
