@@ -4,7 +4,6 @@ from time import time
 import numpy as np
 
 from fastapi import APIRouter, Depends, HTTPException
-from requests import Session
 
 from sqlalchemy import exc
 from sqlmodel import Session, select
@@ -65,6 +64,12 @@ def get_royalty_token(session: Session, is_live: bool) -> List[RoyaltyToken]:
         )
 
     initial_royalty_offerings = session.exec(statement).all()
+    if len(initial_royalty_offerings) == 0:
+        raise HTTPException(
+            status_code=404,
+            detail="Initial Royalty Offerings Not Found",
+        )
+    
     royalty_symbols: List[str] = tuple(set([initial_royalty_offering.royalty_token_symbol for initial_royalty_offering in initial_royalty_offerings]))
     royalty_prices: Dict[str, List] = dict(zip(royalty_symbols, [[] for _ in range(len(royalty_symbols))]))
     deposits: Dict[str, List] = dict(zip(royalty_symbols, [[] for _ in range(len(royalty_symbols))]))
@@ -75,11 +80,21 @@ def get_royalty_token(session: Session, is_live: bool) -> List[RoyaltyToken]:
                 RoyaltyExchange.royalty_token_symbol == royalty_symbol,
             )
             royalty_exchange = session.exec(statement).one()
+            if royalty_exchange.contract_address is None:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Royalty Exchange Not Found",
+                )
 
             statement = select(RoyaltyPaymentPool).where(
                 RoyaltyPaymentPool.royalty_token_symbol == royalty_symbol
             )
             royalty_payment_pool = session.exec(statement).one()
+            if royalty_payment_pool.contract_address is None:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Royalty Payment Pool Not Found",
+                )
 
             statement = select(RoyaltyTokenSoldEvent).where(
                 RoyaltyTokenSoldEvent.contract_address == royalty_exchange.contract_address,

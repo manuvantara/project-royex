@@ -3,7 +3,7 @@ from typing import Dict, List
 from time import time
 import numpy as np
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from requests import Session
 
 from sqlmodel import Session, select
@@ -76,6 +76,11 @@ def get_stakeholder_royalties(stakeholder_address: str, hour_timestamps: np.ndar
                 RoyaltyExchange.contract_address == royalty.contract_address
             )
             royalty_exchange = session.exec(statement).one()
+            if royalty_exchange is None:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Royalty Exchange Not Found",
+                )
 
             change = royalty.royalty_token_amount if isinstance(royalty, RoyaltyTokenBoughtEvent) else -royalty.royalty_token_amount
             current_sum = royalties.get(royalty_exchange.royalty_token_symbol, 0)
@@ -150,6 +155,11 @@ def calculate_royalty_income(
                 RoyaltyPaymentPool.royalty_token_symbol == royalty_symbol
             )
             royalty_pool = session.exec(statement).one()
+            if royalty_pool is None:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Royalty Payment Pool Not Found",
+                )
 
             statement = select(RoyaltyPoolDepositedEvent).where(
                 RoyaltyPoolDepositedEvent.contract_address == royalty_pool.contract_address,
@@ -204,6 +214,11 @@ def fetch_public_royalty_tokens(
             RoyaltyPaymentPool.royalty_token_symbol.in_(royalty_symbols)
         )
         royalty_pools = session.exec(statement).all()
+        if len(royalty_pools) == 0:
+            raise HTTPException(
+                status_code=404,
+                detail="Royalty Payment Pools Not Found",
+            )
 
         for royalty_pool in royalty_pools:
             statement = select(RoyaltyPoolDepositedEvent.deposit).where(
@@ -272,6 +287,11 @@ def fetch_private_royalty_tokens(
             RoyaltyPaymentPool.royalty_token_symbol.in_(royalty_symbols)
         )
         royalty_pools = session.exec(statement).all()
+        if len(royalty_pools) == 0:
+            raise HTTPException(
+                status_code=404,
+                detail="Royalty Payment Pools Not Found",
+            )
 
         for royalty_pool in royalty_pools:
             statement = select(RoyaltyPoolDepositedEvent.deposit).where(

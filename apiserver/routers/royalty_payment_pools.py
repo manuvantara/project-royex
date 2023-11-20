@@ -51,6 +51,11 @@ def get_royalty_income(royalty_token_symbol: str, session: Session = Depends(get
         RoyaltyPaymentPool.royalty_token_symbol == royalty_token_symbol
     )
     royalty_pool_contract = session.exec(statement).one()
+    if royalty_pool_contract is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Royalty Payment Pool Not Found",
+        )
 
     for hour in hour_timestamps:
         statement = select(RoyaltyPoolDepositedEvent.block_timestamp,
@@ -97,6 +102,11 @@ def fetch_deposits(royalty_token_symbol: str, session: Session = Depends(get_ses
     )
 
     royalty_pool_contract = session.exec(statement).one()
+    if royalty_pool_contract is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Royalty Payment Pool Not Found",
+        )
 
     statement = select(RoyaltyPoolDepositedEvent).where(
         RoyaltyPoolDepositedEvent.contract_address == royalty_pool_contract

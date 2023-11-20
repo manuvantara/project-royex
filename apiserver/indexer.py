@@ -449,9 +449,11 @@ def update():
                     logging.info(f"entry={entry}")
 
                     if entry["event"] == "ProposalCreated":
-                        proposal_id = str(entry["args"]["proposalId"])
+                        text = entry["args"]["description"].split("\n")
+
                         proposer = entry["args"]["proposer"]
-                        description = entry["args"]["description"]
+                        description = text[1]
+                        title = text[0]
 
                         new_stakeholder_proposal(
                             session=session,

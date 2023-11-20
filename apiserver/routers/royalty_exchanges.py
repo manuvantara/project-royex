@@ -53,6 +53,11 @@ def get_price(royalty_token_symbol: str, session: Session = Depends(get_session)
         RoyaltyExchange.royalty_token_symbol == royalty_token_symbol
     )
     royalty_exchange_contract = session.exec(statement).one()
+    if royalty_exchange_contract is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Royalty Exchange Not Found",
+        )
 
     last_price = 0
     for hour in hour_timestamps:
@@ -104,6 +109,11 @@ def get_trading_volume(royalty_token_symbol: str, session: Session = Depends(get
     )
 
     royalty_exchange_contract = session.exec(statement).one()
+    if royalty_exchange_contract is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Royalty Exchange Not Found",
+        )
 
     for hour in hour_timestamps:
         statement = select(RoyaltyTokenSoldEvent.block_timestamp,
