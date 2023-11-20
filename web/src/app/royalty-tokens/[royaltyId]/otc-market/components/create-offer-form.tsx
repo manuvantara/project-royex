@@ -5,13 +5,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { parseEther } from 'viem';
-import { useContractWrite, usePublicClient, useAccount } from 'wagmi';
+import { useAccount, useContractWrite, usePublicClient } from 'wagmi';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { OTC_MARKET_ABI, OTC_MARKET_ADDRESS, ROYALTY_TOKEN_ABI, ROYALTY_TOKEN_ADDRESS } from '@/config/contracts';
+import { OTC_MARKET_ABI, ROYALTY_TOKEN_ABI } from '@/config/contracts';
 import { useMounted } from '@/hooks/use-mounted';
 
 const formSchema = z.object({
@@ -86,7 +86,7 @@ export default function CreateOfferForm({
       setIsLoading(true);
       // approve royalty token amount
       const approveRoyaltyTokenAmountResult = await approveRoyaltyTokens.writeAsync({
-        args: [OTC_MARKET_ADDRESS, parseEther(values.royaltyTokens.toString())],
+        args: [marketAddress, parseEther(values.royaltyTokens.toString())],
       });
       await publicClient.waitForTransactionReceipt({
         hash: approveRoyaltyTokenAmountResult.hash,
