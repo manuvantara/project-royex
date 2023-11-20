@@ -452,6 +452,7 @@ def update():
                     if entry["event"] == "ProposalCreated":
                         obj = json.loads(entry["args"]["description"])
                         proposer = entry["args"]["proposer"]
+                        proposal_id = entry["args"]["proposal_id"]
 
                         new_stakeholder_proposal(
                             session=session,
