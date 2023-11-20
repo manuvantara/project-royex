@@ -19,7 +19,12 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
-import { STAKEHOLDER_ADDRESS, STAKEHOLDER_COLLECTIVE_ABI, ROYALTY_TOKEN_ABI, ROYALTY_TOKEN_ADDRESS } from '@/config/contracts';
+import {
+  STAKEHOLDER_ADDRESS,
+  STAKEHOLDER_COLLECTIVE_ABI,
+  ROYALTY_TOKEN_ABI,
+  ROYALTY_TOKEN_ADDRESS,
+} from '@/config/contracts';
 
 const FormSchema = z.object({
   vote: z.enum(['for', 'against', 'abstain'], {
@@ -77,10 +82,10 @@ export default function CastVote({ proposalId }: { proposalId: string }) {
         write?.({ args: [BigInt(proposalId), 1] });
         break;
       case 'against':
-        write?.({ args: [BigInt(proposalId), -1] });
+        write?.({ args: [BigInt(proposalId), 0] });
         break;
       case 'abstain':
-        write?.({ args: [BigInt(proposalId), 0] });
+        write?.({ args: [BigInt(proposalId), 2] });
         break;
     }
   }
