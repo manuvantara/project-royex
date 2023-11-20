@@ -101,12 +101,22 @@ def get_royalty_token(session: Session, is_live: bool) -> List[RoyaltyToken]:
                 RoyaltyTokenSoldEvent.block_timestamp <= int(hour)
             ).order_by(RoyaltyTokenSoldEvent.block_timestamp.desc())
             royalty_token_sold_event = session.exec(statement).first()
+            if royalty_token_sold_event == None:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Royalty Token Sold Event Not Found",
+                )
 
             statement = select(RoyaltyTokenBoughtEvent).where(
                 RoyaltyTokenBoughtEvent.contract_address == royalty_exchange.contract_address,
                 RoyaltyTokenBoughtEvent.block_timestamp <= int(hour)
             ).order_by(RoyaltyTokenBoughtEvent.block_timestamp.desc())
             royalty_token_bought_event = session.exec(statement).first()
+            if royalty_token_bought_event == None:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Royalty Token Bought Event Not Found",
+                )
 
             statement = select(RoyaltyPoolDepositedEvent).where(
                 RoyaltyPoolDepositedEvent.contract_address == royalty_payment_pool.contract_address,
