@@ -2,7 +2,7 @@
 
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import { useRoyaltyExchangesServiceGetPrice } from '@/api/queries';
-import parseChartData from '@/lib/helpers/parse-chart-data';
+import { parseChartData } from '@/lib/helpers/chart';
 
 export default function PriceChart({ royaltyId }: { royaltyId: string }) {
   const { data, isLoading } = useRoyaltyExchangesServiceGetPrice({ royaltyTokenSymbol: royaltyId });

@@ -3,17 +3,11 @@
 import Link from 'next/link';
 import { Bar, BarChart, Line, LineChart, ResponsiveContainer } from 'recharts';
 
-import { ValueIndicator } from '@/api/requests';
+import type { RoyaltyToken } from '@/api/requests';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import parseChartData from '@/lib/helpers/parse-chart-data';
+import { parseChartData } from '@/lib/helpers/chart';
 
-type Props = {
-  royaltyTokenSymbol: string;
-  price: ValueIndicator;
-  depositedRoyaltyIncome: ValueIndicator;
-};
-
-export default function CardChart({ royaltyTokenSymbol, price, depositedRoyaltyIncome }: Props) {
+export default function CardChart({ symbol: royaltyTokenSymbol, price, depositedRoyaltyIncome }: RoyaltyToken) {
   const priceData = parseChartData(price);
   const royaltyIncomeData = parseChartData(depositedRoyaltyIncome);
 
