@@ -14,8 +14,8 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: '/royalty-tokens/:royaltyId',
-        destination: '/royalty-tokens/:royaltyId/initial-royalty-offering',
+        source: '/royalty-tokens/:royaltyTokenSymbol',
+        destination: '/royalty-tokens/:royaltyTokenSymbol/initial-royalty-offering',
         permanent: false,
       },
     ];

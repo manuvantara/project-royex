@@ -4,8 +4,8 @@ import IroForm from './components/iro-form';
 import Stats from './components/stats';
 import { InitialRoyaltyOfferingsService } from '@/api/requests';
 
-export default async function Page({ params: { royaltyId } }: { params: { royaltyId: string } }) {
-  const contractAddress = await InitialRoyaltyOfferingsService.getContractAddress(royaltyId);
+export default async function Page({ params: { royaltyTokenSymbol } }: { params: { royaltyTokenSymbol: string } }) {
+  const contractAddress = await InitialRoyaltyOfferingsService.getContractAddress(royaltyTokenSymbol);
   return (
     <PageLayout contractAddress={contractAddress}>
       <div className="mt-8 rounded-md border p-6">

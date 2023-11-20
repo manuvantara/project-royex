@@ -3,19 +3,17 @@ import OffersTable from './offers-table';
 import { useOtcMarketsServiceFetchOffersKey } from '@/api/queries';
 import { OtcMarketsService } from '@/api/requests';
 
-// TODO: Globally change royaltyId to royaltyTokenSymbol
-
-export default async function OffersWrapper({ royaltyId }: { royaltyId: string }) {
+export default async function OffersWrapper({ royaltyTokenSymbol }: { royaltyTokenSymbol: string }) {
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
     queryKey: [useOtcMarketsServiceFetchOffersKey],
-    queryFn: () => OtcMarketsService.fetchOffers(royaltyId)
+    queryFn: () => OtcMarketsService.fetchOffers(royaltyTokenSymbol),
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <OffersTable royaltyTokenSymbol={royaltyId} />
+      <OffersTable royaltyTokenSymbol={royaltyTokenSymbol} />
     </HydrationBoundary>
   );
 }

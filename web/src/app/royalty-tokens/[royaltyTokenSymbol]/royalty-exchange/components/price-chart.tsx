@@ -4,8 +4,8 @@ import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import { useRoyaltyExchangesServiceGetPrice } from '@/api/queries';
 import { parseChartData } from '@/lib/helpers/chart';
 
-export default function PriceChart({ royaltyId }: { royaltyId: string }) {
-  const { data, isLoading } = useRoyaltyExchangesServiceGetPrice({ royaltyTokenSymbol: royaltyId });
+export default function PriceChart({ royaltyTokenSymbol }: { royaltyTokenSymbol: string }) {
+  const { data, isLoading } = useRoyaltyExchangesServiceGetPrice({ royaltyTokenSymbol: royaltyTokenSymbol });
 
   if (isLoading) {
     return <div>Loading...</div>;

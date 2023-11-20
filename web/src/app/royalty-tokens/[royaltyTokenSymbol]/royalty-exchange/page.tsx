@@ -4,8 +4,8 @@ import PriceChart from './components/price-chart';
 import { RoyaltyExchangesService } from '@/api/requests';
 import { CardContent, CardHeader, CardTitle, Card as UICard } from '@/components/ui/card';
 
-export default async function Page({ params: { royaltyId } }: { params: { royaltyId: string } }) {
-  const contractAddress = await RoyaltyExchangesService.getContractAddress(royaltyId);
+export default async function Page({ params: { royaltyTokenSymbol } }: { params: { royaltyTokenSymbol: string } }) {
+  const contractAddress = await RoyaltyExchangesService.getContractAddress(royaltyTokenSymbol);
 
   return (
     <PageLayout contractAddress={contractAddress}>
@@ -15,7 +15,7 @@ export default async function Page({ params: { royaltyId } }: { params: { royalt
             <CardTitle>Price history</CardTitle>
           </CardHeader>
           <CardContent className="h-[300px]">
-            <PriceChart royaltyId={royaltyId} />
+            <PriceChart royaltyTokenSymbol={royaltyTokenSymbol} />
           </CardContent>
         </UICard>
       </div>

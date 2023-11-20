@@ -3,8 +3,8 @@ import CastVote from './components/cast-vote';
 import { CollectivesService } from '@/api/requests';
 import { PageHeader, PageHeaderHeading } from '@/components/ui/page-header';
 
-export default async function Page({ params }: { params: { royaltyId: string; proposalId: string } }) {
-  const proposal = await CollectivesService.getProposal(params.royaltyId, params.proposalId);
+export default async function Page({ params }: { params: { royaltyTokenSymbol: string; proposalId: string } }) {
+  const proposal = await CollectivesService.getProposal(params.royaltyTokenSymbol, params.proposalId);
 
   return (
     <div className="container relative">

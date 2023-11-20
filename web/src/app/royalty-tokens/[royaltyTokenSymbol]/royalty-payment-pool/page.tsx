@@ -15,11 +15,13 @@ const fakeStats = Array.from({ length: 4 }, (_) => ({
 
 export const revalidate = 60;
 
-export default async function Page({ params: { royaltyId } }: { params: { royaltyId: string } }) {
-  const contractAddress = await RoyaltyPaymentPoolsService.getContractAddress(royaltyId);
-  const royaltyPayments = await RoyaltyPaymentPoolsService.fetchDeposits(royaltyId);
-
-  
+export default async function Page({
+  params: { royaltyTokenSymbol },
+}: {
+  params: { royaltyTokenSymbol: string };
+}) {
+  const contractAddress = await RoyaltyPaymentPoolsService.getContractAddress(royaltyTokenSymbol);
+  const royaltyPayments = await RoyaltyPaymentPoolsService.fetchDeposits(royaltyTokenSymbol);
 
   return (
     <PageLayout contractAddress={contractAddress}>

@@ -1,11 +1,11 @@
-import { CollectivesService } from '@/api/requests';
 import PageLayout from '../components/page-layout';
 import { columns } from './components/columns';
 import { DataTable } from './components/data-table';
+import { CollectivesService } from '@/api/requests';
 
-export default async function Page({ params: { royaltyId } }: { params: { royaltyId: string } }) {
-  const contractAddress = await CollectivesService.getContractAddress(royaltyId);
-  const proposals = await CollectivesService.fetchProposals(royaltyId);
+export default async function Page({ params: { royaltyTokenSymbol } }: { params: { royaltyTokenSymbol: string } }) {
+  const contractAddress = await CollectivesService.getContractAddress(royaltyTokenSymbol);
+  const proposals = await CollectivesService.fetchProposals(royaltyTokenSymbol);
 
   return (
     <PageLayout contractAddress={contractAddress}>

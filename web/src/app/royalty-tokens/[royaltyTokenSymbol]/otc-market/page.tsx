@@ -1,14 +1,13 @@
-import { Suspense } from 'react';
 import Balancer from 'react-wrap-balancer';
 import PageLayout from '../components/page-layout';
 import CreateOfferForm from './components/create-offer-form';
 import OffersWrapper from './components/offers-wrapper';
 import { OtcMarketsService, RoyaltyTokensService } from '@/api/requests';
 
-export default async function Page({ params: { royaltyId } }: { params: { royaltyId: string } }) {
+export default async function Page({ params: { royaltyTokenSymbol } }: { params: { royaltyTokenSymbol: string } }) {
   const [marketAddress, royaltyTokenAddress] = await Promise.all([
-    OtcMarketsService.getContractAddress(royaltyId),
-    RoyaltyTokensService.getContractAddress(royaltyId),
+    OtcMarketsService.getContractAddress(royaltyTokenSymbol),
+    RoyaltyTokensService.getContractAddress(royaltyTokenSymbol),
   ]);
 
   return (
@@ -25,9 +24,7 @@ export default async function Page({ params: { royaltyId } }: { params: { royalt
         <div className="mt-8 grid grid-cols-3 gap-6">
           <CreateOfferForm royaltyTokenAddress={royaltyTokenAddress} marketAddress={marketAddress} />
           <div className="col-span-2 gap-6">
-            {' '}
-            {/* TODO: Add proper loading state */}
-            <OffersWrapper royaltyId={royaltyId} />
+            <OffersWrapper royaltyTokenSymbol={royaltyTokenSymbol} />
           </div>
         </div>
       </div>
