@@ -235,7 +235,7 @@ def new_royalty_token_operation(
     updated_royalty_token_reserve: int,
     updated_stablecoin_reserve: int,
     block_timestamp: int,
-    model: Type[models.RoyaltyTokenEvent]
+    model: Type[models.RoyaltyTokenTradedEvent],
 ):
     royalty_token_bought_event = model(
         contract_address=contract_address,
@@ -285,6 +285,7 @@ def new_pool_deposit(
 
     session.add(deposit)
 
+
 def new_initial_royalty_bought(
     *,
     session: Session,
@@ -292,9 +293,11 @@ def new_initial_royalty_bought(
     amount: int,
     block_timestamp: int,
     royalty_token_address: str,
-    stablecoin_address: str
-):  
-    royalty_token = w3.eth.contract(address=royalty_token_address, abi=abis.RoyaltyToken)
+    stablecoin_address: str,
+):
+    royalty_token = w3.eth.contract(
+        address=royalty_token_address, abi=abis.RoyaltyToken
+    )
     stablecoin = w3.eth.contract(address=stablecoin_address, abi=abis.Stablecoin)
 
     bought = models.InitialRoyaltyBoughtEvent(
@@ -307,6 +310,7 @@ def new_initial_royalty_bought(
 
     session.add(bought)
 
+
 def update():
     symbols = fetch_symbols()
 
@@ -314,10 +318,18 @@ def update():
 
     for symbol in symbols:
         otc_market_contracts = fetch_contracts(model=models.OtcMarket, symbol=symbol)
-        stakeholder_collective_contracts = fetch_contracts(model=models.StakeholderCollective, symbol=symbol)
-        royalty_exchange_contracts = fetch_contracts(model=models.RoyaltyExchange, symbol=symbol)
-        royalty_payment_pool_contracts = fetch_contracts(model=models.RoyaltyPaymentPool, symbol=symbol)
-        initial_royalty_offering_contracts = fetch_contracts(model=models.InitialRoyaltyOffering, symbol=symbol)
+        stakeholder_collective_contracts = fetch_contracts(
+            model=models.StakeholderCollective, symbol=symbol
+        )
+        royalty_exchange_contracts = fetch_contracts(
+            model=models.RoyaltyExchange, symbol=symbol
+        )
+        royalty_payment_pool_contracts = fetch_contracts(
+            model=models.RoyaltyPaymentPool, symbol=symbol
+        )
+        initial_royalty_offering_contracts = fetch_contracts(
+            model=models.InitialRoyaltyOffering, symbol=symbol
+        )
 
         logging.info("contracts fetched")
 
@@ -415,7 +427,9 @@ def update():
 
             entries = []
 
-            StakeholderCollective = w3.eth.contract(address=contract_address, abi=abis.StakeholderCollective)	
+            StakeholderCollective = w3.eth.contract(
+                address=contract_address, abi=abis.StakeholderCollective
+            )
 
             entries += StakeholderCollective.events.ProposalCreated.create_filter(
                 fromBlock=block_number, toBlock=latest_block.number
@@ -459,8 +473,8 @@ def update():
                             contract_address=contract_address,
                             proposal_id=proposal_id,
                             proposer=proposer,
-                            title=obj['title'],
-                            description=obj['description']
+                            title=obj["title"],
+                            description=obj["description"],
                         )
 
                     elif entry["event"] == "ProposalCanceled":
@@ -491,7 +505,7 @@ def update():
                             contract_address=contract_address,
                             proposal_id=proposal_id,
                             support=support,
-                            weight=weight
+                            weight=weight,
                         )
 
                 session.commit()
@@ -534,8 +548,13 @@ def update():
                     trader = entry["args"]["trader"]
                     royalty_token_amount = entry["args"]["royaltyTokenAmount"]
                     stablecoin_amount = entry["args"]["stablecoinAmount"]
-                    updated_royalty_token_reserve = entry["args"]["updatedRoyaltyTokenReserve"]
-                    updated_stablecoin_reserve = entry["args"]["updatedStablecoinReserve"]
+                    updated_royalty_token_reserve = entry["args"][
+                        "updatedRoyaltyTokenReserve"
+                    ]
+                    updated_stablecoin_reserve = entry["args"][
+                        "updatedStablecoinReserve"
+                    ]
+                    block_timestamp = w3.eth.get_block(entry["blockNumber"]).timestamp
 
                     new_royalty_token_operation(
                         session=session,
@@ -545,8 +564,10 @@ def update():
                         stablecoin_amount=stablecoin_amount,
                         updated_royalty_token_reserve=updated_royalty_token_reserve,
                         updated_stablecoin_reserve=updated_stablecoin_reserve,
-                        block_timestamp=entry["blockNumber"],
-                        model=models.RoyaltyTokenBoughtEvent if entry["event"] == "RoyaltyTokenBought" else models.RoyaltyTokenSoldEvent
+                        block_timestamp=block_timestamp,
+                        model=models.RoyaltyTokenBoughtEvent
+                        if entry["event"] == "RoyaltyTokenBought"
+                        else models.RoyaltyTokenSoldEvent,
                     )
                 
                 session.commit()
@@ -590,6 +611,9 @@ def update():
                         checkpoint_key = entry["args"]["checkpointKey"]
                         investor = entry["args"]["investor"]
                         amount = entry["args"]["amount"]
+                        block_timestamp = w3.eth.get_block(
+                            entry["blockNumber"]
+                        ).timestamp
 
                         new_pool_withdrawal(
                             session=session,
@@ -597,24 +621,29 @@ def update():
                             checkpoint_key=checkpoint_key,
                             investor=investor,
                             amount=amount,
-                            block_timestamp=entry["blockNumber"],
+                            block_timestamp=block_timestamp,
                         )
                     elif entry["event"] == "RoyaltiesDeposited":
                         sender = entry["args"]["from"]
                         deposit = entry["args"]["deposit"]
+                        block_timestamp = w3.eth.get_block(
+                            entry["blockNumber"]
+                        ).timestamp
 
                         new_pool_deposit(
                             session=session,
                             contract_address=contract_address,
                             sender=sender,
                             deposit=deposit,
-                            block_timestamp=entry["blockNumber"]
+                            block_timestamp=block_timestamp,
                         )
 
                 session.commit()
-            
+
             update_latest_block(
-                model=models.RoyaltyPaymentPool, symbol=symbol, value=latest_block.number
+                model=models.RoyaltyPaymentPool,
+                symbol=symbol,
+                value=latest_block.number,
             )
 
         for [contract_address, block_number] in initial_royalty_offering_contracts:
@@ -626,7 +655,9 @@ def update():
 
             entries = []
 
-            InitialRoyaltyOffering = w3.eth.contract(address=contract_address, abi=abis.InitialRoyaltyOffering)
+            InitialRoyaltyOffering = w3.eth.contract(
+                address=contract_address, abi=abis.InitialRoyaltyOffering
+            )
 
             royalty_token = InitialRoyaltyOffering.functions.royaltyToken().call()
             stablecoin = InitialRoyaltyOffering.functions.stablecoin().call()
@@ -648,23 +679,28 @@ def update():
                     logging.info(f"entry={entry}")
                     if entry["event"] == "RoyaltyTokensBought":
                         amount = entry["args"]["amount"]
+                        block_timestamp = w3.eth.get_block(
+                            entry["blockNumber"]
+                        ).timestamp
 
                         new_initial_royalty_bought(
                             session=session,
                             contract_address=contract_address,
                             amount=amount,
-                            block_timestamp=entry["blockNumber"],
+                            block_timestamp=block_timestamp,
                             royalty_token_address=royalty_token,
-                            stablecoin_address=stablecoin
+                            stablecoin_address=stablecoin,
                         )
 
                 session.commit()
 
             update_latest_block(
-                model=models.InitialRoyaltyOffering, symbol=symbol, value=latest_block.number
+                model=models.InitialRoyaltyOffering,
+                symbol=symbol,
+                value=latest_block.number,
             )
 
-    time.sleep(10)
+    time.sleep(15)
 
 
 if __name__ == "__main__":

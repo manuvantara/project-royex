@@ -1,3 +1,4 @@
+import random
 from typing import Dict, List
 
 from time import time
@@ -33,7 +34,10 @@ from apiserver.routers.commune import (
 
 router = APIRouter()
 
-def get_stakeholder_royalties(stakeholder_address: str, hour_timestamps: np.ndarray, session: Session) -> List:
+
+def get_stakeholder_royalties(
+    stakeholder_address: str, hour_timestamps: np.ndarray, session: Session
+) -> List:
     royalties: Dict[str, RoyaltySum] = {}
     otc_royalties: Dict[str, RoyaltySum] = {}
 
@@ -41,36 +45,54 @@ def get_stakeholder_royalties(stakeholder_address: str, hour_timestamps: np.ndar
     otc_values = np.array([])
 
     for hour in hour_timestamps:
-        statement = select(OtcMarketOfferAcceptedEvent).where(
-            OtcMarketOfferAcceptedEvent.buyer == stakeholder_address,
-            OtcMarketOfferAcceptedEvent.block_timestamp <= int(hour),
-        ).order_by(OtcMarketOfferAcceptedEvent.block_timestamp)
+        statement = (
+            select(OtcMarketOfferAcceptedEvent)
+            .where(
+                OtcMarketOfferAcceptedEvent.buyer == stakeholder_address,
+                OtcMarketOfferAcceptedEvent.block_timestamp <= int(hour),
+            )
+            .order_by(OtcMarketOfferAcceptedEvent.block_timestamp)
+        )
         offers_accepted = session.exec(statement).all()
 
-        statement = select(OtcMarketOfferAcceptedEvent).where(
-            OtcMarketOfferAcceptedEvent.seller == stakeholder_address,
-            OtcMarketOfferAcceptedEvent.block_timestamp <= int(hour),
-        ).order_by(OtcMarketOfferAcceptedEvent.block_timestamp)
+        statement = (
+            select(OtcMarketOfferAcceptedEvent)
+            .where(
+                OtcMarketOfferAcceptedEvent.seller == stakeholder_address,
+                OtcMarketOfferAcceptedEvent.block_timestamp <= int(hour),
+            )
+            .order_by(OtcMarketOfferAcceptedEvent.block_timestamp)
+        )
         offers_sold = session.exec(statement).all()
 
         offers = offers_accepted + offers_sold
         offers = sorted(offers, key=lambda x: x.block_timestamp)
 
-        statement = select(RoyaltyTokenBoughtEvent).where(
-            RoyaltyTokenBoughtEvent.trader == stakeholder_address,
-            RoyaltyTokenBoughtEvent.block_timestamp <= int(hour),
-        ).order_by(RoyaltyTokenBoughtEvent.block_timestamp)
+        statement = (
+            select(RoyaltyTokenBoughtEvent)
+            .where(
+                RoyaltyTokenBoughtEvent.trader == stakeholder_address,
+                RoyaltyTokenBoughtEvent.block_timestamp <= int(hour),
+            )
+            .order_by(RoyaltyTokenBoughtEvent.block_timestamp)
+        )
         royalties_bought = session.exec(statement).all()
 
-        statement = select(RoyaltyTokenSoldEvent).where(
-            RoyaltyTokenSoldEvent.trader == stakeholder_address,
-            RoyaltyTokenSoldEvent.block_timestamp <= int(hour),
-        ).order_by(RoyaltyTokenSoldEvent.block_timestamp)
+        statement = (
+            select(RoyaltyTokenSoldEvent)
+            .where(
+                RoyaltyTokenSoldEvent.trader == stakeholder_address,
+                RoyaltyTokenSoldEvent.block_timestamp <= int(hour),
+            )
+            .order_by(RoyaltyTokenSoldEvent.block_timestamp)
+        )
         royalties_sold = session.exec(statement).all()
 
         royalties_transfered = royalties_bought + royalties_sold
-        royalties_transfered = sorted(royalties_transfered, key=lambda x: x.block_timestamp)
-        
+        royalties_transfered = sorted(
+            royalties_transfered, key=lambda x: x.block_timestamp
+        )
+
         for royalty in royalties_transfered:
             statement = select(RoyaltyExchange).where(
                 RoyaltyExchange.contract_address == royalty.contract_address
@@ -82,13 +104,17 @@ def get_stakeholder_royalties(stakeholder_address: str, hour_timestamps: np.ndar
                     detail="Royalty Exchange Not Found",
                 )
 
-            change = royalty.royalty_token_amount if isinstance(royalty, RoyaltyTokenBoughtEvent) else -royalty.royalty_token_amount
+            change = (
+                royalty.royalty_token_amount
+                if isinstance(royalty, RoyaltyTokenBoughtEvent)
+                else -royalty.royalty_token_amount
+            )
             current_sum = royalties.get(royalty_exchange.royalty_token_symbol, 0)
 
             royalties[royalty_exchange.royalty_token_symbol] = RoyaltySum(
-                count = current_sum.count + change if current_sum else change,
-                price = royalty.royalty_token_amount / royalty.stablecoin_amount,
-                timestamp = royalty.block_timestamp
+                count=current_sum.count + change if current_sum else change,
+                price=royalty.royalty_token_amount / royalty.stablecoin_amount,
+                timestamp=royalty.block_timestamp,
             )
 
         exchange_incomes = np.array([r.price * r.count for r in royalties.values()])
@@ -99,6 +125,7 @@ def get_stakeholder_royalties(stakeholder_address: str, hour_timestamps: np.ndar
 
     return [exchange_values, otc_values, royalties, otc_royalties]
 
+
 @router.get("/{stakeholder_address}/estimated-value")
 def get_estimated_portfolio_value(
     stakeholder_address: str,
@@ -106,8 +133,10 @@ def get_estimated_portfolio_value(
 ) -> GetEstimatedPortfolioValue:  # address
     current_timestamp = int(time())
     hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
-    
-    exchange_values, otc_values = get_stakeholder_royalties(stakeholder_address, hour_timestamps, session)
+
+    exchange_values, otc_values = get_stakeholder_royalties(
+        stakeholder_address, hour_timestamps, session
+    )
 
     return GetEstimatedPortfolioValue(
         on_otc_market=ValueIndicator(
@@ -115,9 +144,7 @@ def get_estimated_portfolio_value(
                 timestamp=hour_timestamps[0], value=otc_values[0]
             ),
             recent_values_dataset=[
-                TimeSeriesDataPoint(
-                    timestamp=hour_timestamps[i], value=otc_values[i]
-                )
+                TimeSeriesDataPoint(timestamp=hour_timestamps[i], value=otc_values[i])
                 for i in range(1, len(otc_values))
             ],
         ),
@@ -131,7 +158,7 @@ def get_estimated_portfolio_value(
                 )
                 for i in range(1, len(exchange_values))
             ],
-        )
+        ),
     )
 
 
@@ -144,7 +171,9 @@ def calculate_royalty_income(
     hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
     hour_incomes = np.array([])
 
-    exchange_values, otc_values, royalties, otc_royalties = get_stakeholder_royalties(stakeholder_address, hour_timestamps, session)
+    exchange_values, otc_values, royalties, otc_royalties = get_stakeholder_royalties(
+        stakeholder_address, hour_timestamps, session
+    )
     royalty_symbols = tuple(set(dict(otc_royalties, **royalties).keys()))
 
     for hour in hour_timestamps:
@@ -162,7 +191,8 @@ def calculate_royalty_income(
                 )
 
             statement = select(RoyaltyPoolDepositedEvent).where(
-                RoyaltyPoolDepositedEvent.contract_address == royalty_pool.contract_address,
+                RoyaltyPoolDepositedEvent.contract_address
+                == royalty_pool.contract_address,
                 RoyaltyPoolDepositedEvent.block_timestamp <= int(hour),
             )
             deposits = session.exec(statement).all()
@@ -176,9 +206,8 @@ def calculate_royalty_income(
         reported=ValueIndicator(
             current=TimeSeriesDataPoint(timestamp=0, value=0),
             recent_values_dataset=[
-                TimeSeriesDataPoint(timestamp=0, value=0),
-                TimeSeriesDataPoint(timestamp=0, value=0),
-                TimeSeriesDataPoint(timestamp=0, value=0),
+                TimeSeriesDataPoint(timestamp=hour * 3600, value=random.randint(0, 742))
+                for hour in range(24)
             ],
         ),
         deposited=ValueIndicator(
@@ -186,9 +215,7 @@ def calculate_royalty_income(
                 timestamp=hour_timestamps[0], value=hour_incomes[0]
             ),
             recent_values_dataset=[
-                TimeSeriesDataPoint(
-                    timestamp=hour_timestamps[i], value=hour_incomes[i]
-                )
+                TimeSeriesDataPoint(timestamp=hour_timestamps[i], value=hour_incomes[i])
                 for i in range(1, len(hour_incomes))
             ],
         ),
@@ -203,9 +230,11 @@ def fetch_public_royalty_tokens(
     current_timestamp = int(time())
     hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
 
-    exchange_values, otc_values, royalties, otc_royalties = get_stakeholder_royalties(stakeholder_address, hour_timestamps, session)
+    exchange_values, otc_values, royalties, otc_royalties = get_stakeholder_royalties(
+        stakeholder_address, hour_timestamps, session
+    )
     deposited_values = np.array([])
-    
+
     offerings = session.exec(select(InitialRoyaltyOffering.royalty_token_symbol)).all()
     royalty_symbols = tuple(set(dict(otc_royalties, **royalties).keys()))
 
@@ -222,7 +251,8 @@ def fetch_public_royalty_tokens(
 
         for royalty_pool in royalty_pools:
             statement = select(RoyaltyPoolDepositedEvent.deposit).where(
-                RoyaltyPoolDepositedEvent.contract_address == royalty_pool.contract_address,
+                RoyaltyPoolDepositedEvent.contract_address
+                == royalty_pool.contract_address,
                 RoyaltyPoolDepositedEvent.block_timestamp <= int(hour),
             )
             deposits = session.exec(statement).all()
@@ -231,14 +261,14 @@ def fetch_public_royalty_tokens(
             deposited_values = np.append(deposited_values, deposit_sum)
 
     royalty_tokens = session.exec(select(RoyaltyTokenModel)).all()
-    print('-'*75)
+    print("-" * 75)
     print(royalty_tokens)
     print(offerings)
     print(royalty_symbols)
 
     return [
         RoyaltyToken(
-            royalty_token_symbol=token.symbol,
+            symbol=token.symbol,
             price=ValueIndicator(
                 current=TimeSeriesDataPoint(
                     timestamp=hour_timestamps[0], value=exchange_values[0]
@@ -252,19 +282,19 @@ def fetch_public_royalty_tokens(
             ),
             deposited_royalty_income=ValueIndicator(
                 current=TimeSeriesDataPoint(
-                    timestamp=hour_timestamps[0], value=royalties[token.symbol].count * royalties[token.symbol].price
+                    timestamp=hour_timestamps[0],
+                    value=royalties[token.symbol].count * royalties[token.symbol].price,
                 ),
                 recent_values_dataset=[
                     TimeSeriesDataPoint(
                         timestamp=hour_timestamps[i], value=deposited_values[i]
                     )
                     for i in range(1, len(deposited_values))
-                ]
-            )
+                ],
+            ),
         )
         for token in royalty_tokens
-        if token.symbol in royalty_symbols
-        and token.symbol not in offerings
+        if token.symbol in royalty_symbols and token.symbol not in offerings
     ]
 
 
@@ -276,9 +306,11 @@ def fetch_private_royalty_tokens(
     current_timestamp = int(time())
     hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
 
-    exchange_values, otc_values, royalties, otc_royalties = get_stakeholder_royalties(stakeholder_address, hour_timestamps, session)
+    exchange_values, otc_values, royalties, otc_royalties = get_stakeholder_royalties(
+        stakeholder_address, hour_timestamps, session
+    )
     deposited_values = np.array([])
-    
+
     offerings = session.exec(select(InitialRoyaltyOffering.royalty_token_symbol)).all()
     royalty_symbols = tuple(set(dict(otc_royalties, **royalties).keys()))
 
@@ -295,7 +327,8 @@ def fetch_private_royalty_tokens(
 
         for royalty_pool in royalty_pools:
             statement = select(RoyaltyPoolDepositedEvent.deposit).where(
-                RoyaltyPoolDepositedEvent.contract_address == royalty_pool.contract_address,
+                RoyaltyPoolDepositedEvent.contract_address
+                == royalty_pool.contract_address,
                 RoyaltyPoolDepositedEvent.block_timestamp <= int(hour),
             )
             deposits = session.exec(statement).all()
@@ -304,14 +337,14 @@ def fetch_private_royalty_tokens(
             deposited_values = np.append(deposited_values, deposit_sum)
 
     royalty_tokens = session.exec(select(RoyaltyTokenModel)).all()
-    print('-'*75)
+    print("-" * 75)
     print(royalty_tokens)
     print(offerings)
     print(royalty_symbols)
 
     return [
         RoyaltyToken(
-            royalty_token_symbol=token.symbol,
+            symbol=token.symbol,
             price=ValueIndicator(
                 current=TimeSeriesDataPoint(
                     timestamp=hour_timestamps[0], value=exchange_values[0]
@@ -325,17 +358,17 @@ def fetch_private_royalty_tokens(
             ),
             deposited_royalty_income=ValueIndicator(
                 current=TimeSeriesDataPoint(
-                    timestamp=hour_timestamps[0], value=royalties[token.symbol].count * royalties[token.symbol].price
+                    timestamp=hour_timestamps[0],
+                    value=royalties[token.symbol].count * royalties[token.symbol].price,
                 ),
                 recent_values_dataset=[
                     TimeSeriesDataPoint(
                         timestamp=hour_timestamps[i], value=deposited_values[i]
                     )
                     for i in range(1, len(deposited_values))
-                ]
-            )
+                ],
+            ),
         )
         for token in royalty_tokens
-        if token.symbol in royalty_symbols
-        and token.symbol in offerings
+        if token.symbol in royalty_symbols and token.symbol in offerings
     ]
