@@ -19,24 +19,39 @@ abstract contract RXRC3 is
         string memory _name
     )
         Governor(_name)
-        GovernorSettings(144000 /* 1 day */, 1008000 /* 1 week */, 0)
+        GovernorSettings(55 /* 1 minutes */, 109 /* 2 minutes */, 0)
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4)
     {}
 
     // The following functions are overrides required by Solidity.
 
-    function votingDelay() public view override(Governor, GovernorSettings) returns (uint256) {
+    function votingDelay()
+        public
+        view
+        override(Governor, GovernorSettings)
+        returns (uint256)
+    {
         return super.votingDelay();
     }
 
-    function votingPeriod() public view override(Governor, GovernorSettings) returns (uint256) {
+    function votingPeriod()
+        public
+        view
+        override(Governor, GovernorSettings)
+        returns (uint256)
+    {
         return super.votingPeriod();
     }
 
     function quorum(
         uint256 blockNumber
-    ) public view override(Governor, GovernorVotesQuorumFraction) returns (uint256) {
+    )
+        public
+        view
+        override(Governor, GovernorVotesQuorumFraction)
+        returns (uint256)
+    {
         return super.quorum(blockNumber);
     }
 
