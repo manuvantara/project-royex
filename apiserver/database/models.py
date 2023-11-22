@@ -19,6 +19,9 @@ class EventBase(SQLModel):
     contract_address: constr(max_length=42) = Field(primary_key=True)
     block_timestamp: int = Field(primary_key=True)
 
+    def __getitem__(self, item):
+        return getattr(self, item)
+
 
 class RoyaltyToken(SQLModel, table=True):
     __tablename__ = "royalty_tokens"
@@ -62,8 +65,8 @@ class OtcMarketOffer(ElementBase, table=True):
     offer_id: constr(max_length=77) = Field(primary_key=True)
 
     seller: constr(max_length=42)
-    royalty_token_amount: Decimal
-    stablecoin_amount: Decimal
+    royalty_token_amount: condecimal(max_digits=78, decimal_places=0)
+    stablecoin_amount: condecimal(max_digits=78, decimal_places=0)
 
 
 class OtcMarketFloorPriceChangedEvent(EventBase, table=True):
@@ -89,7 +92,7 @@ class OtcMarketOfferAcceptedEvent(EventBase, table=True):
         arbitrary_types_allowed = True
 
 
-class RoyaltyTokenEvent(EventBase):
+class RoyaltyTokenTradedEvent(EventBase):
     trader: constr(max_length=42)
     royalty_token_amount: condecimal(max_digits=78, decimal_places=0)
     stablecoin_amount: condecimal(max_digits=78, decimal_places=0)
@@ -97,14 +100,14 @@ class RoyaltyTokenEvent(EventBase):
     updated_stablecoin_reserve: condecimal(max_digits=78, decimal_places=0)
 
 
-class RoyaltyTokenSoldEvent(RoyaltyTokenEvent, table=True):
+class RoyaltyTokenSoldEvent(RoyaltyTokenTradedEvent, table=True):
     __tablename__ = "royalty_token_sold_events"
 
     class Config:
         arbitrary_types_allowed = True
 
 
-class RoyaltyTokenBoughtEvent(RoyaltyTokenEvent, table=True):
+class RoyaltyTokenBoughtEvent(RoyaltyTokenTradedEvent, table=True):
     __tablename__ = "royalty_token_bought_events"
 
     class Config:
@@ -134,6 +137,7 @@ class RoyaltyPoolDepositedEvent(EventBase, table=True):
 
     sender: constr(max_length=42)
     deposit: condecimal(max_digits=78, decimal_places=0)
+
 
 class InitialRoyaltyBoughtEvent(EventBase, table=True):
     __tablename__ = "initial_royalty_tokens_bought_events"

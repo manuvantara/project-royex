@@ -1,5 +1,12 @@
-from pydantic import BaseModel, condecimal
+from datetime import datetime
+from decimal import Decimal
+from pydantic import BaseModel
 from typing import List, Optional
+
+from apiserver.database.models import (
+    OtcMarketOfferAcceptedEvent,
+    RoyaltyTokenTradedEvent,
+)
 
 
 def to_camel(string: str) -> str:
@@ -14,8 +21,8 @@ class Response(BaseModel):
 
 
 class TimeSeriesDataPoint(Response):
-    timestamp: int
-    value: condecimal(max_digits=156, decimal_places=78)
+    timestamp: float
+    value: str
 
 
 class ValueIndicator(Response):
@@ -55,8 +62,8 @@ class GetEstimatedPortfolioValue(Response):
 class Offer(Response):
     offer_id: str
     seller: str
-    royalty_token_amount: int
-    stablecoin_amount: int
+    royalty_token_amount: str
+    stablecoin_amount: str
 
 
 class ProposalVotes(Response):
@@ -93,6 +100,7 @@ class GetTradingVolume(Response):
     royalty_exchange: ValueIndicator
 
 
+# TODO: CLEAN THIS SHIT
 class RoyaltySum:
     count: int
     price: float
@@ -108,3 +116,52 @@ class RoyaltySum:
 
     def __str__(self) -> str:
         return f"RoyaltySum(count={self.count}, price={self.price}, timestamp={self.timestamp})"
+
+
+def generate_recent_values_dataset(
+    *,
+    events: List[OtcMarketOfferAcceptedEvent | RoyaltyTokenTradedEvent],
+    target: str,
+    lower_bound: datetime,
+    upper_bound: datetime,
+) -> List[TimeSeriesDataPoint]:
+    lower_bound_timestamp = int(lower_bound.timestamp())
+    upper_bound_timestamp = int(upper_bound.timestamp())
+
+    recent_values_dataset = []
+
+    for timestamp in range(lower_bound_timestamp, upper_bound_timestamp, 3600):
+        cumulative_volume = Decimal("0")
+
+        for event in events:
+            if (
+                event.block_timestamp >= timestamp
+                and event.block_timestamp < timestamp + 3600
+            ):
+                # TODO: Raise an error if target is not a decimal
+                cumulative_volume += event[target]
+            else:
+                continue
+
+        recent_values_dataset.append(
+            TimeSeriesDataPoint(timestamp=timestamp, value=str(cumulative_volume))
+        )
+
+    return recent_values_dataset
+
+
+def calculate_value_indicator(
+    *,
+    recent_values_dataset: List[TimeSeriesDataPoint],
+    upper_bound: datetime,
+) -> ValueIndicator:
+    cumulative_volume = sum(Decimal(value.value) for value in recent_values_dataset)
+
+    current = TimeSeriesDataPoint(
+        timestamp=upper_bound.timestamp(), value=str(cumulative_volume)
+    )
+
+    return ValueIndicator(
+        current=current,
+        recent_values_dataset=recent_values_dataset,
+    )

@@ -1,23 +1,28 @@
-from typing import List, Optional
-
+from datetime import datetime, timedelta
 from time import time
+from typing import List
+
 import numpy as np
 
 from fastapi import APIRouter, Depends, HTTPException
-from requests import Session
 
 from sqlalchemy import exc
 from sqlmodel import Session, select
 
 from apiserver.database import get_session
 
-from apiserver.routers.commune import Offer, ValueIndicator, TimeSeriesDataPoint
-
 from apiserver.database.models import (
     OtcMarket,
     OtcMarketFloorPriceChangedEvent,
     OtcMarketOffer,
     OtcMarketOfferAcceptedEvent,
+)
+from apiserver.routers.commune import (
+    Offer,
+    ValueIndicator,
+    TimeSeriesDataPoint,
+    calculate_value_indicator,
+    generate_recent_values_dataset,
 )
 
 router = APIRouter()
@@ -26,21 +31,26 @@ router = APIRouter()
 @router.get("/{royalty_token_symbol}/contract-address")
 def get_contract_address(
     *, royalty_token_symbol: str, session: Session = Depends(get_session)
-) -> Optional[str]:
+) -> str:
     statement = select(OtcMarket).where(
         OtcMarket.royalty_token_symbol == royalty_token_symbol
     )
     results = session.exec(statement)
 
     try:
-        royalty_token = results.one()
+        otc_market = results.one()
     except exc.NoResultFound:
         raise HTTPException(
             status_code=404,
             detail="OTC Market Not Found",
         )
+    except exc.MultipleResultsFound:
+        raise HTTPException(
+            status_code=500,
+            detail="Multiple OTC Market Found",
+        )
 
-    return royalty_token.contract_address
+    return otc_market.contract_address
 
 
 @router.get("/{royalty_token_symbol}/floor-price")
@@ -51,7 +61,9 @@ def get_floor_price(
     hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
     hour_prices = np.array([])
 
-    statement = select(OtcMarket).where(OtcMarket.royalty_token_symbol == royalty_token_symbol) # For last 24 hours
+    statement = select(OtcMarket).where(
+        OtcMarket.royalty_token_symbol == royalty_token_symbol
+    )  # For last 24 hours
     otc_market = session.exec(statement).first()
     if otc_market is None:
         raise HTTPException(
@@ -61,14 +73,18 @@ def get_floor_price(
 
     last_price = 0
     for hour in hour_timestamps:
-        statement = select(
+        statement = (
+            select(
                 OtcMarketFloorPriceChangedEvent.block_timestamp,
                 OtcMarketFloorPriceChangedEvent.floor_price,
-            ).where(
+            )
+            .where(
                 OtcMarketFloorPriceChangedEvent.contract_address
                 == otc_market.contract_address,
                 OtcMarketFloorPriceChangedEvent.block_timestamp <= int(hour),
-            ).order_by(OtcMarketFloorPriceChangedEvent.block_timestamp.desc())        
+            )
+            .order_by(OtcMarketFloorPriceChangedEvent.block_timestamp.desc())
+        )
         latest_price = session.exec(statement).first()
 
         if latest_price:
@@ -78,13 +94,9 @@ def get_floor_price(
             hour_prices = np.append(hour_prices, last_price)
 
     return ValueIndicator(
-        current=TimeSeriesDataPoint(
-            timestamp=hour_timestamps[0], value=hour_prices[0]
-        ),
+        current=TimeSeriesDataPoint(timestamp=hour_timestamps[0], value=hour_prices[0]),
         recent_values_dataset=[
-            TimeSeriesDataPoint(
-                timestamp=hour_timestamps[i], value=hour_prices[i]
-            )
+            TimeSeriesDataPoint(timestamp=hour_timestamps[i], value=hour_prices[i])
             for i in range(1, len(hour_prices))
         ],
     )
@@ -94,48 +106,29 @@ def get_floor_price(
 def get_trading_volume(
     *, royalty_token_symbol: str, session: Session = Depends(get_session)
 ) -> ValueIndicator:
-    current_timestamp = int(time())
-    hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
-    hour_volumes = np.array([])
+    upper_bound = datetime.now()
+    lower_bound = upper_bound.replace(hour=0, minute=0, second=0) - timedelta(hours=24)
 
-    statement = select(OtcMarket).where(OtcMarket.royalty_token_symbol == royalty_token_symbol)
-    otc_market = session.exec(statement).first()
-    if otc_market is None:
-        raise HTTPException(
-            status_code=404,
-            detail="OTC Market Not Found",
-        )
+    # TODO: If Royalty Token is not found, raise 404 error
+    statement = select(OtcMarketOfferAcceptedEvent).where(
+        (OtcMarket.royalty_token_symbol == royalty_token_symbol)
+        & (OtcMarketOfferAcceptedEvent.contract_address == OtcMarket.contract_address)
+        & (OtcMarketOfferAcceptedEvent.block_timestamp >= lower_bound.timestamp())
+    )
+    results = session.exec(statement)
 
-    last_volume = 0
-    for hour in hour_timestamps:
-        statement = select(
-                OtcMarketOfferAcceptedEvent.block_timestamp,
-                OtcMarketOfferAcceptedEvent.stablecoin_amount,
-            ).where(
-                OtcMarketOfferAcceptedEvent.contract_address
-                == otc_market.contract_address,
-                OtcMarketOfferAcceptedEvent.block_timestamp <= int(hour)
-            ).order_by(OtcMarketOfferAcceptedEvent.block_timestamp.desc())
-        
-        latest_volume = session.exec(statement)
+    events = results.all()
 
-        if len(latest_volume.all()) > 0:
-            volume_sum = sum([stablecoin_amount for _, stablecoin_amount in latest_volume])
-            hour_volumes = np.append(hour_volumes, volume_sum)
-            last_volume = volume_sum
-        else:
-            hour_volumes = np.append(hour_volumes, last_volume)
+    recent_values_dataset = generate_recent_values_dataset(
+        events=events,
+        target="stablecoin_amount",
+        lower_bound=lower_bound,
+        upper_bound=upper_bound,
+    )
 
-    return ValueIndicator(
-        current=TimeSeriesDataPoint(
-            timestamp=hour_timestamps[0], value=hour_volumes[0]
-        ),
-        recent_values_dataset=[
-            TimeSeriesDataPoint(
-                timestamp=hour_timestamps[i], value=hour_volumes[i]
-            )
-            for i in range(1, len(hour_volumes))
-        ],
+    return calculate_value_indicator(
+        recent_values_dataset=recent_values_dataset,
+        upper_bound=upper_bound,
     )
 
 
@@ -143,24 +136,23 @@ def get_trading_volume(
 def fetch_offers(
     *, royalty_token_symbol: str, session: Session = Depends(get_session)
 ) -> List[Offer]:
-    statement = select(OtcMarket).where(OtcMarket.royalty_token_symbol == royalty_token_symbol)
-    otc_market = session.exec(statement).one()
-    if otc_market is None:
-        raise HTTPException(
-            status_code=404,
-            detail="OTC Market Not Found",
-        )
+    statement = select(OtcMarketOffer).where(
+        (OtcMarket.royalty_token_symbol == royalty_token_symbol)
+        & (OtcMarketOffer.contract_address == OtcMarket.contract_address)
+    )
+    results = session.exec(statement)
 
-    statement = select(OtcMarketOffer).where(OtcMarketOffer.contract_address == otc_market.contract_address)
-    offers = session.exec(statement)
-    if len(offers) == 0:
+    try:
+        offers = results.all()
+    except exc.NoResultFound:
         raise HTTPException(
             status_code=404,
-            detail="Offers Not Found",
+            detail="OTC Market Offers Not Found",
         )
 
     return [
         Offer(
+            offer_id=offer.offer_id,
             seller=offer.seller,
             royalty_token_amount=offer.royalty_token_amount,
             stablecoin_amount=offer.stablecoin_amount,
