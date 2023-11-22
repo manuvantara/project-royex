@@ -1,7 +1,7 @@
 import "@nomicfoundation/hardhat-toolbox";
 import "dotenv/config";
 import { HardhatUserConfig } from "hardhat/config";
-import "./tasks/extract-abi";
+import "hardhat-ts-plugin-abi-extractor";
 
 if (!process.env.PRIVATE_KEY) {
   throw new Error("Set PRIVATE_KEY in a .env file");
@@ -23,6 +23,18 @@ const config: HardhatUserConfig = {
       accounts: [process.env.PRIVATE_KEY!],
       chainId: 1313161555,
     },
+  },
+  contractsToExtractAbi: [
+    "RoyaltyToken",
+    "RoyaltyPaymentPool",
+    "Stablecoin",
+    "OtcMarket",
+    "StakeholderCollective",
+    "RoyaltyExchange",
+    "InitialRoyaltyOffering"
+  ],
+  paths: {
+    clientAbiFile: "../web/src/config/contracts.ts",
   },
 };
 
