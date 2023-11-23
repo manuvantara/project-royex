@@ -13,13 +13,13 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import * as React from 'react';
-import { formatEther } from 'viem';
-import AcceptButton from './accept-button';
+import { formatEther, getAddress } from 'viem';
 import { type Offer } from '@/api/requests';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import CancelButton from './cancel-button';
 
 const columns: ColumnDef<Offer>[] = [
   {
@@ -43,11 +43,11 @@ const columns: ColumnDef<Offer>[] = [
   },
   {
     accessorKey: 'royaltyTokenAmount',
-    header: () => <div className="text-center">Royalty Token Amount</div>,
+    header: () => <div className="text-right">Royalty Token Amount</div>,
     cell: ({ row }) => {
       const amount = parseFloat(formatEther(row.getValue('royaltyTokenAmount')));
 
-      return <div className="text-center font-medium">{amount}</div>;
+      return <div className="text-right font-medium">{amount}</div>;
     },
   },
   {
@@ -99,6 +99,12 @@ export default function OffersTable({
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+      pagination: {
+        pageSize: 5,
+      },
+    },
+    autoResetPageIndex: false,
   });
 
   return (
@@ -110,7 +116,7 @@ export default function OffersTable({
       <CardContent className="flex flex-1 flex-col">
         <div className="mb-4 flex items-center justify-end">
           {marketAddress && (
-            <AcceptButton
+            <CancelButton
               marketAddress={marketAddress}
               selectedOffers={marketOffersTable.getSelectedRowModel().rows.map((row) => row.original)}
             />

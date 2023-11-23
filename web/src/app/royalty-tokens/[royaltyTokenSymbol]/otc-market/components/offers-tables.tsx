@@ -45,17 +45,21 @@ export default function OffersTables({ royaltyTokenSymbol }: { royaltyTokenSymbo
   });
 
   return (
-    <div className="space-y-6">
-      <MarketOffersTable
-        offers={offers ? (isMounted ? offers.filter((offer: Offer) => offer.seller !== address) : []) : []}
-        marketAddress={marketAddress ?? ''}
-        count={count}
-      />
-      <YourOffersTable
-        offers={offers ? (isMounted ? offers.filter((offer: Offer) => offer.seller === address) : []) : []}
-        marketAddress={marketAddress ?? ''}
-        count={count}
-      />
+    <div className="grid grid-cols-5 gap-6">
+      <div className="col-span-3">
+        <MarketOffersTable
+          offers={offers ? (isMounted ? offers.filter((offer: Offer) => offer.seller !== address) : []) : []}
+          marketAddress={marketAddress ?? ''}
+          count={count}
+        />
+      </div>
+      <div className="col-span-2">
+        <YourOffersTable
+          offers={offers ? (isMounted ? offers.filter((offer: Offer) => offer.seller === address) : []) : []}
+          marketAddress={marketAddress ?? ''}
+          count={count}
+        />
+      </div>
     </div>
   );
 }

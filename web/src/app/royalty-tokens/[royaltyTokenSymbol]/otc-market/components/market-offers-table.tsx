@@ -45,23 +45,16 @@ const columns: ColumnDef<Offer>[] = [
   },
   {
     accessorKey: 'seller',
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Seller
-          <CaretSortIcon className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: 'Seller',
     cell: ({ row }) => <div>{getAddress(row.getValue('seller'))}</div>,
   },
   {
     accessorKey: 'royaltyTokenAmount',
-    header: () => <div className="text-center">Royalty Token Amount</div>,
+    header: () => <div className="text-right">Royalty Token Amount</div>,
     cell: ({ row }) => {
       const amount = parseFloat(formatEther(row.getValue('royaltyTokenAmount')));
 
-      return <div className="text-center font-medium">{amount}</div>;
+      return <div className="text-right font-medium">{amount}</div>;
     },
   },
   {
@@ -113,6 +106,12 @@ export default function OffersTable({
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+      pagination: {
+        pageSize: 5,
+      },
+    },
+    autoResetPageIndex: false,
   });
 
   return (
@@ -122,13 +121,7 @@ export default function OffersTable({
         <CardDescription>This is the list of offers.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col">
-        <div className="mb-4 flex items-center justify-between gap-4">
-          <Input
-            placeholder="Filter sellers..."
-            value={(marketOffersTable.getColumn('seller')?.getFilterValue() as string) ?? ''}
-            onChange={(event) => marketOffersTable.getColumn('seller')?.setFilterValue(event.target.value)}
-            className="max-w-sm"
-          />
+        <div className="mb-4 flex items-center justify-end">
           {marketAddress && (
             <AcceptButton
               marketAddress={marketAddress}

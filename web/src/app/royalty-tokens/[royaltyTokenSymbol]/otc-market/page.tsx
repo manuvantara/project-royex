@@ -21,10 +21,10 @@ export default async function Page({ params: { royaltyTokenSymbol } }: { params:
             </Balancer>
           </p>
         </div>
-        <div className="mt-8 grid grid-cols-3 gap-6">
-          <CreateOfferForm royaltyTokenAddress={royaltyTokenAddress} marketAddress={marketAddress} />
-          <div className="col-span-2 gap-6">
-            <OffersWrapper royaltyTokenSymbol={royaltyTokenSymbol} />
+        <div className="mt-8 space-y-6">
+          <OffersWrapper royaltyTokenSymbol={royaltyTokenSymbol} />
+          <div className="max-w-sm">
+            <CreateOfferForm royaltyTokenAddress={royaltyTokenAddress} marketAddress={marketAddress} />
           </div>
         </div>
       </div>
