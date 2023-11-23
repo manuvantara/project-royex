@@ -1,27 +1,24 @@
-import { faker } from '@faker-js/faker';
 import { Suspense } from 'react';
-import SectionWrapper from './components/section-wrapper';
-import Card from '@/components/card';
-import CardMetric from '@/components/card-metric';
-import Report from '@/components/report';
+import { CardsWrapper, RoyaltyIncome, SectionWrapper, TradingVolume } from './components';
 
-const fakeStats = Array.from({ length: 4 }, (_) => ({
-  title: faker.word.words(3),
-  revenue: Number(faker.finance.amount(0, 100000)),
-  percentage: faker.number.float({ min: 0, max: 100, precision: 0.01 }),
-}));
+export const dynamic = 'force-dynamic';
 
-export default async function Page() {
+export default function Page() {
+  // TODO: add loading skeletons
   return (
     <div className="container">
-      <div className="grid gap-4 px-4 pb-8 pt-8 md:grid-cols-2 md:pt-12 lg:grid-cols-4">
-        {fakeStats.map((stat) => (
-          <Card key={stat.title} {...stat} />
-        ))}
+      <div className="grid gap-4 px-4 pt-8 md:grid-cols-2 md:pt-12 lg:grid-cols-4">
+        <Suspense fallback={<div>Loading cards...</div>}>
+          <CardsWrapper />
+        </Suspense>
       </div>
       <div className="grid gap-4 px-4 pb-8 pt-4 md:grid-cols-2">
-        <CardMetric />
-        <Report />
+        <Suspense fallback={<div>Loading...</div>}>
+          <RoyaltyIncome />
+        </Suspense>
+        <Suspense fallback={<div>Loading...</div>}>
+          <TradingVolume />
+        </Suspense>
       </div>
       <Suspense fallback={<div>Loading...</div>}>
         <SectionWrapper />

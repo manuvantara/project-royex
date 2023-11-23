@@ -1,34 +1,32 @@
+import dayjs from 'dayjs';
 import type { ValueIndicator } from '@/api/requests';
 
 type ChartData = {
   timestamp: string;
   value: number;
+  fixedValue: string;
 }[];
 
-const dateFormat: Intl.DateTimeFormatOptions = {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-};
-
 export function parseChartData(data: ValueIndicator): ChartData {
-  if (!data.recentValuesDataset) {
-    return [
-      {
-        timestamp: new Date(data.current.timestamp * 1000).toLocaleDateString(undefined, dateFormat),
-        value: data.current.value,
-      },
-    ];
+  const formatTimestamp = (timestamp: number) => dayjs.unix(timestamp).format('h:mm A');
+
+  const chartData: ChartData = [];
+
+  if (data.recentValuesDataset) {
+    chartData.push(
+      ...data.recentValuesDataset.map((d) => ({
+        value: Number(d.value),
+        fixedValue: Number(d.value).toFixed(2),
+        timestamp: formatTimestamp(d.timestamp),
+      }))
+    );
   }
 
-  return [
-    ...data.recentValuesDataset.map((d) => ({
-      ...d,
-      timestamp: new Date(d.timestamp * 1000).toLocaleDateString(undefined, dateFormat),
-    })),
-    {
-      ...data.current,
-      timestamp: new Date(data.current.timestamp * 1000).toLocaleDateString(undefined, dateFormat),
-    },
-  ];
+  chartData.push({
+    value: Number(data.current.value),
+    fixedValue: Number(data.current.value).toFixed(2),
+    timestamp: formatTimestamp(data.current.timestamp),
+  });
+
+  return chartData;
 }

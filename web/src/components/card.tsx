@@ -1,16 +1,4 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useMounted } from '@/hooks/use-mounted';
-import { Card as UICard, CardHeader, CardTitle, CardContent } from './ui/card';
-import { Skeleton } from './ui/skeleton';
-
-type Props = {
-  title?: string;
-  icon?: React.ReactNode | null;
-  value?: string;
-  percentage?: number;
-};
+import { CardContent, CardHeader, CardTitle, Card as UICard } from './ui/card';
 
 const defaultIcon = (
   <svg
@@ -27,9 +15,14 @@ const defaultIcon = (
   </svg>
 );
 
-export default function Card({ title = '', icon = defaultIcon, value = '0', percentage }: Props) {
-  const mounted = useMounted();
+type Props = {
+  title: string;
+  value: string;
+  icon?: React.ReactNode | null;
+  percentage?: string;
+};
 
+export default function Card({ title, value, icon = defaultIcon, percentage }: Props) {
   return (
     <UICard>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -37,12 +30,8 @@ export default function Card({ title = '', icon = defaultIcon, value = '0', perc
         {icon}
       </CardHeader>
       <CardContent>
-        {!mounted ? (
-          <Skeleton className="h-[20px] w-[100px] rounded-full" />
-        ) : (
-          <div className="text-2xl font-bold">{value}</div>
-        )}
-        {percentage && <p className="text-xs text-muted-foreground">+{percentage}% from last month</p>}
+        <div className="text-2xl font-bold">{value}</div>
+        {percentage && <p className="text-xs text-muted-foreground">{percentage} since last 24 hours</p>}
       </CardContent>
     </UICard>
   );

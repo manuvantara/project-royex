@@ -31,6 +31,7 @@ specifiers:
   class-variance-authority: ^0.7.0
   clsx: ^2.0.0
   cmdk: ^0.2.0
+  dayjs: ^1.11.10
   eslint: ^8
   eslint-config-next: 14.0.1
   eslint-plugin-import: ^2.29.0
@@ -80,6 +81,7 @@ dependencies:
   class-variance-authority: 0.7.0
   clsx: 2.0.0
   cmdk: 0.2.0_wh47g5ajjaiodohliq4abgp5yu
+  dayjs: 1.11.10
   next: 14.0.1_biqbaboplfbrettd7655fr4n2y
   novel: 0.1.22_c5ypvxqfoafpqcdd5fksgj46ge
   openai: 4.16.2
@@ -4570,6 +4572,10 @@ packages:
       abab: 2.0.6
       whatwg-mimetype: 3.0.0
       whatwg-url: 11.0.0
+    dev: false
+
+  /dayjs/1.11.10:
+    resolution: {integrity: sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ==}
     dev: false
 
   /debug/3.2.7:
