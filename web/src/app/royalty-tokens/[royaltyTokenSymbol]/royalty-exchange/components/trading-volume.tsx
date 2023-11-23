@@ -6,5 +6,5 @@ export default async function TradingVolume({ royaltyTokenSymbol }: { royaltyTok
   const volume = await RoyaltyExchangesService.getTradingVolume(royaltyTokenSymbol);
   const chartData = parseChartData(volume);
 
-  return <VolumeChart data={chartData} />;
+  return <VolumeChart title="Trading volume (last 24h)" data={chartData} />;
 }

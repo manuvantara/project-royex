@@ -5,14 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Separator } from '../ui/separator';
 
 type Props = {
+  title: string;
   data: any[];
 };
 
-export default function Volume({ data }: Props) {
+export default function Volume({ title, data }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Trading Volume</CardTitle>
+        <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
