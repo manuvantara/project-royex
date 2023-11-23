@@ -44,7 +44,7 @@ export default function Navbar() {
           href="/royalty-tokens"
           className={cn(
             'transition-colors hover:text-foreground/80',
-            pathname === '/royalty-tokens' ? 'text-foreground' : 'text-foreground/60'
+            pathname.includes('royalty-tokens') ? 'text-foreground' : 'text-foreground/60'
           )}
         >
           Royalty Tokens
@@ -62,7 +62,7 @@ export default function Navbar() {
           href="https://forms.gle/9Dk5X5oC9uJyDmS4A"
           target="_blank"
           rel="noreferrer"
-          className="text-foreground/60 transition-colors hover:text-foreground"
+          className="text-foreground/60 transition-colors hover:text-foreground/80"
         >
           RTGE Application
         </Link>
