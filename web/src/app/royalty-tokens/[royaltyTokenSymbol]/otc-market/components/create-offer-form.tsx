@@ -54,21 +54,6 @@ export default function CreateOfferForm({
     functionName: 'createOffer',
   });
 
-  // const cancelOffer = useContractWrite({
-  //   address: OTC_MARKET_ADDRESS,
-  //   abi: OTC_MARKET_ABI,
-  //   functionName: 'cancelOffer',
-  // });
-
-  // useEffect(() => {
-  //   if (cancelOffer.isSuccess) {
-  //     toast.success('Offer cancelled');
-  //   }
-  //   if (cancelOffer.isError) {
-  //     toast.error(cancelOffer.error?.message);
-  //   }
-  // }, [cancelOffer.isSuccess, cancelOffer.isError, cancelOffer.error]);
-
   async function onSubmit(values: FormValues) {
     try {
       setIsLoading(true);
@@ -97,7 +82,7 @@ export default function CreateOfferForm({
   }
 
   return (
-    <Card className="h-fit">
+    <Card>
       <CardHeader>
         <CardTitle>Create an offer</CardTitle>
         <CardDescription>Sell royalty tokens for the preferred revenue.</CardDescription>
@@ -139,24 +124,6 @@ export default function CreateOfferForm({
           </CardFooter>
         </form>
       </Form>
-      {/* <div className="flex gap-4 p-6 pt-0">
-        <Button
-          onClick={() =>
-            cancelOffer.write({
-              args: [BigInt('43531246209371066320552557765218276856130943617704640044000604487612653884707')],
-            })
-          }
-        >
-          Cancel offer
-        </Button>
-        <Button
-          onClick={() =>
-            acceptOffer(BigInt('99447179739117052866152548561566185202668920647118204285419359808988754816997'))
-          }
-        >
-          Accept offer
-        </Button>
-      </div> */}
     </Card>
   );
 }
