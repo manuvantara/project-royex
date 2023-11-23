@@ -1,25 +1,23 @@
+import { Suspense } from 'react';
 import PageLayout from '../components/page-layout';
-import Exchanger from './components/exchanger';
-import PriceChart from './components/price-chart';
+import { Exchanger, Price, TradingVolume } from './components';
 import { RoyaltyExchangesService } from '@/api/requests';
-import { CardContent, CardHeader, CardTitle, Card as UICard } from '@/components/ui/card';
+import { PriceChartSkeleton, TradingVolumeSkeleton } from '@/components/skeletons';
 
 export default async function Page({ params: { royaltyTokenSymbol } }: { params: { royaltyTokenSymbol: string } }) {
   const contractAddress = await RoyaltyExchangesService.getContractAddress(royaltyTokenSymbol);
 
   return (
     <PageLayout contractAddress={contractAddress}>
-      <div className="pb-8 pt-8 md:pt-12">
-        <UICard>
-          <CardHeader>
-            <CardTitle>Price history</CardTitle>
-          </CardHeader>
-          <CardContent className="h-[300px]">
-            <PriceChart royaltyTokenSymbol={royaltyTokenSymbol} />
-          </CardContent>
-        </UICard>
+      <div className="grid grid-cols-2 gap-4 py-6">
+        <Suspense fallback={<PriceChartSkeleton />}>
+          <Price royaltyTokenSymbol={royaltyTokenSymbol} />
+        </Suspense>
+        <Suspense fallback={<TradingVolumeSkeleton />}>
+          <TradingVolume royaltyTokenSymbol={royaltyTokenSymbol} />
+        </Suspense>
       </div>
-      <Exchanger />
+      <Exchanger royaltyTokenSymbol={royaltyTokenSymbol} />
     </PageLayout>
   );
 }

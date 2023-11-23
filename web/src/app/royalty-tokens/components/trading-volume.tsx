@@ -1,5 +1,5 @@
 import { type GetTradingVolume, ProtocolService } from '@/api/requests';
-import Report from '@/components/report';
+import { ReportChart } from '@/components/charts';
 import { parseChartData } from '@/lib/helpers/chart';
 
 export default async function TradingVolume() {
@@ -18,5 +18,5 @@ export default async function TradingVolume() {
 
   const chartData = parseData(data);
 
-  return <Report title="Total Trading Volume" data={chartData} dataKeys={['otc', 'exchange']} />;
+  return <ReportChart title="Total Trading Volume" data={chartData} dataKeys={['otc', 'exchange']} />;
 }

@@ -1,5 +1,5 @@
 import { type GetRoyaltyIncomeResponse, ProtocolService } from '@/api/requests';
-import Report from '@/components/report';
+import { ReportChart } from '@/components/charts';
 import { parseChartData } from '@/lib/helpers/chart';
 
 export default async function RoyaltyIncome() {
@@ -18,5 +18,5 @@ export default async function RoyaltyIncome() {
 
   const chartData = parseData(data);
 
-  return <Report title="Total Royalty Income" data={chartData} dataKeys={['reported', 'deposited']} />;
+  return <ReportChart title="Total Royalty Income" data={chartData} dataKeys={['reported', 'deposited']} />;
 }
