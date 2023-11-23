@@ -1,7 +1,7 @@
 import { HydrationBoundary, QueryClient, dehydrate } from '@tanstack/react-query';
-import OffersTable from './offers-table';
 import { useOtcMarketsServiceFetchOffersKey } from '@/api/queries';
 import { OtcMarketsService } from '@/api/requests';
+import OffersTables from './offers-tables';
 
 export default async function OffersWrapper({ royaltyTokenSymbol }: { royaltyTokenSymbol: string }) {
   const queryClient = new QueryClient();
@@ -13,7 +13,7 @@ export default async function OffersWrapper({ royaltyTokenSymbol }: { royaltyTok
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <OffersTable royaltyTokenSymbol={royaltyTokenSymbol} />
+      <OffersTables royaltyTokenSymbol={royaltyTokenSymbol} />
     </HydrationBoundary>
   );
 }

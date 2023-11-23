@@ -1,7 +1,6 @@
 'use client';
 
 import { CaretSortIcon } from '@radix-ui/react-icons';
-import { useQuery } from '@tanstack/react-query';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -15,11 +14,9 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import * as React from 'react';
-import { useCountdown } from 'usehooks-ts';
-import { formatEther } from 'viem';
+import { formatEther, getAddress } from 'viem';
 import AcceptButton from './accept-button';
-import { useOtcMarketsServiceFetchOffersKey, useOtcMarketsServiceGetContractAddressKey } from '@/api/queries';
-import { OtcMarketsService, type Offer } from '@/api/requests';
+import { type Offer } from '@/api/requests';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -56,7 +53,7 @@ const columns: ColumnDef<Offer>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue('seller')}</div>,
+    cell: ({ row }) => <div>{getAddress(row.getValue('seller'))}</div>,
   },
   {
     accessorKey: 'royaltyTokenAmount',
@@ -84,31 +81,22 @@ const columns: ColumnDef<Offer>[] = [
   },
 ];
 
-export default function OffersTable({ royaltyTokenSymbol }: { royaltyTokenSymbol: string }) {
+export default function OffersTable({
+  offers,
+  marketAddress,
+  count,
+}: {
+  offers: Offer[];
+  marketAddress: string;
+  count: number;
+}) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const { data, isFetching, isPending } = useQuery({
-    queryKey: [useOtcMarketsServiceFetchOffersKey],
-    queryFn: () => OtcMarketsService.fetchOffers(royaltyTokenSymbol),
-    refetchInterval: 15_000,
-  });
-
-  const { data: marketAddress, isSuccess } = useQuery({
-    queryKey: [useOtcMarketsServiceGetContractAddressKey],
-    queryFn: () => OtcMarketsService.getContractAddress(royaltyTokenSymbol),
-  });
-
-  const [count, { startCountdown, stopCountdown, resetCountdown }] = useCountdown({
-    countStart: 1,
-    isIncrement: true,
-    intervalMs: 1000,
-  });
-
-  const table = useReactTable({
-    data,
+  const marketOffersTable = useReactTable({
+    data: offers,
     columns,
     enableRowSelection: true,
     onSortingChange: setSorting,
@@ -127,15 +115,6 @@ export default function OffersTable({ royaltyTokenSymbol }: { royaltyTokenSymbol
     },
   });
 
-  React.useEffect(() => {
-    if (!isFetching && !isPending) {
-      startCountdown();
-    } else {
-      stopCountdown();
-      resetCountdown();
-    }
-  });
-
   return (
     <Card className="flex h-full flex-col">
       <CardHeader>
@@ -146,21 +125,21 @@ export default function OffersTable({ royaltyTokenSymbol }: { royaltyTokenSymbol
         <div className="mb-4 flex items-center justify-between gap-4">
           <Input
             placeholder="Filter sellers..."
-            value={(table.getColumn('seller')?.getFilterValue() as string) ?? ''}
-            onChange={(event) => table.getColumn('seller')?.setFilterValue(event.target.value)}
+            value={(marketOffersTable.getColumn('seller')?.getFilterValue() as string) ?? ''}
+            onChange={(event) => marketOffersTable.getColumn('seller')?.setFilterValue(event.target.value)}
             className="max-w-sm"
           />
-          {isSuccess && (
+          {marketAddress && (
             <AcceptButton
               marketAddress={marketAddress}
-              selectedOffers={table.getSelectedRowModel().rows.map((row) => row.original)}
+              selectedOffers={marketOffersTable.getSelectedRowModel().rows.map((row) => row.original)}
             />
           )}
         </div>
         <div className="overflow-hidden rounded-md border">
           <Table>
             <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
+              {marketOffersTable.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
                     return (
@@ -173,8 +152,8 @@ export default function OffersTable({ royaltyTokenSymbol }: { royaltyTokenSymbol
               ))}
             </TableHeader>
             <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
+              {marketOffersTable.getRowModel().rows?.length ? (
+                marketOffersTable.getRowModel().rows.map((row) => (
                   <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="[&:has([role=checkbox])]:pl-3 ">
@@ -195,19 +174,24 @@ export default function OffersTable({ royaltyTokenSymbol }: { royaltyTokenSymbol
         </div>
         <div className="mt-auto flex items-center justify-end space-x-2 pt-4">
           <div className="flex-1 text-sm text-muted-foreground">
-            {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
-            selected | updated {count} seconds ago
+            {marketOffersTable.getFilteredSelectedRowModel().rows.length} of{' '}
+            {marketOffersTable.getFilteredRowModel().rows.length} row(s) selected | updated {count} seconds ago
           </div>
           <div className="space-x-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
+              onClick={() => marketOffersTable.previousPage()}
+              disabled={!marketOffersTable.getCanPreviousPage()}
             >
               Previous
             </Button>
-            <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => marketOffersTable.nextPage()}
+              disabled={!marketOffersTable.getCanNextPage()}
+            >
               Next
             </Button>
           </div>

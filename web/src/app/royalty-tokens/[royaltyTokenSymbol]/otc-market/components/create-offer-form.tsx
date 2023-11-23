@@ -97,7 +97,7 @@ export default function CreateOfferForm({
   }
 
   return (
-    <Card>
+    <Card className="h-fit">
       <CardHeader>
         <CardTitle>Create an offer</CardTitle>
         <CardDescription>Sell royalty tokens for the preferred revenue.</CardDescription>
