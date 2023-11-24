@@ -1,6 +1,9 @@
-export { default as OffersTable } from './offers-table';
+export { default as MarketOffersTable } from './market-offers-table';
+export { default as YourOffersTable } from './your-offers-table';
+export { default as OffersTables } from './offers-tables';
 export { default as OffersWrapper } from './offers-wrapper';
-export { default as AcceptButton } from './accept-button';
+export { default as AcceptButton } from './accept-offer';
+export { default as CancelButton } from './cancel-offer';
 export { default as FloorPrice } from './floor-price';
 export { default as TradingVolume } from './trading-volume';
-export { default as CreateOfferForm } from './create-offer-form';
+export { default as CreateOffer } from './create-offer';

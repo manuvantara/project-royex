@@ -9,6 +9,7 @@ import { useAccount } from 'wagmi';
 import { useMounted } from '@/hooks/use-mounted';
 import MarketOffersTable from './market-offers-table';
 import YourOffersTable from './your-offers-table';
+import { ROYALTY_TOKEN_ADDRESS } from '@/config/contracts';
 
 export default function OffersTables({ royaltyTokenSymbol }: { royaltyTokenSymbol: string }) {
   const { address } = useAccount();
@@ -49,15 +50,16 @@ export default function OffersTables({ royaltyTokenSymbol }: { royaltyTokenSymbo
       <div className="col-span-3">
         <MarketOffersTable
           offers={offers ? (isMounted ? offers.filter((offer: Offer) => offer.seller !== address) : []) : []}
-          marketAddress={marketAddress ?? ''}
           count={count}
+          marketAddress={marketAddress ?? ''}
         />
       </div>
       <div className="col-span-2">
         <YourOffersTable
           offers={offers ? (isMounted ? offers.filter((offer: Offer) => offer.seller === address) : []) : []}
-          marketAddress={marketAddress ?? ''}
           count={count}
+          marketAddress={marketAddress ?? ''}
+          royaltyTokenAddress={ROYALTY_TOKEN_ADDRESS ?? ''}
         />
       </div>
     </div>

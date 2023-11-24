@@ -1,6 +1,5 @@
 'use client';
 
-import { CaretSortIcon } from '@radix-ui/react-icons';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -15,12 +14,11 @@ import {
 } from '@tanstack/react-table';
 import * as React from 'react';
 import { formatEther, getAddress } from 'viem';
-import AcceptButton from './accept-button';
+import AcceptButton from './accept-offer';
 import { type Offer } from '@/api/requests';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const columns: ColumnDef<Offer>[] = [
@@ -80,7 +78,7 @@ export default function OffersTable({
   count,
 }: {
   offers: Offer[];
-  marketAddress: string;
+  marketAddress: `0x${string}`;
   count: number;
 }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);

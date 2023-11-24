@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import Balancer from 'react-wrap-balancer';
 import { OtcMarketsService, RoyaltyTokensService } from '@/api/requests';
 import { PriceChartSkeleton, TradingVolumeSkeleton } from '@/components/skeletons';
-import { CreateOfferForm, FloorPrice, OffersWrapper, TradingVolume } from './components';
+import { FloorPrice, OffersWrapper, TradingVolume } from './components';
 
 export default async function Page({ params: { royaltyTokenSymbol } }: { params: { royaltyTokenSymbol: string } }) {
   const [marketAddress, royaltyTokenAddress] = await Promise.all([
@@ -31,9 +31,6 @@ export default async function Page({ params: { royaltyTokenSymbol } }: { params:
         </div>
         <div className="mt-8 space-y-6">
           <OffersWrapper royaltyTokenSymbol={royaltyTokenSymbol} />
-          <div className="max-w-sm">
-            <CreateOfferForm royaltyTokenAddress={royaltyTokenAddress} marketAddress={marketAddress} />
-          </div>
         </div>
       </div>
     </>

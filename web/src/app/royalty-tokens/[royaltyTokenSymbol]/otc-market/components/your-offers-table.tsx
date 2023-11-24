@@ -13,13 +13,14 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import * as React from 'react';
-import { formatEther, getAddress } from 'viem';
+import { formatEther } from 'viem';
 import { type Offer } from '@/api/requests';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import CancelButton from './cancel-button';
+import CancelButton from './cancel-offer';
+import CreateOffer from './create-offer';
 
 const columns: ColumnDef<Offer>[] = [
   {
@@ -69,12 +70,14 @@ const columns: ColumnDef<Offer>[] = [
 
 export default function OffersTable({
   offers,
-  marketAddress,
   count,
+  marketAddress,
+  royaltyTokenAddress,
 }: {
   offers: Offer[];
-  marketAddress: string;
   count: number;
+  marketAddress: `0x${string}`;
+  royaltyTokenAddress: `0x${string}`;
 }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -114,7 +117,13 @@ export default function OffersTable({
         <CardDescription>This is the list of your offers.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col">
-        <div className="mb-4 flex items-center justify-end">
+        <div className="mb-4 flex items-center justify-between gap-4">
+        {marketAddress && royaltyTokenAddress && (
+            <CreateOffer
+              marketAddress={marketAddress}
+              royaltyTokenAddress={royaltyTokenAddress}
+            />
+          )}
           {marketAddress && (
             <CancelButton
               marketAddress={marketAddress}

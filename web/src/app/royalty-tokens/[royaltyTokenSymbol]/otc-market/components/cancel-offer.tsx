@@ -1,17 +1,14 @@
 'use client';
 
 import { type Offer } from '@/api/requests';
+import TransactionSuccess from '@/components/transaction-success';
 import { Button } from '@/components/ui/button';
 import { OTC_MARKET_ABI } from '@/config/contracts';
-import { Explorers } from '@/config/explorers';
 import { useMounted } from '@/hooks/use-mounted';
-import { ArrowTopRightIcon } from '@radix-ui/react-icons';
-import Link from 'next/link';
-import { useState } from 'react';
 import { toast } from 'sonner';
 import { useAccount, useContractWrite, usePublicClient } from 'wagmi';
 
-export default function CancelButton({
+export default function CancelOffer({
   marketAddress,
   selectedOffers,
 }: {
@@ -41,16 +38,7 @@ export default function CancelButton({
       toast.promise(waitForResultPromise, {
         error: (err) => err.message,
         loading: 'Cancelling offer...',
-        success: (receipt) => (
-          <div className="flex items-center gap-2 font-medium">
-            <span>Offer cancelled!</span>
-            <Button asChild size="icon" variant="outline" className="h-6 w-6">
-              <Link target="_blank" href={`${Explorers['aurora-testnet']}/tx/${receipt.transactionHash}`}>
-                <ArrowTopRightIcon className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        ),
+        success: (receipt) => <TransactionSuccess name="Cancelled!" hash={receipt.transactionHash} />,
       });
     }
   }

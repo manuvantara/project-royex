@@ -1,16 +1,14 @@
 'use client';
 
 import { type Offer } from '@/api/requests';
+import TransactionSuccess from '@/components/transaction-success';
 import { Button } from '@/components/ui/button';
 import { OTC_MARKET_ABI, STABLECOIN_ABI, STABLECOIN_ADDRESS } from '@/config/contracts';
-import { Explorers } from '@/config/explorers';
 import { useMounted } from '@/hooks/use-mounted';
-import { ArrowTopRightIcon } from '@radix-ui/react-icons';
-import Link from 'next/link';
 import { toast } from 'sonner';
 import { useAccount, useContractWrite, usePublicClient } from 'wagmi';
 
-export default function AcceptButton({
+export default function AcceptOffer({
   marketAddress,
   selectedOffers,
 }: {
@@ -53,16 +51,7 @@ export default function AcceptButton({
       loading: 'Approving stablecoins...',
       success: async (receipt) => {
         await handleAccept(offers);
-        return (
-          <div className="flex items-center gap-2 font-medium">
-            <span>Approved!</span>
-            <Button asChild size="icon" variant="outline" className="h-6 w-6">
-              <Link target="_blank" href={`${Explorers['aurora-testnet']}/tx/${receipt.transactionHash}`}>
-                <ArrowTopRightIcon className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        );
+        return <TransactionSuccess name="Approved!" hash={receipt.transactionHash} />;
       },
     });
   }
@@ -80,16 +69,7 @@ export default function AcceptButton({
       toast.promise(waitForResultPromise, {
         error: (err) => err.message,
         loading: 'Accepting offer...',
-        success: (receipt) => (
-          <div className="flex items-center gap-2 font-medium">
-            <span>Offer accepted!</span>
-            <Button asChild size="icon" variant="outline" className="h-6 w-6">
-              <Link target="_blank" href={`${Explorers['aurora-testnet']}/tx/${receipt.transactionHash}`}>
-                <ArrowTopRightIcon className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        ),
+        success: (receipt) => <TransactionSuccess name="Accepted!" hash={receipt.transactionHash} />,
       });
     }
   }
