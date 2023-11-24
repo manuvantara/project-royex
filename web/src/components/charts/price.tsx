@@ -1,6 +1,6 @@
 'use client';
 
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
+import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Separator } from '../ui/separator';
 
@@ -17,23 +17,22 @@ export default function Price({ title, data }: Props) {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart
-            data={data}
-            margin={{
-              top: 5,
-              right: 10,
-              left: 10,
-              bottom: 0,
-            }}
-          >
+          <LineChart data={data}>
             <XAxis
               dataKey="timestamp"
               stroke="#888888"
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              interval="preserveStartEnd"
-              domain={['dateMin', 'auto']}
+              padding={{ left: 33.25 }}
+            />
+            <YAxis
+              stroke="#888888"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(value) => `$${value.toFixed(2)}`}
+              domain={['auto', 'auto']}
             />
             <Tooltip
               cursor={{ fill: 'hsl(var(--accent))' }}

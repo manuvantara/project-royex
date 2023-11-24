@@ -1,8 +1,8 @@
+import { Suspense } from 'react';
 import Balancer from 'react-wrap-balancer';
-import PageLayout from '../components/page-layout';
-import CreateOfferForm from './components/create-offer-form';
-import OffersWrapper from './components/offers-wrapper';
 import { OtcMarketsService, RoyaltyTokensService } from '@/api/requests';
+import { PriceChartSkeleton, TradingVolumeSkeleton } from '@/components/skeletons';
+import { CreateOfferForm, FloorPrice, OffersWrapper, TradingVolume } from './components';
 
 export default async function Page({ params: { royaltyTokenSymbol } }: { params: { royaltyTokenSymbol: string } }) {
   const [marketAddress, royaltyTokenAddress] = await Promise.all([
@@ -11,7 +11,15 @@ export default async function Page({ params: { royaltyTokenSymbol } }: { params:
   ]);
 
   return (
-    <PageLayout contractAddress={marketAddress}>
+    <>
+      <div className="grid grid-cols-2 gap-4 py-6">
+        <Suspense fallback={<PriceChartSkeleton />}>
+          <FloorPrice royaltyTokenSymbol={royaltyTokenSymbol} />
+        </Suspense>
+        <Suspense fallback={<TradingVolumeSkeleton />}>
+          <TradingVolume royaltyTokenSymbol={royaltyTokenSymbol} />
+        </Suspense>
+      </div>
       <div className="mt-8 rounded-md border p-6">
         <div className="space-y-1 p-6">
           <h3 className="text-2xl font-semibold tracking-tight">OTC Market</h3>
@@ -28,6 +36,6 @@ export default async function Page({ params: { royaltyTokenSymbol } }: { params:
           </div>
         </div>
       </div>
-    </PageLayout>
+    </>
   );
 }

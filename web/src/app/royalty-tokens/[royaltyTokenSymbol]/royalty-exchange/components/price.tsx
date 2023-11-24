@@ -6,5 +6,5 @@ export default async function Price({ royaltyTokenSymbol }: { royaltyTokenSymbol
   const price = await RoyaltyExchangesService.getPrice(royaltyTokenSymbol);
   const chartData = parseChartData(price);
 
-  return <PriceChart title="Price history (last 24h)" data={chartData} />;
+  return <PriceChart title="Price History (24H)" data={chartData} />;
 }
