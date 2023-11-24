@@ -4,104 +4,106 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { formatEther, parseEther } from 'viem';
+import { parseEther } from 'viem';
 import { useAccount, useContractRead, useContractWrite, usePublicClient } from 'wagmi';
 import * as z from 'zod';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
-import {
-  INITIAL_ROYALTY_OFFERING_ABI,
-  INITIAL_ROYALTY_OFFERING_ADDRESS,
-  STABLECOIN_ABI,
-  STABLECOIN_ADDRESS,
-} from '@/config/contracts';
+import { INITIAL_ROYALTY_OFFERING_ABI, STABLECOIN_ABI, STABLECOIN_ADDRESS } from '@/config/contracts';
 import { useMounted } from '@/hooks/use-mounted';
+import TransactionSuccess from '@/components/transaction-success';
 
 const formSchema = z.object({
-  royaltyTokens: z.coerce.number().positive(),
+  royaltyTokenAmount: z.coerce.number().positive(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function IroForm() {
+export default function IroForm({ initialRoyaltyOfferingAddress }: { initialRoyaltyOfferingAddress: `0x${string}` }) {
   const isMounted = useMounted();
   const publicClient = usePublicClient();
   const { isConnected } = useAccount();
 
-  const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      royaltyTokens: 1,
+      royaltyTokenAmount: 1,
     },
   });
 
-  const approveStablecoins = useContractWrite({
+  const approve = useContractWrite({
     address: STABLECOIN_ADDRESS,
     abi: STABLECOIN_ABI,
     functionName: 'approve',
   });
 
   const buy = useContractWrite({
-    address: INITIAL_ROYALTY_OFFERING_ADDRESS,
+    address: initialRoyaltyOfferingAddress,
     abi: INITIAL_ROYALTY_OFFERING_ABI,
     functionName: 'buy',
   });
 
-  const offeringPrice = useContractRead({
-    address: INITIAL_ROYALTY_OFFERING_ADDRESS,
+  const { data: price } = useContractRead({
+    address: initialRoyaltyOfferingAddress,
     abi: INITIAL_ROYALTY_OFFERING_ABI,
     functionName: 'offeringPrice',
   });
 
-  function onSubmit(values: FormValues) {
-    setOpen(true);
+  async function onSubmit(values: FormValues) {
+    const royaltyTokenAmount = parseEther(values.royaltyTokenAmount.toString());
+    const stablecoinAmount = price! * royaltyTokenAmount;
+
+    await handleApprove(royaltyTokenAmount, stablecoinAmount);
   }
 
-  async function handleBuy(values: FormValues) {
-    try {
-      setIsLoading(true);
+  async function handleApprove(royaltyTokenAmount: bigint, stablecoinAmount: bigint) {
+    setIsLoading(true);
 
-      const royaltyTokenAmount = parseEther(values.royaltyTokens.toString());
-      const stablecoinAmount = offeringPrice.data! * royaltyTokenAmount;
+    const resultPromise = approve.writeAsync?.({ args: [initialRoyaltyOfferingAddress, stablecoinAmount] });
 
-      // approve stablecoins
-      const approveStablecoinsResult = await approveStablecoins.writeAsync({
-        args: [INITIAL_ROYALTY_OFFERING_ADDRESS, stablecoinAmount],
+    const waitForResultPromise = resultPromise.then((result) => {
+      return publicClient.waitForTransactionReceipt({
+        hash: result.hash,
       });
-      await publicClient.waitForTransactionReceipt({
-        hash: approveStablecoinsResult.hash,
-      });
-      toast.success(`${formatEther(stablecoinAmount)} stablecoin(s) approved`);
+    });
 
-      // buy
-      const buyResult = await buy.writeAsync({
-        args: [royaltyTokenAmount],
+    toast.promise(waitForResultPromise, {
+      error: (err) => {
+        setIsLoading(false);
+        return err.message;
+      },
+      loading: 'Approving stablecoins...',
+      success: async (receipt) => {
+        await handleBuy(royaltyTokenAmount);
+        return <TransactionSuccess name="Approved!" hash={receipt.transactionHash} />;
+      },
+    });
+  }
+
+  async function handleBuy(royaltyTokenAmount: bigint) {
+    const resultPromise = buy.writeAsync?.({ args: [royaltyTokenAmount] });
+
+    const waitForResultPromise = resultPromise.then((result) => {
+      return publicClient.waitForTransactionReceipt({
+        hash: result.hash,
       });
-      await publicClient.waitForTransactionReceipt({
-        hash: buyResult.hash,
-      });
-      toast.success(`${values.royaltyTokens} royalty token(s) bought`);
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
-      setIsLoading(false);
-    }
+    });
+
+    toast.promise(waitForResultPromise, {
+      error: (err) => {
+        setIsLoading(false);
+        return err.message;
+      },
+      loading: 'Buying...',
+      success: async (receipt) => {
+        setIsLoading(false);
+        return <TransactionSuccess name="Bought!" hash={receipt.transactionHash} />;
+      },
+    });
   }
 
   return (
@@ -115,7 +117,7 @@ export default function IroForm() {
           <CardContent className="grid gap-6">
             <FormField
               control={form.control}
-              name="royaltyTokens"
+              name="royaltyTokenAmount"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Royalty Tokens</FormLabel>
@@ -128,35 +130,10 @@ export default function IroForm() {
             />
           </CardContent>
           <CardFooter className="grid grid-cols-2 gap-4">
-            <Button type="submit" disabled={isMounted && (isLoading || !offeringPrice.data)}>
+            <Button type="submit" disabled={isLoading || (isMounted && !isConnected)}>
               Buy
             </Button>
           </CardFooter>
-          <AlertDialog onOpenChange={setOpen} open={open}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  <p>
-                    You pay $
-                    {!offeringPrice.data ? (
-                      <Skeleton className="h-[20px] w-[20px] rounded-full" />
-                    ) : (
-                      <span className="text-xl">
-                        {formatEther(offeringPrice.data * parseEther(form.getValues('royaltyTokens').toString()))}
-                      </span>
-                    )}
-                  </p>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => handleBuy(form.getValues())} disabled={!isConnected}>
-                  Continue
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </form>
       </Form>
     </Card>

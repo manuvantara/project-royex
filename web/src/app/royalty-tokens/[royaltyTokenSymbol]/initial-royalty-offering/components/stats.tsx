@@ -1,49 +1,65 @@
 'use client';
 
+import { useIsClient } from 'usehooks-ts';
 import { formatEther } from 'viem';
 import { useContractRead } from 'wagmi';
 import Card from '@/components/card';
-import {
-  INITIAL_ROYALTY_OFFERING_ABI,
-  INITIAL_ROYALTY_OFFERING_ADDRESS,
-  ROYALTY_TOKEN_ABI,
-  ROYALTY_TOKEN_ADDRESS,
-} from '@/config/contracts';
+import { StatSkeleton } from '@/components/skeletons';
+import { INITIAL_ROYALTY_OFFERING_ABI, ROYALTY_TOKEN_ABI } from '@/config/contracts';
 import roundUpEther from '@/lib/helpers/round-up-ether';
 
-export default function Stats() {
-  const royaltyTokenReserve = useContractRead({
-    address: ROYALTY_TOKEN_ADDRESS,
+export default function Stats({
+  initialRoyaltyOfferingAddress,
+  royaltyTokenAddress,
+}: {
+  initialRoyaltyOfferingAddress: `0x${string}`;
+  royaltyTokenAddress: `0x${string}`;
+}) {
+  const isClient = useIsClient();
+
+  const { data: royaltyTokenReserve, isLoading: isLoadingRoyalty } = useContractRead({
+    address: royaltyTokenAddress,
     abi: ROYALTY_TOKEN_ABI,
     functionName: 'balanceOf',
-    args: [INITIAL_ROYALTY_OFFERING_ADDRESS],
+    args: [initialRoyaltyOfferingAddress],
     watch: true,
   });
 
-  const offeringPrice = useContractRead({
-    address: INITIAL_ROYALTY_OFFERING_ADDRESS,
+  const { data: price, isLoading: isLoadingPrice } = useContractRead({
+    address: initialRoyaltyOfferingAddress,
     abi: INITIAL_ROYALTY_OFFERING_ABI,
     functionName: 'offeringPrice',
     watch: true,
   });
 
-  const stats = [
+  const isLoading = isLoadingRoyalty || isLoadingPrice;
+
+  const formatValue = (value: bigint) => roundUpEther(formatEther(value));
+  const formatPrice = (value: bigint) => `$${roundUpEther(value.toString())}`;
+
+  const stats = !isLoading && [
     {
       title: 'Royalty Token Reserve',
-      value: royaltyTokenReserve.data ? roundUpEther(formatEther(royaltyTokenReserve.data)) : undefined,
-      icon: <div></div>,
+      value: formatValue(royaltyTokenReserve!),
+      icon: null,
     },
     {
-      title: 'Offering price',
-      value: offeringPrice.data ? `1 RT = $${offeringPrice.data}` : undefined,
-      icon: <div></div>,
+      title: 'Price',
+      value: formatPrice(price!),
+      icon: null,
     },
   ];
+
   return (
     <div className="grid gap-6">
-      {stats.map((stat) => (
-        <Card key={stat.title} {...stat} />
-      ))}
+      {isClient && !isLoading && stats ? (
+        stats.map((stat) => <Card key={stat.title} {...stat} />)
+      ) : (
+        <div className="grid gap-6">
+          <StatSkeleton />
+          <StatSkeleton />
+        </div>
+      )}
     </div>
   );
 }
