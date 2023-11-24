@@ -21,17 +21,9 @@ export default function CardChart({ symbol: royaltyTokenSymbol, price, deposited
           <div>
             <div className="text-2xl font-bold">${price.current.value}</div>
             <p className="text-xs text-muted-foreground">+20.1% from last month</p>
-            <div className="h-[80px]">
+            <div className="mt-4 h-[80px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={priceData}
-                  margin={{
-                    top: 5,
-                    right: 10,
-                    left: 10,
-                    bottom: 0,
-                  }}
-                >
+                <LineChart data={priceData}>
                   <Line
                     type="monotone"
                     strokeWidth={2}
