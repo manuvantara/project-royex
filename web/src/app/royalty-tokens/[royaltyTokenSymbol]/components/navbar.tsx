@@ -4,39 +4,53 @@ import { ArrowRightIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import { useMemo } from 'react';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Explorers } from '@/config/explorers';
 import { cn } from '@/lib/utils';
 
-const links = [
-  {
-    name: 'Initial Royalty Offering',
-    href: 'initial-royalty-offering',
-  },
-  {
-    name: 'OTC Market',
-    href: 'otc-market',
-  },
-  {
-    name: 'Royalty Exchange',
-    href: 'royalty-exchange',
-  },
-  {
-    name: 'Royalty Payment Pool',
-    href: 'royalty-payment-pool',
-  },
-  {
-    name: 'Stakeholder Collective',
-    href: 'stakeholder-collective',
-  },
-];
+type Link = {
+  name: string;
+  href: string;
+  contractAddress: string | null;
+};
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {
-  contractAddress: string;
-}
+type Props = React.HTMLAttributes<HTMLDivElement> & {
+  contractAddresses: string[];
+};
 
-export default function Navbar({ className, contractAddress, ...props }: Props) {
+export default function Navbar({ className, contractAddresses, ...props }: Props) {
   const pathname = usePathname();
+
+  const links = useMemo(() => {
+    return [
+      {
+        name: 'Royalty Payment Pool',
+        href: 'royalty-payment-pool',
+        contractAddress: contractAddresses[0],
+      },
+      {
+        name: 'Stakeholder Collective',
+        href: 'stakeholder-collective',
+        contractAddress: contractAddresses[1],
+      },
+      {
+        name: 'OTC Market',
+        href: 'otc-market',
+        contractAddress: contractAddresses[2],
+      },
+      {
+        name: 'Initial Royalty Offering',
+        href: 'initial-royalty-offering',
+        contractAddress: contractAddresses[3],
+      },
+      {
+        name: 'Royalty Exchange',
+        href: 'royalty-exchange',
+        contractAddress: contractAddresses[4],
+      },
+    ];
+  }, [contractAddresses]);
 
   return (
     <div className="relative">
@@ -57,19 +71,21 @@ export default function Navbar({ className, contractAddress, ...props }: Props) 
         </div>
         <ScrollBar orientation="horizontal" className="invisible" />
       </ScrollArea>
-      <ContractLink contractAddress={contractAddress} />
+      <ContractLink links={links} pathname={pathname} />
     </div>
   );
 }
 
-export function ContractLink({ contractAddress }: { contractAddress: string }) {
-  if (!contractAddress) {
+export function ContractLink({ links, pathname }: { pathname: string | null; links: Link[] }) {
+  const link = links.find((link) => pathname?.includes(link.href));
+
+  if (!link?.contractAddress) {
     return null;
   }
 
   return (
     <Link
-      href={`${Explorers['aurora-testnet']}/address/${contractAddress}`}
+      href={`${Explorers['aurora-testnet']}/address/${link.contractAddress}`}
       target="_blank"
       rel="nofollow"
       className="absolute right-0 top-0 hidden items-center rounded-[0.5rem] text-sm font-medium md:flex"

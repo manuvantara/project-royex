@@ -1,37 +1,22 @@
-import { faker } from '@faker-js/faker';
+import { Suspense } from 'react';
 import Balancer from 'react-wrap-balancer';
-import PageLayout from '../components/page-layout';
-import DepositRoyaltiesForm from './components/deposit-royalties-form';
-import RoyaltyPaymentsTable from './components/royalty-payments-table';
 import { RoyaltyPaymentPoolsService } from '@/api/requests';
-import Card from '@/components/card';
-import Report from '@/components/report';
+import DepositRoyaltiesForm from './components/deposit-royalties-form';
+import RoyaltyIncome from './components/royalty-income';
+import RoyaltyPaymentsTable from './components/royalty-payments-table';
 
-const fakeStats = Array.from({ length: 4 }, (_) => ({
-  title: faker.word.words(3),
-  revenue: Number(faker.finance.amount(0, 100000)),
-  percentage: faker.number.float({ min: 0, max: 100, precision: 0.01 }),
-}));
+export const dynamic = 'force-dynamic';
 
-export const revalidate = 60;
-
-export default async function Page({
-  params: { royaltyTokenSymbol },
-}: {
-  params: { royaltyTokenSymbol: string };
-}) {
+export default async function Page({ params: { royaltyTokenSymbol } }: { params: { royaltyTokenSymbol: string } }) {
   const contractAddress = await RoyaltyPaymentPoolsService.getContractAddress(royaltyTokenSymbol);
   const royaltyPayments = await RoyaltyPaymentPoolsService.fetchDeposits(royaltyTokenSymbol);
 
   return (
-    <PageLayout contractAddress={contractAddress}>
-      <div className="grid gap-4 pt-6 md:grid-cols-2 lg:grid-cols-4">
-        {fakeStats.map((stat) => (
-          <Card key={stat.title} {...stat} />
-        ))}
-      </div>
+    <>
       <div className="grid gap-4 py-8 md:grid-cols-2">
-        <Report />
+        <Suspense fallback={<div>Loading...</div>}>
+          <RoyaltyIncome royaltyTokenSymbol={royaltyTokenSymbol} />
+        </Suspense>
         <RoyaltyPaymentsTable data={royaltyPayments} />
       </div>
       <div className="rounded-md border p-6">
@@ -50,6 +35,6 @@ export default async function Page({
           </div>
         </div>
       </div>
-    </PageLayout>
+    </>
   );
 }
