@@ -31,7 +31,7 @@ export default function Stats({ royaltyExchangeAddress }: Props) {
 
   const isLoading = isLoadingRoyalty || isLoadingStablecoin;
 
-  const formatValue = (value: bigint) => `$${roundUpEther(formatEther(value))}`;
+  const formatValue = (value: bigint) => roundUpEther(formatEther(value));
 
   const calculatePrice = (stablecoinReserveValue: bigint, royaltyTokenReserveValue: bigint) => {
     const price = Number(formatEther(stablecoinReserveValue)) / Number(formatEther(royaltyTokenReserveValue));
@@ -46,7 +46,7 @@ export default function Stats({ royaltyExchangeAddress }: Props) {
     },
     {
       title: 'Stablecoin Reserve',
-      value: formatValue(stablecoinReserve!),
+      value: `$${formatValue(stablecoinReserve!)}`,
       icon: null,
     },
     {
