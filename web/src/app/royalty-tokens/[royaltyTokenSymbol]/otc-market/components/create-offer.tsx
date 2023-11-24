@@ -24,8 +24,8 @@ import {
 import TransactionSuccess from '@/components/transaction-success';
 
 const formSchema = z.object({
-  royaltyTokens: z.coerce.number().positive(),
-  stablecoins: z.coerce.number().positive(),
+  royaltyTokenAmount: z.coerce.number().positive(),
+  stablecoinAmount: z.coerce.number().positive(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -47,8 +47,8 @@ export default function CreateOffer({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      royaltyTokens: 1,
-      stablecoins: 5,
+      royaltyTokenAmount: 1,
+      stablecoinAmount: 5,
     },
   });
 
@@ -65,7 +65,10 @@ export default function CreateOffer({
   });
 
   async function onSubmit(values: FormValues) {
-    await handleApprove(parseEther(values.royaltyTokens.toString()), parseEther(values.stablecoins.toString()));
+    await handleApprove(
+      parseEther(values.royaltyTokenAmount.toString()),
+      parseEther(values.stablecoinAmount.toString())
+    );
   }
 
   async function handleApprove(royaltyTokenAmount: bigint, stablecoinAmount: bigint) {
@@ -130,7 +133,7 @@ export default function CreateOffer({
             <div className="grid gap-6 pb-6">
               <FormField
                 control={form.control}
-                name="royaltyTokens"
+                name="royaltyTokenAmount"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Royalty Tokens</FormLabel>
@@ -143,7 +146,7 @@ export default function CreateOffer({
               />
               <FormField
                 control={form.control}
-                name="stablecoins"
+                name="stablecoinAmount"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Stablecoins $</FormLabel>
