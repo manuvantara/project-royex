@@ -7,6 +7,7 @@ import { Explorers } from '@/config/explorers';
 import { useMounted } from '@/hooks/use-mounted';
 import { ArrowTopRightIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { useAccount, useContractWrite, usePublicClient } from 'wagmi';
 
@@ -14,7 +15,7 @@ export default function CancelButton({
   marketAddress,
   selectedOffers,
 }: {
-  marketAddress: string;
+  marketAddress: `0x${string}`;
   selectedOffers: Offer[];
 }) {
   const isMounted = useMounted();
