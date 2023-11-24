@@ -28,18 +28,18 @@ export default async function CardsWrapper() {
   return (
     <>
       <Card
-        title="Total Reported Royalty Income"
+        title="Overall Reported Royalty Income"
         value={royaltyIncome.reported.current.value}
         percentage={change.income.reported}
       />
       <Card
-        title="Total Unwithdrawn Royalty Income"
+        title="Overall Deposited Royalty Income"
         value={royaltyIncome.deposited.current.value}
         percentage={change.income.deposited}
       />
-      <Card title="Total OTC Trading Volume" value={otcMarket.current.value} percentage={change.volume.otc} />
+      <Card title="Overall OTC Trading Volume" value={otcMarket.current.value} percentage={change.volume.otc} />
       <Card
-        title="Total Royalty Exchange Volume"
+        title="Overall Royalty Exchange Volume"
         value={royaltyExchange.current.value}
         percentage={change.volume.exchange}
       />
