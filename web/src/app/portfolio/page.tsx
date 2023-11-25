@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
+import SectionWrapper from './components/section-wrapper';
+
 import Card from '@/components/card';
-import CardChart from '@/components/card-chart';
 import CardMetric from '@/components/card-metric';
 import Report from '@/components/report';
 
@@ -22,11 +23,7 @@ export default function Page() {
         <CardMetric />
         <Report />
       </div>
-      <div className="grid grid-cols-3 gap-4 px-4 pb-8 pt-4">
-        {fakeStats.map((item, index) => (
-          <CardChart key={index} />
-        ))}
-      </div>
+      <SectionWrapper />
     </div>
   );
 }

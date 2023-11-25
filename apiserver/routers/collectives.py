@@ -1,71 +1,122 @@
-from common import ShortenProposal, Proposal
-from fastapi import APIRouter
-from typing import List
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends, HTTPException
+
+from sqlalchemy import exc
+from sqlmodel import Session, select
+
+from apiserver.database import get_session
+
+from apiserver.database.models import (
+    RoyaltyToken,
+    StakeholderCollectiveProposal,
+    StakeholderCollective,
+)
+from apiserver.routers.commune import (
+    Proposal,
+    ProposalDescription,
+    ProposalInfo,
+    ProposalVotes,
+)
 
 router = APIRouter()
 
-@router.get('/collectives/{royalty_token_symbol}/contract-address')
-def get_contract_address(royalty_id: int) -> str:
-    return "0xB37713ed41AfE1A7ac1c3D009e6f0B3a57F8A3251"
 
-@router.get('/collectives/{royalty_token_symbol}/proposals')
-def fetch_proposals(royalty_id: int) -> List[ShortenProposal]:
-    mock_proposals: List[ShortenProposal] = [
-        ShortenProposal(
-            proposal_id=1,
-            proposer="0x0000000000000000000000000000000000000001",
-            title="Proposal 1",
-            voting_date=1,
-            voting_deadline=2,
-            votes={"for": 5, "against": 1, "abstain": 2},
-            is_executed=True
-        ),
-        ShortenProposal(
-            proposal_id=2,
-            proposer="0x0000000000000000000000000000000000000002",
-            title="Proposal 2",
-            voting_date=2,
-            voting_deadline=3,
-            votes={"for": 3, "against": 15, "abstain": 5},
-            is_executed=False
-        ),
-        ShortenProposal(
-            proposal_id=3,
-            proposer="0x0000000000000000000000000000000000000003",
-            title="Proposal 3",
-            voting_date=4,
-            voting_deadline=5,
-            votes={"for": 0, "against": 0, "abstain": 0},
-            is_executed=False
+@router.get("/{royalty_token_symbol}/contract-address")
+def get_contract_address(
+    *, royalty_token_symbol: str, session: Session = Depends(get_session)
+) -> Optional[str]:
+    statement = select(StakeholderCollective).where(
+        StakeholderCollective.royalty_token_symbol == royalty_token_symbol
+    )
+    results = session.exec(statement)
+
+    try:
+        stakeholder_collective = results.one()
+    except exc.NoResultFound:
+        raise HTTPException(
+            status_code=404,
+            detail="Stakeholder Collective Not Found",
         )
+
+    return stakeholder_collective.contract_address
+
+
+@router.get("/{royalty_token_symbol}/proposals")
+def fetch_proposals(
+    *, royalty_token_symbol: str, session: Session = Depends(get_session)
+) -> List[ProposalInfo]:
+    statement = select(StakeholderCollectiveProposal).where(
+        (StakeholderCollective.royalty_token_symbol == royalty_token_symbol)
+        & (
+            StakeholderCollectiveProposal.contract_address
+            == StakeholderCollective.contract_address
+        )
+    )
+    results = session.exec(statement)
+
+    try:
+        proposals = results.all()
+    except exc.NoResultFound:
+        raise HTTPException(
+            status_code=404,
+            detail="Proposals Not Found",
+        )
+
+    return [
+        ProposalInfo(
+            proposal_id=proposal.proposal_id,
+            proposer=proposal.proposer,
+            title=proposal.title,
+            votes=ProposalVotes(
+                pro=proposal.votes_for,
+                contra=proposal.votes_against,
+                abstain=proposal.votes_abstain,
+            ),
+            is_executed=proposal.is_executed,
+        )
+        for proposal in proposals
     ]
 
-    return mock_proposals
 
-@router.get('/collectives/{royalty_token_symbol}/proposals/{proposal_id}')
-def get_proposal(royalty_id=int) -> List[Proposal]:
-    mock_proposals=List[Proposal] = [
-        Proposal(
-            description="Proposal 1",
-            targets=["0x0000000000000000000000000000000000000004"],
-            values=[5],
-            signatures=["0x0000000000000000000000000000000000000005"],
-            calldatas=["0x0000000000000000000000000000000000000006"]
-        ),
-        Proposal(
-            description="Proposal 2",
-            targets=["0x0000000000000000000000000000000000000007"],
-            values=[3],
-            signatures=["0x0000000000000000000000000000000000000008"],
-            calldatas=["0x0000000000000000000000000000000000000009"]
-        ),
-        Proposal(
-            description="Proposal 3",
-            targets=["0x000000000000000000000000000000000000000a"],
-            values=[0],
-            signatures=["0x000000000000000000000000000000000000000b"],
-            calldatas=["0x000000000000000000000000000000000000000c"]
+@router.get("/{royalty_token_symbol}/proposals/{proposal_id}")
+def get_proposal(
+    *,
+    royalty_token_symbol: str,
+    proposal_id: str,
+    session: Session = Depends(get_session)
+) -> Proposal:
+    statement = select(StakeholderCollectiveProposal).where(
+        (StakeholderCollective.royalty_token_symbol == royalty_token_symbol)
+        & (StakeholderCollectiveProposal.proposal_id == proposal_id)
+    )
+    results = session.exec(statement)
+
+    try:
+        proposal = results.one()
+    except exc.NoResultFound:
+        raise HTTPException(
+            status_code=404,
+            detail="Proposal Not Found",
         )
-    ]
 
-    return mock_proposals
+    return Proposal(
+        info=ProposalInfo(
+            proposal_id=proposal.proposal_id,
+            proposer=proposal.proposer,
+            title=proposal.title,
+            votes=ProposalVotes(
+                pro=proposal.votes_for,
+                contra=proposal.votes_against,
+                abstain=proposal.votes_abstain,
+            ),
+            is_executed=proposal.is_executed,
+        ),
+        description=ProposalDescription(
+            description=proposal.description,
+            targets=[],
+            values=[],
+            signatures=[],
+            calldatas=[],
+        ),
+    )

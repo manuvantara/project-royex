@@ -1,11 +1,4 @@
-import { Card as UICard, CardHeader, CardTitle, CardContent } from './ui/card';
-
-type Props = {
-  title: string;
-  icon?: React.ReactNode;
-  revenue: number;
-  percentage: number;
-};
+import { CardContent, CardHeader, CardTitle, Card as UICard } from './ui/card';
 
 const defaultIcon = (
   <svg
@@ -22,16 +15,23 @@ const defaultIcon = (
   </svg>
 );
 
-export default function Card({ title, icon, revenue, percentage }: Props) {
+type Props = {
+  title: string;
+  value: string;
+  icon?: React.ReactNode | null;
+  percentage?: string;
+};
+
+export default function Card({ title, value, icon = defaultIcon, percentage }: Props) {
   return (
     <UICard>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium capitalize">{title}</CardTitle>
-        {icon ? icon : defaultIcon}
+        {icon}
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">${revenue}</div>
-        <p className="text-xs text-muted-foreground">+{percentage}% from last month</p>
+        <div className="text-2xl font-bold">{value}</div>
+        {percentage && <p className="text-xs text-muted-foreground">{percentage} since last 24 hours</p>}
       </CardContent>
     </UICard>
   );

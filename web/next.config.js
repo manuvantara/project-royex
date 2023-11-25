@@ -13,8 +13,16 @@ const nextConfig = {
         destination: '/royalty-tokens',
         permanent: true,
       },
+      {
+        source: '/royalty-tokens/:royaltyTokenSymbol',
+        destination: '/royalty-tokens/:royaltyTokenSymbol/initial-royalty-offering',
+        permanent: false,
+      },
     ];
   },
+  typescript: {
+    ignoreBuildErrors: true // We must enable this option, otherwise TypeScript will error on OpenAPI client
+  }
 };
 
 module.exports = nextConfig;

@@ -1,0 +1,15 @@
+DROP TABLE initial_royalty_tokens_bought_events;
+DROP TABLE royalty_pool_deposited_events;
+DROP TABLE royalty_pool_withdrawn_events;
+DROP TABLE royalty_token_sold_events;
+DROP TABLE royalty_token_bought_events;
+DROP TABLE royalty_exchanges;
+DROP TABLE initial_royalty_offerings;
+DROP TABLE otc_market_offer_floor_price_changed_events;
+DROP TABLE otc_market_offer_accepted_events;
+DROP TABLE otc_market_offers;
+DROP TABLE otc_markets;
+DROP TABLE stakeholder_collective_proposals;
+DROP TABLE stakeholder_collectives;
+DROP TABLE royalty_payment_pools;
+DROP TABLE royalty_tokens;

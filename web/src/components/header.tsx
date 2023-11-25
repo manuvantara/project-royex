@@ -1,10 +1,10 @@
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 
+import { siteConfig } from '@/config/site';
 import ConnectButton from './connect-button';
 import Navbar from './navbar';
 import { Button } from './ui/button';
-import { siteConfig } from '@/config/site';
 // import { MobileNav } from "@/components/mobile-nav"
 
 export default function Header() {
