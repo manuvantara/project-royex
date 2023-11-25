@@ -3,6 +3,7 @@ import BuyForm from './buy-form';
 import SellForm from './sell-form';
 import Stats from './stats';
 import { RoyaltyExchangesService } from '@/api/requests';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default async function Exchanger({ royaltyTokenSymbol }: { royaltyTokenSymbol: string }) {
   const contractAddress = await RoyaltyExchangesService.getContractAddress(royaltyTokenSymbol);
@@ -19,11 +20,21 @@ export default async function Exchanger({ royaltyTokenSymbol }: { royaltyTokenSy
         </p>
       </div>
       <div className="mt-8 grid grid-cols-3 gap-6">
-        <div className="col-span-2 grid grid-cols-2 gap-6">
-          <BuyForm />
-          <SellForm />
+        <Tabs defaultValue="buy" className="col-span-2 w-[425px]">
+          <TabsList className="grid w-full grid-cols-2 gap-2">
+            <TabsTrigger value="buy">Buy</TabsTrigger>
+            <TabsTrigger value="sell">Sell</TabsTrigger>
+          </TabsList>
+          <TabsContent value="buy">
+            <BuyForm royaltyExchangeAddress={contractAddress} />
+          </TabsContent>
+          <TabsContent value="sell">
+            <SellForm royaltyExchangeAddress={contractAddress} />
+          </TabsContent>
+        </Tabs>
+        <div className="col-span-1">
+          <Stats royaltyExchangeAddress={contractAddress} />
         </div>
-        <Stats royaltyExchangeAddress={contractAddress} />
       </div>
     </div>
   );

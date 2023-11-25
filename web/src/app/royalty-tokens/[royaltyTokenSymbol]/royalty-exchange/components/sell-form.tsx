@@ -18,34 +18,29 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
-import {
-  ROYALTY_TOKEN_ABI,
-  ROYALTY_TOKEN_ADDRESS,
-  ROYALTY_EXCHANGE_ABI,
-  ROYALTY_EXCHANGE_ADDRESS,
-} from '@/config/contracts';
+import { ROYALTY_TOKEN_ABI, ROYALTY_TOKEN_ADDRESS, ROYALTY_EXCHANGE_ABI } from '@/config/contracts';
 import { useMounted } from '@/hooks/use-mounted';
 import calculateStablecoinAmount from '@/lib/helpers/calculate-stablecoin-amount';
 import roundUpEther from '@/lib/helpers/round-up-ether';
+import TransactionSuccess from '@/components/transaction-success';
 
 const formSchema = z.object({
-  royaltyTokens: z.coerce.number().positive(),
+  royaltyTokenAmount: z.coerce.number().positive(),
   priceSlippage: z.coerce.number().positive(),
 });
 type FormValues = z.infer<typeof formSchema>;
 
 type BuyConfig = {
   royaltyTokenAmount: bigint;
-  desiredStablecoinAmount: bigint;
+  givenStablecoinAmount: bigint;
   minStablecoinAmount: bigint;
   priceSlippage: number;
 };
 
-export default function SellForm() {
+export default function SellForm({ royaltyExchangeAddress }: { royaltyExchangeAddress: `0x${string}` }) {
   const isMounted = useMounted();
   const publicClient = usePublicClient();
   const { isConnected } = useAccount();
@@ -53,14 +48,14 @@ export default function SellForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      royaltyTokens: 1,
+      royaltyTokenAmount: 1,
       priceSlippage: 5,
     },
   });
 
   const [sellConfig, setSellConfig] = useState<BuyConfig>({
     royaltyTokenAmount: BigInt(0),
-    desiredStablecoinAmount: BigInt(0),
+    givenStablecoinAmount: BigInt(0),
     minStablecoinAmount: BigInt(0),
     priceSlippage: 0,
   });
@@ -68,67 +63,90 @@ export default function SellForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   const sell = useContractWrite({
-    address: ROYALTY_EXCHANGE_ADDRESS,
+    address: royaltyExchangeAddress,
     abi: ROYALTY_EXCHANGE_ABI,
     functionName: 'sell',
   });
 
-  const approveRoyaltyTokens = useContractWrite({
+  const approve = useContractWrite({
     address: ROYALTY_TOKEN_ADDRESS,
     abi: ROYALTY_TOKEN_ABI,
     functionName: 'approve',
   });
 
   async function onSubmit(values: FormValues) {
-    try {
-      const desiredStablecoinAmountToReceive = await publicClient.readContract({
-        address: ROYALTY_EXCHANGE_ADDRESS,
-        abi: ROYALTY_EXCHANGE_ABI,
-        functionName: 'calculateStablecoinAmount',
-        args: [false, parseEther(values.royaltyTokens.toString())],
-      });
+    const stablecoinAmountPromise = publicClient.readContract({
+      address: royaltyExchangeAddress,
+      abi: ROYALTY_EXCHANGE_ABI,
+      functionName: 'calculateStablecoinAmount',
+      args: [false, parseEther(values.royaltyTokenAmount.toString())],
+    });
 
-      setSellConfig({
-        royaltyTokenAmount: parseEther(values.royaltyTokens.toString()),
-        minStablecoinAmount: parseEther(
-          calculateStablecoinAmount(false, desiredStablecoinAmountToReceive, values.priceSlippage)
-        ),
-        desiredStablecoinAmount: desiredStablecoinAmountToReceive,
-        priceSlippage: values.priceSlippage,
-      });
+    toast.promise(stablecoinAmountPromise, {
+      error: (err) => err.message,
+      loading: 'Calculating stablecoin amount...',
+      success: (stablecoinAmount) => {
+        setSellConfig({
+          royaltyTokenAmount: parseEther(values.royaltyTokenAmount.toString()),
+          minStablecoinAmount: parseEther(calculateStablecoinAmount(true, stablecoinAmount, values.priceSlippage)),
+          givenStablecoinAmount: stablecoinAmount,
+          priceSlippage: values.priceSlippage,
+        });
+        setOpen(true);
 
-      setOpen(true);
-    } catch (error: any) {
-      toast.error(error.message);
-    }
+        return 'Calculated!';
+      },
+    });
   }
 
-  async function handleSell(sellConfig: BuyConfig) {
-    try {
-      setIsLoading(true);
+  async function handleApprove() {
+    setIsLoading(true);
 
-      // approve royalty token amount
-      const approveRoyaltyTokenAmountResult = await approveRoyaltyTokens.writeAsync({
-        args: [ROYALTY_EXCHANGE_ADDRESS, sellConfig.royaltyTokenAmount],
-      });
-      await publicClient.waitForTransactionReceipt({
-        hash: approveRoyaltyTokenAmountResult.hash,
-      });
-      toast.success(`${roundUpEther(formatEther(sellConfig.royaltyTokenAmount))} royalty token(s) approved`);
+    const resultPromise = approve.writeAsync?.({
+      args: [royaltyExchangeAddress, sellConfig.royaltyTokenAmount],
+    });
 
-      // sell
-      const sellResult = await sell.writeAsync({
-        args: [sellConfig.royaltyTokenAmount, sellConfig.desiredStablecoinAmount, sellConfig.priceSlippage],
+    const waitForResultPromise = resultPromise!.then(async (result) => {
+      return publicClient.waitForTransactionReceipt({
+        hash: result.hash,
       });
-      await publicClient.waitForTransactionReceipt({
-        hash: sellResult.hash,
+    });
+
+    toast.promise(waitForResultPromise, {
+      error: (err) => {
+        setIsLoading(false);
+        return err.message;
+      },
+      loading: 'Approving royalty tokens...',
+      success: async (receipt) => {
+        await handleSell();
+        return <TransactionSuccess name="Approved!" hash={receipt.transactionHash} />;
+      },
+    });
+  }
+
+  async function handleSell() {
+    const resultPromise = sell.writeAsync?.({
+      args: [sellConfig.royaltyTokenAmount, sellConfig.givenStablecoinAmount, sellConfig.priceSlippage],
+    });
+
+    const waitForResultPromise = resultPromise!.then(async (result) => {
+      return publicClient.waitForTransactionReceipt({
+        hash: result.hash,
       });
-      toast.success(`${roundUpEther(formatEther(sellConfig.royaltyTokenAmount))} royalty token(s) sold`);
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
-      setIsLoading(false);
-    }
+    });
+
+    toast.promise(waitForResultPromise, {
+      error: (err) => {
+        setIsLoading(false);
+        return err.message;
+      },
+      loading: 'Selling royalty tokens...',
+      success: (receipt) => {
+        setIsLoading(false);
+        return <TransactionSuccess name="Sold!" hash={receipt.transactionHash} />;
+      },
+    });
   }
 
   return (
@@ -142,7 +160,7 @@ export default function SellForm() {
           <CardContent className="grid gap-6">
             <FormField
               control={form.control}
-              name="royaltyTokens"
+              name="royaltyTokenAmount"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Royalty Tokens</FormLabel>
@@ -184,16 +202,11 @@ export default function SellForm() {
                   <Separator orientation="vertical" />
                   <p>
                     expected $
-                    <span className="text-xl">{roundUpEther(formatEther(sellConfig.desiredStablecoinAmount))}</span>
+                    <span className="text-xl">{roundUpEther(formatEther(sellConfig.givenStablecoinAmount))}</span>
                   </p>
                   <Separator orientation="vertical" />
                   <p>
-                    min $
-                    {!!sellConfig.desiredStablecoinAmount && !!sellConfig.minStablecoinAmount ? (
-                      <span className="text-xl">{roundUpEther(formatEther(sellConfig.minStablecoinAmount))}</span>
-                    ) : (
-                      <Skeleton className="h-[20px] w-[20px] rounded-full" />
-                    )}
+                    min $<span className="text-xl">{roundUpEther(formatEther(sellConfig.minStablecoinAmount))}</span>
                   </p>
                 </div>
                 <p className="max-w-sm text-sm text-muted-foreground">
@@ -204,14 +217,8 @@ export default function SellForm() {
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
-                  onClick={() => handleSell(sellConfig)}
-                  disabled={
-                    isMounted &&
-                    (!sellConfig.desiredStablecoinAmount ||
-                      !sellConfig.minStablecoinAmount ||
-                      !isConnected ||
-                      isLoading)
-                  }
+                  onClick={() => handleApprove()}
+                  disabled={!approve.write || isLoading || (isMounted && !isConnected)}
                 >
                   Continue
                 </AlertDialogAction>

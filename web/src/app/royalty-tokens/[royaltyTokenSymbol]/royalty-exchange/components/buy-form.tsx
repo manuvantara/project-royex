@@ -1,11 +1,11 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { formatEther, parseEther } from 'viem';
-import { useAccount, useContractWrite, usePrepareContractWrite, usePublicClient, useWaitForTransaction } from 'wagmi';
+import { useAccount, useContractWrite, usePublicClient } from 'wagmi';
 import * as z from 'zod';
 import {
   AlertDialog,
@@ -25,10 +25,7 @@ import { STABLECOIN_ABI, STABLECOIN_ADDRESS, ROYALTY_EXCHANGE_ABI, ROYALTY_EXCHA
 import { useMounted } from '@/hooks/use-mounted';
 import calculateStablecoinAmount from '@/lib/helpers/calculate-stablecoin-amount';
 import roundUpEther from '@/lib/helpers/round-up-ether';
-import { useDebounce } from 'usehooks-ts';
-import Link from 'next/link';
-import { Explorers } from '@/config/explorers';
-import { ArrowTopRightIcon } from '@radix-ui/react-icons';
+import TransactionSuccess from '@/components/transaction-success';
 
 const formSchema = z.object({
   royaltyTokens: z.coerce.number().positive(),
@@ -43,7 +40,7 @@ type BuyConfig = {
   priceSlippage: number;
 };
 
-export default function BuyForm() {
+export default function BuyForm({ royaltyExchangeAddress }: { royaltyExchangeAddress: `0x${string}` }) {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -65,57 +62,35 @@ export default function BuyForm() {
     maxStablecoinAmount: BigInt(0),
     priceSlippage: 0,
   });
-  const debouncedBuyConfig = useDebounce(buyConfig, 500);
 
-  const prepareApproveStablecoins = usePrepareContractWrite({
+  const approve = useContractWrite({
     address: STABLECOIN_ADDRESS,
     abi: STABLECOIN_ABI,
     functionName: 'approve',
-    args: [ROYALTY_EXCHANGE_ADDRESS, debouncedBuyConfig.maxStablecoinAmount],
-    enabled: debouncedBuyConfig.maxStablecoinAmount !== BigInt(0),
-  });
-  const approveStablecoins = useContractWrite(prepareApproveStablecoins.config);
-  const waitForApproveStablecoins = useWaitForTransaction({
-    hash: approveStablecoins.data?.hash,
-    enabled: approveStablecoins.isSuccess,
   });
 
-  const prepareBuyRoyaltyTokens = usePrepareContractWrite({
+  const buy = useContractWrite({
     address: ROYALTY_EXCHANGE_ADDRESS,
     abi: ROYALTY_EXCHANGE_ABI,
     functionName: 'buy',
-    args: [
-      debouncedBuyConfig.royaltyTokenAmount,
-      debouncedBuyConfig.requiredStablecoinAmount,
-      debouncedBuyConfig.priceSlippage,
-    ],
-    enabled: waitForApproveStablecoins.isSuccess,
   });
-  const buyRoyaltyTokens = useContractWrite(prepareBuyRoyaltyTokens.config);
-  useEffect(() => {
-    if (prepareBuyRoyaltyTokens.isSuccess) {
-      handleBuy();
-    }
-  }, [prepareBuyRoyaltyTokens.isSuccess]);
 
   async function onSubmit(values: FormValues) {
-    const desiredStablecoinAmountPromise = publicClient.readContract({
+    const stablecoinAmountPromise = publicClient.readContract({
       address: ROYALTY_EXCHANGE_ADDRESS,
       abi: ROYALTY_EXCHANGE_ABI,
       functionName: 'calculateStablecoinAmount',
       args: [true, parseEther(values.royaltyTokens.toString())],
     });
 
-    toast.promise(desiredStablecoinAmountPromise, {
+    toast.promise(stablecoinAmountPromise, {
       error: (err) => err.message,
       loading: 'Calculating required stablecoin amount...',
-      success: (requiredStablecoinAmount) => {
+      success: (stablecoinAmount) => {
         setBuyConfig({
           royaltyTokenAmount: parseEther(values.royaltyTokens.toString()),
-          maxStablecoinAmount: parseEther(
-            calculateStablecoinAmount(true, requiredStablecoinAmount, values.priceSlippage)
-          ),
-          requiredStablecoinAmount: requiredStablecoinAmount,
+          maxStablecoinAmount: parseEther(calculateStablecoinAmount(true, stablecoinAmount, values.priceSlippage)),
+          requiredStablecoinAmount: stablecoinAmount,
           priceSlippage: values.priceSlippage,
         });
         setOpen(true);
@@ -128,7 +103,9 @@ export default function BuyForm() {
   async function handleApprove() {
     setIsLoading(true);
 
-    const resultPromise = approveStablecoins.writeAsync?.();
+    const resultPromise = approve.writeAsync?.({
+      args: [royaltyExchangeAddress, buyConfig.maxStablecoinAmount],
+    });
 
     const waitForResultPromise = resultPromise!.then(async (result) => {
       return await publicClient.waitForTransactionReceipt({
@@ -142,24 +119,20 @@ export default function BuyForm() {
         return err.message;
       },
       loading: 'Approving stablecoin amount...',
-      success: (receipt) => (
-        <div className="flex items-center gap-2 font-medium">
-          <span>Approved!</span>
-          <Button asChild size="icon" variant="outline" className="h-6 w-6">
-            <Link target="_blank" href={`${Explorers['aurora-testnet']}/tx/${receipt.transactionHash}`}>
-              <ArrowTopRightIcon className="h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-      ),
+      success: async (receipt) => {
+        await handleBuy();
+        return <TransactionSuccess name="Approved!" hash={receipt.transactionHash} />;
+      },
     });
   }
 
   async function handleBuy() {
-    const resultPromise = buyRoyaltyTokens.writeAsync?.();
+    const resultPromise = buy.writeAsync?.({
+      args: [buyConfig.royaltyTokenAmount, buyConfig.requiredStablecoinAmount, buyConfig.priceSlippage],
+    });
 
     const waitForResultPromise = resultPromise!.then(async (result) => {
-      return await publicClient.waitForTransactionReceipt({
+      return publicClient.waitForTransactionReceipt({
         hash: result.hash,
       });
     });
@@ -172,16 +145,7 @@ export default function BuyForm() {
       loading: 'Buying royalty tokens...',
       success: (receipt) => {
         setIsLoading(false);
-        return (
-          <div className="flex items-center gap-2 font-medium">
-            <span>Bought!</span>
-            <Button asChild size="icon" variant="outline" className="h-6 w-6">
-              <Link target="_blank" href={`${Explorers['aurora-testnet']}/tx/${receipt.transactionHash}`}>
-                <ArrowTopRightIcon className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        );
+        return <TransactionSuccess name="Bought!" hash={receipt.transactionHash} />;
       },
     });
   }
@@ -255,7 +219,7 @@ export default function BuyForm() {
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => handleApprove()}
-                  disabled={!approveStablecoins.write || (isMounted && !isConnected)}
+                  disabled={!approve.write || (isMounted && !isConnected)}
                 >
                   Continue
                 </AlertDialogAction>
