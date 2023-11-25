@@ -54,7 +54,7 @@ def fetch_public(
     return [
         commune.RoyaltyToken(
             symbol=royalty_token.symbol,
-            price=commune.ValueIndicator(
+            price=commune.BaseValueIndicator(
                 current=commune.TimeSeriesDataPoint(timestamp=100, value=522),
                 recent_values_dataset=[
                     commune.TimeSeriesDataPoint(
@@ -63,7 +63,7 @@ def fetch_public(
                     for hour in range(24)
                 ],
             ),
-            deposited_royalty_income=commune.ValueIndicator(
+            deposited_royalty_income=commune.BaseValueIndicator(
                 current=commune.TimeSeriesDataPoint(timestamp=100, value=237),
                 recent_values_dataset=[
                     commune.TimeSeriesDataPoint(
@@ -99,7 +99,7 @@ def fetch_private(
     return [
         commune.RoyaltyToken(
             symbol=royalty_token.symbol,
-            price=commune.ValueIndicator(
+            price=commune.BaseValueIndicator(
                 current=commune.TimeSeriesDataPoint(timestamp=100, value=522),
                 recent_values_dataset=[
                     commune.TimeSeriesDataPoint(
@@ -108,7 +108,7 @@ def fetch_private(
                     for hour in range(24)
                 ],
             ),
-            deposited_royalty_income=commune.ValueIndicator(
+            deposited_royalty_income=commune.BaseValueIndicator(
                 current=commune.TimeSeriesDataPoint(timestamp=100, value=237),
                 recent_values_dataset=[
                     commune.TimeSeriesDataPoint(

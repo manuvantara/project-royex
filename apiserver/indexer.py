@@ -659,7 +659,7 @@ def update():
                 model=models.RoyaltyExchange, symbol=symbol, value=latest_block.number
             )
 
-        for [contract_address, block_number] in royalty_payment_pool_contract:
+        for [contract_address, block_number] in royalty_payment_pool_contracts:
             # get metadata
             latest_block = w3.eth.get_block("latest")
 

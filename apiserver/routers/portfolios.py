@@ -26,7 +26,7 @@ from apiserver.routers.commune import (
     GetEstimatedPortfolioValue,
     GetRoyaltyIncomeResponse,
     RoyaltyToken,
-    ValueIndicator,
+    BaseValueIndicator,
     TimeSeriesDataPoint,
     RoyaltySum,
 )
@@ -139,7 +139,7 @@ def get_estimated_portfolio_value(
     )
 
     return GetEstimatedPortfolioValue(
-        on_otc_market=ValueIndicator(
+        on_otc_market=BaseValueIndicator(
             current=TimeSeriesDataPoint(
                 timestamp=hour_timestamps[0], value=otc_values[0]
             ),
@@ -148,7 +148,7 @@ def get_estimated_portfolio_value(
                 for i in range(1, len(otc_values))
             ],
         ),
-        at_royalty_exchange=ValueIndicator(
+        at_royalty_exchange=BaseValueIndicator(
             current=TimeSeriesDataPoint(
                 timestamp=hour_timestamps[0], value=exchange_values[0]
             ),
@@ -203,14 +203,14 @@ def calculate_royalty_income(
         hour_incomes = np.append(hour_incomes, royalty_income)
 
     return GetRoyaltyIncomeResponse(
-        reported=ValueIndicator(
+        reported=BaseValueIndicator(
             current=TimeSeriesDataPoint(timestamp=0, value=0),
             recent_values_dataset=[
                 TimeSeriesDataPoint(timestamp=hour * 3600, value=random.randint(0, 742))
                 for hour in range(24)
             ],
         ),
-        deposited=ValueIndicator(
+        deposited=BaseValueIndicator(
             current=TimeSeriesDataPoint(
                 timestamp=hour_timestamps[0], value=hour_incomes[0]
             ),
@@ -269,7 +269,7 @@ def fetch_public_royalty_tokens(
     return [
         RoyaltyToken(
             symbol=token.symbol,
-            price=ValueIndicator(
+            price=BaseValueIndicator(
                 current=TimeSeriesDataPoint(
                     timestamp=hour_timestamps[0], value=exchange_values[0]
                 ),
@@ -280,7 +280,7 @@ def fetch_public_royalty_tokens(
                     for i in range(1, len(exchange_values))
                 ],
             ),
-            deposited_royalty_income=ValueIndicator(
+            deposited_royalty_income=BaseValueIndicator(
                 current=TimeSeriesDataPoint(
                     timestamp=hour_timestamps[0],
                     value=royalties[token.symbol].count * royalties[token.symbol].price,
@@ -345,7 +345,7 @@ def fetch_private_royalty_tokens(
     return [
         RoyaltyToken(
             symbol=token.symbol,
-            price=ValueIndicator(
+            price=BaseValueIndicator(
                 current=TimeSeriesDataPoint(
                     timestamp=hour_timestamps[0], value=exchange_values[0]
                 ),
@@ -356,7 +356,7 @@ def fetch_private_royalty_tokens(
                     for i in range(1, len(exchange_values))
                 ],
             ),
-            deposited_royalty_income=ValueIndicator(
+            deposited_royalty_income=BaseValueIndicator(
                 current=TimeSeriesDataPoint(
                     timestamp=hour_timestamps[0],
                     value=royalties[token.symbol].count * royalties[token.symbol].price,

@@ -1,8 +1,5 @@
 from datetime import datetime, timedelta
-from time import time
-from typing import List
-
-import numpy as np
+from typing import List, cast
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -18,11 +15,13 @@ from apiserver.database.models import (
     OtcMarketOfferAcceptedEvent,
 )
 from apiserver.routers.commune import (
-    Offer,
+    BaseValueIndicator,
     ValueIndicator,
-    TimeSeriesDataPoint,
-    calculate_value_indicator,
-    generate_recent_values_dataset,
+    CumulativeValueIndicator,
+    fetch_events,
+    generate_bar_chart,
+    generate_line_chart,
+    Offer,
 )
 
 router = APIRouter()
@@ -56,99 +55,77 @@ def get_contract_address(
 @router.get("/{royalty_token_symbol}/floor-price")
 def get_floor_price(
     *, royalty_token_symbol: str, session: Session = Depends(get_session)
-) -> ValueIndicator:
-    current_timestamp = int(time())
-    hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
-    hour_prices = np.array([])
-
-    statement = select(OtcMarket).where(
-        OtcMarket.royalty_token_symbol == royalty_token_symbol
-    )  # For last 24 hours
-    otc_market = session.exec(statement).first()
-    if otc_market is None:
-        raise HTTPException(
-            status_code=404,
-            detail="OTC Market Not Found",
-        )
-
-    last_price = 0
-    for hour in hour_timestamps:
-        statement = (
-            select(
-                OtcMarketFloorPriceChangedEvent.block_timestamp,
-                OtcMarketFloorPriceChangedEvent.floor_price,
-            )
-            .where(
-                OtcMarketFloorPriceChangedEvent.contract_address
-                == otc_market.contract_address,
-                OtcMarketFloorPriceChangedEvent.block_timestamp <= int(hour),
-            )
-            .order_by(OtcMarketFloorPriceChangedEvent.block_timestamp.desc())
-        )
-        latest_price = session.exec(statement).first()
-
-        if latest_price:
-            hour_prices = np.append(hour_prices, latest_price.floor_price)
-            last_price = latest_price.floor_price
-        else:
-            hour_prices = np.append(hour_prices, last_price)
-
-    return ValueIndicator(
-        current=TimeSeriesDataPoint(timestamp=hour_timestamps[0], value=hour_prices[0]),
-        recent_values_dataset=[
-            TimeSeriesDataPoint(timestamp=hour_timestamps[i], value=hour_prices[i])
-            for i in range(1, len(hour_prices))
-        ],
+) -> BaseValueIndicator:
+    contract_address = get_contract_address(
+        royalty_token_symbol=royalty_token_symbol, session=session
     )
+
+    upper_bound = datetime.now()
+    lower_bound = upper_bound.replace(minute=0, second=0) - timedelta(hours=23)
+
+    events = fetch_events(
+        contract_address=contract_address,
+        lower_bound=lower_bound,
+        upper_bound=upper_bound,
+        session=session,
+        Event=OtcMarketFloorPriceChangedEvent,
+    )
+    events = cast(List[OtcMarketFloorPriceChangedEvent], events)
+
+    recent_values_dataset = generate_line_chart(
+        events=events,
+        target="floor_price",
+        lower_bound=lower_bound,
+        upper_bound=upper_bound,
+    )
+
+    return ValueIndicator(recent_values_dataset)
 
 
 @router.get("/{royalty_token_symbol}/trading-volume")
 def get_trading_volume(
     *, royalty_token_symbol: str, session: Session = Depends(get_session)
-) -> ValueIndicator:
-    upper_bound = datetime.now()
-    lower_bound = upper_bound.replace(hour=0, minute=0, second=0) - timedelta(hours=24)
-
-    # TODO: If Royalty Token is not found, raise 404 error
-    statement = select(OtcMarketOfferAcceptedEvent).where(
-        (OtcMarket.royalty_token_symbol == royalty_token_symbol)
-        & (OtcMarketOfferAcceptedEvent.contract_address == OtcMarket.contract_address)
-        & (OtcMarketOfferAcceptedEvent.block_timestamp >= lower_bound.timestamp())
+) -> BaseValueIndicator:
+    contract_address = get_contract_address(
+        royalty_token_symbol=royalty_token_symbol, session=session
     )
-    results = session.exec(statement)
 
-    events = results.all()
+    upper_bound = datetime.now()
+    lower_bound = upper_bound.replace(minute=0, second=0) - timedelta(hours=23)
 
-    recent_values_dataset = generate_recent_values_dataset(
+    events = fetch_events(
+        contract_address=contract_address,
+        lower_bound=lower_bound,
+        upper_bound=upper_bound,
+        session=session,
+        Event=OtcMarketOfferAcceptedEvent,
+    )
+    events = cast(List[OtcMarketOfferAcceptedEvent], events)
+
+    recent_values_dataset = generate_bar_chart(
         events=events,
         target="stablecoin_amount",
         lower_bound=lower_bound,
         upper_bound=upper_bound,
     )
 
-    return calculate_value_indicator(
-        recent_values_dataset=recent_values_dataset,
-        upper_bound=upper_bound,
-    )
+    return CumulativeValueIndicator(recent_values_dataset)
 
 
 @router.get("/{royalty_token_symbol}/offers")
 def fetch_offers(
     *, royalty_token_symbol: str, session: Session = Depends(get_session)
 ) -> List[Offer]:
+    contract_address = get_contract_address(
+        royalty_token_symbol=royalty_token_symbol, session=session
+    )
+
     statement = select(OtcMarketOffer).where(
-        (OtcMarket.royalty_token_symbol == royalty_token_symbol)
-        & (OtcMarketOffer.contract_address == OtcMarket.contract_address)
+        (OtcMarketOffer.contract_address == contract_address)
     )
     results = session.exec(statement)
 
-    try:
-        offers = results.all()
-    except exc.NoResultFound:
-        raise HTTPException(
-            status_code=404,
-            detail="OTC Market Offers Not Found",
-        )
+    offers = results.all()
 
     return [
         Offer(

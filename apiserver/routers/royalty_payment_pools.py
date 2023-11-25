@@ -1,3 +1,5 @@
+from datetime import datetime
+import random
 from typing import List
 
 from time import time
@@ -5,14 +7,19 @@ import numpy as np
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from apiserver.routers.commune import Deposit, GetRoyaltyIncomeResponse, TimeSeriesDataPoint, ValueIndicator
+from apiserver.routers.commune import (
+    Deposit,
+    GetRoyaltyIncomeResponse,
+    TimeSeriesDataPoint,
+    BaseValueIndicator,
+)
 
 from sqlalchemy import exc
 from sqlmodel import Session, select
 
 from apiserver.database import get_session
 
-from apiserver.routers.commune import ValueIndicator, TimeSeriesDataPoint
+from apiserver.routers.commune import BaseValueIndicator, TimeSeriesDataPoint
 
 from apiserver.database.models import (
     RoyaltyPaymentPool,
@@ -23,7 +30,9 @@ router = APIRouter()
 
 
 @router.get("/{royalty_token_symbol}/contract-address")
-def get_contract_address(royalty_token_symbol: str, session: Session = Depends(get_session)) -> str:  # address
+def get_contract_address(
+    royalty_token_symbol: str, session: Session = Depends(get_session)
+) -> str:  # address
     statement = select(RoyaltyPaymentPool).where(
         RoyaltyPaymentPool.royalty_token_symbol == royalty_token_symbol
     )
@@ -42,7 +51,38 @@ def get_contract_address(royalty_token_symbol: str, session: Session = Depends(g
 
 
 @router.get("/{royalty_token_symbol}/royalty-income")
-def get_royalty_income(royalty_token_symbol: str, session: Session = Depends(get_session)) -> GetRoyaltyIncomeResponse:
+def get_royalty_income(
+    royalty_token_symbol: str, session: Session = Depends(get_session)
+) -> GetRoyaltyIncomeResponse:
+    return GetRoyaltyIncomeResponse(
+        reported=BaseValueIndicator(
+            current=TimeSeriesDataPoint(
+                timestamp=datetime.now().timestamp(),
+                value=str(random.randint(400, 1200)),
+            ),
+            recent_values_dataset=[
+                TimeSeriesDataPoint(
+                    timestamp=datetime.now().timestamp(),
+                    value=str(random.randint(0, 742)),
+                )
+                for hour in range(24)
+            ],
+        ),
+        deposited=BaseValueIndicator(
+            current=TimeSeriesDataPoint(
+                timestamp=datetime.now().timestamp(),
+                value=str(random.randint(400, 1200)),
+            ),
+            recent_values_dataset=[
+                TimeSeriesDataPoint(
+                    timestamp=datetime.now().timestamp(),
+                    value=str(random.randint(0, 742)),
+                )
+                for hour in range(24)
+            ],
+        ),
+    )
+
     current_timestamp = int(time())
     hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
     hour_deposits = np.array([])
@@ -58,11 +98,17 @@ def get_royalty_income(royalty_token_symbol: str, session: Session = Depends(get
         )
 
     for hour in hour_timestamps:
-        statement = select(RoyaltyPoolDepositedEvent.block_timestamp,
-                           RoyaltyPoolDepositedEvent.deposit).where(
-            RoyaltyPoolDepositedEvent.contract_address == royalty_pool_contract,
-            RoyaltyPoolDepositedEvent.block_timestamp <= int(hour)
-        ).order_by(RoyaltyPoolDepositedEvent.block_timestamp.desc())
+        statement = (
+            select(
+                RoyaltyPoolDepositedEvent.block_timestamp,
+                RoyaltyPoolDepositedEvent.deposit,
+            )
+            .where(
+                RoyaltyPoolDepositedEvent.contract_address == royalty_pool_contract,
+                RoyaltyPoolDepositedEvent.block_timestamp <= int(hour),
+            )
+            .order_by(RoyaltyPoolDepositedEvent.block_timestamp.desc())
+        )
 
         deposits = session.exec(statement).all()
 
@@ -73,7 +119,7 @@ def get_royalty_income(royalty_token_symbol: str, session: Session = Depends(get
             hour_deposits = np.append(hour_deposits, 0)
 
     return GetRoyaltyIncomeResponse(
-        reported=ValueIndicator(
+        reported=BaseValueIndicator(
             current=TimeSeriesDataPoint(timestamp=0, value=0),
             recent_values_dataset=[
                 TimeSeriesDataPoint(timestamp=1700177341, value=0),
@@ -81,7 +127,7 @@ def get_royalty_income(royalty_token_symbol: str, session: Session = Depends(get
                 TimeSeriesDataPoint(timestamp=1700187341, value=0),
             ],
         ),
-        deposited=ValueIndicator(
+        deposited=BaseValueIndicator(
             current=TimeSeriesDataPoint(
                 timestamp=hour_timestamps[0], value=hour_deposits[0]
             ),
@@ -91,12 +137,14 @@ def get_royalty_income(royalty_token_symbol: str, session: Session = Depends(get
                 )
                 for i in range(1, len(hour_deposits))
             ],
-        )
+        ),
     )
 
 
 @router.get("/{royalty_token_symbol}/deposits")
-def fetch_deposits(royalty_token_symbol: str, session: Session = Depends(get_session)) -> List[Deposit]:
+def fetch_deposits(
+    royalty_token_symbol: str, session: Session = Depends(get_session)
+) -> List[Deposit]:
     statement = select(RoyaltyPaymentPool.contract_address).where(
         RoyaltyPaymentPool.royalty_token_symbol == royalty_token_symbol
     )
@@ -108,9 +156,11 @@ def fetch_deposits(royalty_token_symbol: str, session: Session = Depends(get_ses
             detail="Royalty Payment Pool Not Found",
         )
 
-    statement = select(RoyaltyPoolDepositedEvent).where(
-        RoyaltyPoolDepositedEvent.contract_address == royalty_pool_contract
-    ).order_by(RoyaltyPoolDepositedEvent.block_timestamp.desc())
+    statement = (
+        select(RoyaltyPoolDepositedEvent)
+        .where(RoyaltyPoolDepositedEvent.contract_address == royalty_pool_contract)
+        .order_by(RoyaltyPoolDepositedEvent.block_timestamp.desc())
+    )
 
     deposits = session.exec(statement)
 
