@@ -29,7 +29,7 @@ export default async function Page({ params: { royaltyTokenSymbol } }: { params:
             </Suspense>
             <RoyaltyPaymentsTable data={royaltyPayments} />
           </div>
-          <DepositRoyaltiesForm royaltyTokenSymbol={contractAddress} />
+          <DepositRoyaltiesForm royaltyPaymentPoolAddress={contractAddress} />
         </div>
       </div>
     </>
