@@ -8,7 +8,6 @@ from sqlmodel import Session, select
 from apiserver.database import get_session
 
 from apiserver.database.models import (
-    RoyaltyToken,
     StakeholderCollectiveProposal,
     StakeholderCollective,
 )
@@ -38,6 +37,11 @@ def get_contract_address(
             status_code=404,
             detail="Stakeholder Collective Not Found",
         )
+    except exc.MultipleResultsFound:
+        raise HTTPException(
+            status_code=500,
+            detail="Multiple Stakeholder Collective Found",
+        )
 
     return stakeholder_collective.contract_address
 
@@ -46,22 +50,17 @@ def get_contract_address(
 def fetch_proposals(
     *, royalty_token_symbol: str, session: Session = Depends(get_session)
 ) -> List[ProposalInfo]:
+    contract_address = get_contract_address(
+        royalty_token_symbol=royalty_token_symbol, session=session
+    )
+
     statement = select(StakeholderCollectiveProposal).where(
         (StakeholderCollective.royalty_token_symbol == royalty_token_symbol)
-        & (
-            StakeholderCollectiveProposal.contract_address
-            == StakeholderCollective.contract_address
-        )
+        & (StakeholderCollectiveProposal.contract_address == contract_address)
     )
     results = session.exec(statement)
 
-    try:
-        proposals = results.all()
-    except exc.NoResultFound:
-        raise HTTPException(
-            status_code=404,
-            detail="Proposals Not Found",
-        )
+    proposals = results.all()
 
     return [
         ProposalInfo(
