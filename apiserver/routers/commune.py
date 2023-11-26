@@ -11,6 +11,7 @@ from apiserver.database.models import (
     EventBase,
     OtcMarketFloorPriceChangedEvent,
     OtcMarketOfferAcceptedEvent,
+    RoyaltyPoolDepositedEvent,
     RoyaltyTokenTradedEvent,
 )
 
@@ -154,7 +155,9 @@ class RoyaltySum:
 
 def generate_bar_chart(
     *,
-    events: List[OtcMarketOfferAcceptedEvent] | List[RoyaltyTokenTradedEvent],
+    events: List[OtcMarketOfferAcceptedEvent]
+    | List[RoyaltyTokenTradedEvent]
+    | List[RoyaltyPoolDepositedEvent],
     target: str,
     lower_bound: datetime,
     upper_bound: datetime,

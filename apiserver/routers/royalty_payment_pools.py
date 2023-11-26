@@ -1,29 +1,24 @@
-from datetime import datetime
-import random
-from typing import List
-
-from time import time
-import numpy as np
+from datetime import datetime, timedelta
+from typing import List, cast
 
 from fastapi import APIRouter, Depends, HTTPException
-
-from apiserver.routers.commune import (
-    Deposit,
-    GetRoyaltyIncomeResponse,
-    TimeSeriesDataPoint,
-    BaseValueIndicator,
-)
 
 from sqlalchemy import exc
 from sqlmodel import Session, select
 
 from apiserver.database import get_session
 
-from apiserver.routers.commune import BaseValueIndicator, TimeSeriesDataPoint
-
 from apiserver.database.models import (
     RoyaltyPaymentPool,
     RoyaltyPoolDepositedEvent,
+)
+from apiserver.routers.commune import (
+    TimeSeriesDataPoint,
+    BaseValueIndicator,
+    GetRoyaltyIncomeResponse,
+    fetch_events,
+    generate_bar_chart,
+    Deposit,
 )
 
 router = APIRouter()
@@ -46,6 +41,11 @@ def get_contract_address(
             status_code=404,
             detail="Royalty Payment Pool Not Found",
         )
+    except exc.MultipleResultsFound:
+        raise HTTPException(
+            status_code=500,
+            detail="Multiple Royalty Payment Pool Found",
+        )
 
     return royalty_token.contract_address
 
@@ -54,89 +54,46 @@ def get_contract_address(
 def get_royalty_income(
     royalty_token_symbol: str, session: Session = Depends(get_session)
 ) -> GetRoyaltyIncomeResponse:
+    contract_address = get_contract_address(
+        royalty_token_symbol=royalty_token_symbol, session=session
+    )
+
+    upper_bound = datetime.now()
+    lower_bound = upper_bound.replace(minute=0, second=0) - timedelta(hours=23)
+
+    events = fetch_events(
+        contract_address=contract_address,
+        lower_bound=lower_bound,
+        upper_bound=upper_bound,
+        session=session,
+        Event=RoyaltyPoolDepositedEvent,
+    )
+    events = cast(List[RoyaltyPoolDepositedEvent], events)
+
+    recent_values_dataset = generate_bar_chart(
+        events=events,
+        target="deposit",
+        lower_bound=lower_bound,
+        upper_bound=upper_bound,
+    )
+
     return GetRoyaltyIncomeResponse(
         reported=BaseValueIndicator(
             current=TimeSeriesDataPoint(
-                timestamp=datetime.now().timestamp(),
-                value=str(random.randint(400, 1200)),
+                timestamp=recent_values_dataset[-1].timestamp,
+                value=str(0),
             ),
             recent_values_dataset=[
                 TimeSeriesDataPoint(
-                    timestamp=datetime.now().timestamp(),
-                    value=str(random.randint(0, 742)),
+                    timestamp=recent_values_dataset[i].timestamp,
+                    value=str(0),
                 )
-                for hour in range(24)
+                for i in range(24)
             ],
         ),
         deposited=BaseValueIndicator(
-            current=TimeSeriesDataPoint(
-                timestamp=datetime.now().timestamp(),
-                value=str(random.randint(400, 1200)),
-            ),
-            recent_values_dataset=[
-                TimeSeriesDataPoint(
-                    timestamp=datetime.now().timestamp(),
-                    value=str(random.randint(0, 742)),
-                )
-                for hour in range(24)
-            ],
-        ),
-    )
-
-    current_timestamp = int(time())
-    hour_timestamps = np.arange(current_timestamp, current_timestamp - 24 * 3600, -3600)
-    hour_deposits = np.array([])
-
-    statement = select(RoyaltyPaymentPool.contract_address).where(
-        RoyaltyPaymentPool.royalty_token_symbol == royalty_token_symbol
-    )
-    royalty_pool_contract = session.exec(statement).one()
-    if royalty_pool_contract is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Royalty Payment Pool Not Found",
-        )
-
-    for hour in hour_timestamps:
-        statement = (
-            select(
-                RoyaltyPoolDepositedEvent.block_timestamp,
-                RoyaltyPoolDepositedEvent.deposit,
-            )
-            .where(
-                RoyaltyPoolDepositedEvent.contract_address == royalty_pool_contract,
-                RoyaltyPoolDepositedEvent.block_timestamp <= int(hour),
-            )
-            .order_by(RoyaltyPoolDepositedEvent.block_timestamp.desc())
-        )
-
-        deposits = session.exec(statement).all()
-
-        if len(deposits) > 0:
-            deposit_amounts = [d.deposit for d in deposits]
-            hour_deposits = np.append(hour_deposits, sum(deposit_amounts))
-        else:
-            hour_deposits = np.append(hour_deposits, 0)
-
-    return GetRoyaltyIncomeResponse(
-        reported=BaseValueIndicator(
-            current=TimeSeriesDataPoint(timestamp=0, value=0),
-            recent_values_dataset=[
-                TimeSeriesDataPoint(timestamp=1700177341, value=0),
-                TimeSeriesDataPoint(timestamp=1700178341, value=0),
-                TimeSeriesDataPoint(timestamp=1700187341, value=0),
-            ],
-        ),
-        deposited=BaseValueIndicator(
-            current=TimeSeriesDataPoint(
-                timestamp=hour_timestamps[0], value=hour_deposits[0]
-            ),
-            recent_values_dataset=[
-                TimeSeriesDataPoint(
-                    timestamp=hour_timestamps[i], value=hour_deposits[i]
-                )
-                for i in range(1, len(hour_deposits))
-            ],
+            current=recent_values_dataset[-1],
+            recent_values_dataset=recent_values_dataset,
         ),
     )
 
@@ -145,30 +102,22 @@ def get_royalty_income(
 def fetch_deposits(
     royalty_token_symbol: str, session: Session = Depends(get_session)
 ) -> List[Deposit]:
-    statement = select(RoyaltyPaymentPool.contract_address).where(
-        RoyaltyPaymentPool.royalty_token_symbol == royalty_token_symbol
+    contract_address = get_contract_address(
+        royalty_token_symbol=royalty_token_symbol, session=session
     )
 
-    royalty_pool_contract = session.exec(statement).one()
-    if royalty_pool_contract is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Royalty Payment Pool Not Found",
-        )
-
-    statement = (
-        select(RoyaltyPoolDepositedEvent)
-        .where(RoyaltyPoolDepositedEvent.contract_address == royalty_pool_contract)
-        .order_by(RoyaltyPoolDepositedEvent.block_timestamp.desc())
+    statement = select(RoyaltyPoolDepositedEvent).where(
+        (RoyaltyPoolDepositedEvent.contract_address == contract_address)
     )
+    results = session.exec(statement)
 
-    deposits = session.exec(statement)
+    deposits = results.all()
 
     return [
         Deposit(
-            distributor=d.sender,
-            checkpoint_key=d.block_timestamp,
-            amount=d.deposit,
+            distributor=deposit.sender,
+            checkpoint_key=deposit.block_timestamp,
+            amount=deposit.deposit,
         )
-        for d in deposits
+        for deposit in deposits
     ]
