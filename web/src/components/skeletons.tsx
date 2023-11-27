@@ -57,3 +57,42 @@ export function StatCardsSkeleton() {
     </>
   );
 }
+
+export function TokenCardSkeleton() {
+  return (
+    <Skeleton>
+      <Card className="h-full">
+        <CardHeader className="space-y-0 pb-2">
+          <div className="h-5 w-24 rounded-xl bg-secondary" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <div className="mb-1 h-8 w-20 rounded-xl bg-secondary" />
+            <div className="h-3 w-40 rounded-xl bg-secondary" />
+            <div className="mt-4 h-20 w-full rounded-xl bg-secondary" />
+          </div>
+          <div>
+            <div className="mb-1 h-8 w-20 rounded-xl bg-secondary" />
+            <div className="h-3 w-40 rounded-xl bg-secondary" />
+            <div className="mt-4 h-20 w-full rounded-xl bg-secondary" />
+          </div>
+        </CardContent>
+      </Card>
+    </Skeleton>
+  );
+}
+
+export function TokensSectionSkeleton() {
+  return (
+    <div className="px-4 pb-8 pt-4">
+      <Skeleton className="mb-6 w-fit">
+        <div className="h-9 w-60 rounded-xl bg-secondary" />
+      </Skeleton>
+      <div className="grid grid-cols-3 gap-4">
+        <TokenCardSkeleton />
+        <TokenCardSkeleton />
+        <TokenCardSkeleton />
+      </div>
+    </div>
+  );
+}

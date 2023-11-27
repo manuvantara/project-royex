@@ -1,9 +1,15 @@
 'use client';
 
+import {
+  cssStringFromTheme,
+  getDefaultWallets,
+  midnightTheme,
+  RainbowKitProvider,
+  Theme,
+} from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
-import { getDefaultWallets, midnightTheme, RainbowKitProvider, Theme } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { auroraTestnet } from 'viem/chains';
 
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
@@ -24,7 +30,7 @@ const wagmiConfig = createConfig({
   publicClient,
 });
 
-const rainbowKitTheme: Theme = {
+const rainbowKitTheme = {
   ...midnightTheme(),
   colors: {
     ...midnightTheme().colors,
@@ -48,9 +54,21 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       })
   );
 
+  useLayoutEffect(() => {
+    const theme = cssStringFromTheme(rainbowKitTheme);
+
+    const styleElement = document.createElement('style');
+    styleElement.setAttribute('data-rk-theme', 'midnight');
+    styleElement.textContent = `:root { ${theme} }`;
+
+    if (!document.head.hasAttribute('data-rk-theme')) {
+      document.head.appendChild(styleElement);
+    }
+  }, []);
+
   return (
     <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider chains={chains} theme={rainbowKitTheme}>
+      <RainbowKitProvider chains={chains} theme={null}>
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       </RainbowKitProvider>
     </WagmiConfig>
