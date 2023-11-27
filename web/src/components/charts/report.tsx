@@ -18,7 +18,7 @@ export default function Report({ title = 'Default chart', description, data, dat
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent className="pb-4">
+      <CardContent>
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={data}>
             <XAxis dataKey="timestamp" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
