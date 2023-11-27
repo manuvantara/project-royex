@@ -13,6 +13,7 @@ const sans = FontSans({ subsets: ['latin'], variable: '--font-sans' });
 export const metadata: Metadata = {
   title: siteConfig.title,
   description: siteConfig.description,
+  metadataBase: new URL(siteConfig.url),
   openGraph: {
     title: siteConfig.title,
     description: siteConfig.description,
@@ -41,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Footer />
           </div>
         </Providers>
-        <Toaster />
+        <Toaster theme='dark' />
       </body>
     </html>
   );
