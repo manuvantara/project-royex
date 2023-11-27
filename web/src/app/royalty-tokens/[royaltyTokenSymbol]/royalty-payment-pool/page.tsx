@@ -1,14 +1,14 @@
 import { Suspense } from 'react';
 import Balancer from 'react-wrap-balancer';
+import { DepositRoyaltiesForm, RoyaltyPaymentsTable, RoyaltyIncome } from './components';
 import { RoyaltyPaymentPoolsService } from '@/api/requests';
-import RoyaltyPaymentsTable from './components/royalty-payments-table';
-import DepositRoyaltiesForm from './components/deposit-royalties-form';
+import { ChartSkeleton } from '@/components/skeletons';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Page({ params: { royaltyTokenSymbol } }: { params: { royaltyTokenSymbol: string } }) {
-  const royaltyPayments = await RoyaltyPaymentPoolsService.fetchDeposits(royaltyTokenSymbol);
   const contractAddress = await RoyaltyPaymentPoolsService.getContractAddress(royaltyTokenSymbol);
+  const royaltyPayments = await RoyaltyPaymentPoolsService.fetchDeposits(royaltyTokenSymbol);
 
   return (
     <>
@@ -24,8 +24,8 @@ export default async function Page({ params: { royaltyTokenSymbol } }: { params:
         </div>
         <div className="mt-8">
           <div className="grid gap-4 py-8 md:grid-cols-2">
-            <Suspense fallback={<div>Loading...</div>}>
-              {/* <RoyaltyIncome royaltyTokenSymbol={royaltyTokenSymbol} /> */}
+            <Suspense fallback={<ChartSkeleton />}>
+              <RoyaltyIncome royaltyTokenSymbol={royaltyTokenSymbol} />
             </Suspense>
             <RoyaltyPaymentsTable data={royaltyPayments} />
           </div>

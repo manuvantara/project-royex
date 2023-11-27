@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
-import { PriceChartSkeleton, TradingVolumeSkeleton } from '@/components/skeletons';
 import { Exchanger, Price, TradingVolume } from './components';
+import { ChartSkeleton } from '@/components/skeletons';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,10 +8,10 @@ export default function Page({ params: { royaltyTokenSymbol } }: { params: { roy
   return (
     <>
       <div className="grid grid-cols-2 gap-4 py-6">
-        <Suspense fallback={<PriceChartSkeleton />}>
+        <Suspense fallback={<ChartSkeleton />}>
           <Price royaltyTokenSymbol={royaltyTokenSymbol} />
         </Suspense>
-        <Suspense fallback={<TradingVolumeSkeleton />}>
+        <Suspense fallback={<ChartSkeleton />}>
           <TradingVolume royaltyTokenSymbol={royaltyTokenSymbol} />
         </Suspense>
       </div>

@@ -1,22 +1,22 @@
 import { Suspense } from 'react';
 import Balancer from 'react-wrap-balancer';
-import { OtcMarketsService, RoyaltyTokensService } from '@/api/requests';
-import { PriceChartSkeleton, TradingVolumeSkeleton } from '@/components/skeletons';
 import { FloorPrice, OffersWrapper, TradingVolume } from './components';
+import { OtcMarketsService, RoyaltyTokensService } from '@/api/requests';
+import { ChartSkeleton } from '@/components/skeletons';
 
 export default async function Page({ params: { royaltyTokenSymbol } }: { params: { royaltyTokenSymbol: string } }) {
-  const [marketAddress, royaltyTokenAddress] = await Promise.all([
-    OtcMarketsService.getContractAddress(royaltyTokenSymbol),
-    RoyaltyTokensService.getContractAddress(royaltyTokenSymbol),
-  ]);
+  // const [marketAddress, royaltyTokenAddress] = await Promise.all([
+  //   OtcMarketsService.getContractAddress(royaltyTokenSymbol),
+  //   RoyaltyTokensService.getContractAddress(royaltyTokenSymbol),
+  // ]);
 
   return (
     <>
       <div className="grid grid-cols-2 gap-4 py-6">
-        <Suspense fallback={<PriceChartSkeleton />}>
+        <Suspense fallback={<ChartSkeleton />}>
           <FloorPrice royaltyTokenSymbol={royaltyTokenSymbol} />
         </Suspense>
-        <Suspense fallback={<TradingVolumeSkeleton />}>
+        <Suspense fallback={<ChartSkeleton />}>
           <TradingVolume royaltyTokenSymbol={royaltyTokenSymbol} />
         </Suspense>
       </div>

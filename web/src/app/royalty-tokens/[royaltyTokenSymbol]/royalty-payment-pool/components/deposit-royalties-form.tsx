@@ -1,18 +1,14 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { parseEther } from 'viem';
 import { useAccount, useContractWrite, usePublicClient } from 'wagmi';
 import * as z from 'zod';
-import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { ROYALTY_PAYMENT_POOL_ABI, STABLECOIN_ABI, STABLECOIN_ADDRESS } from '@/config/contracts';
-import { useState } from 'react';
-import { useMounted } from '@/hooks/use-mounted';
 import TransactionSuccess from '@/components/transaction-success';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +18,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { ROYALTY_PAYMENT_POOL_ABI, STABLECOIN_ABI, STABLECOIN_ADDRESS } from '@/config/contracts';
+import { useMounted } from '@/hooks/use-mounted';
 
 const formSchema = z.object({
   amount: z.coerce.number().positive(),
