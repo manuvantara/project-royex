@@ -17,40 +17,41 @@ type Link = {
 
 type Props = React.HTMLAttributes<HTMLDivElement> & {
   contractAddresses: string[];
+  royaltyTokenSymbol: string;
 };
 
-export default function Navbar({ className, contractAddresses, ...props }: Props) {
+export default function Navbar({ className, contractAddresses, royaltyTokenSymbol, ...props }: Props) {
   const pathname = usePathname();
 
   const links = useMemo(() => {
     return [
       {
         name: 'Royalty Payment Pool',
-        href: 'royalty-payment-pool',
+        href: `/royalty-tokens/${royaltyTokenSymbol}/royalty-payment-pool`,
         contractAddress: contractAddresses[0],
       },
       {
         name: 'Stakeholder Collective',
-        href: 'stakeholder-collective',
+        href: `/royalty-tokens/${royaltyTokenSymbol}/stakeholder-collective`,
         contractAddress: contractAddresses[1],
       },
       {
         name: 'OTC Market',
-        href: 'otc-market',
+        href: `/royalty-tokens/${royaltyTokenSymbol}/otc-market`,
         contractAddress: contractAddresses[2],
       },
       {
         name: 'Initial Royalty Offering',
-        href: 'initial-royalty-offering',
+        href: `/royalty-tokens/${royaltyTokenSymbol}/initial-royalty-offering`,
         contractAddress: contractAddresses[3],
       },
       {
         name: 'Royalty Exchange',
-        href: 'royalty-exchange',
+        href: `/royalty-tokens/${royaltyTokenSymbol}/royalty-exchange`,
         contractAddress: contractAddresses[4],
       },
     ];
-  }, [contractAddresses]);
+  }, [contractAddresses, royaltyTokenSymbol]);
 
   return (
     <div className="relative">
