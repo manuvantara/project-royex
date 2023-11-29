@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { ValueIndicator } from '../models/ValueIndicator';
+import type { BaseValueIndicator } from '../models/BaseValueIndicator';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -33,12 +33,12 @@ export class RoyaltyExchangesService {
   /**
    * Get Price
    * @param royaltyTokenSymbol
-   * @returns ValueIndicator Successful Response
+   * @returns BaseValueIndicator Successful Response
    * @throws ApiError
    */
   public static getPrice(
     royaltyTokenSymbol: string,
-  ): CancelablePromise<ValueIndicator> {
+  ): CancelablePromise<BaseValueIndicator> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/royalty-exchanges/{royalty_token_symbol}/price',
@@ -54,12 +54,12 @@ export class RoyaltyExchangesService {
   /**
    * Get Trading Volume
    * @param royaltyTokenSymbol
-   * @returns ValueIndicator Successful Response
+   * @returns BaseValueIndicator Successful Response
    * @throws ApiError
    */
   public static getTradingVolume(
     royaltyTokenSymbol: string,
-  ): CancelablePromise<ValueIndicator> {
+  ): CancelablePromise<BaseValueIndicator> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/royalty-exchanges/{royalty_token_symbol}/trading-volume',

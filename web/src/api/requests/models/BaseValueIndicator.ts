@@ -4,8 +4,8 @@
 
 import type { TimeSeriesDataPoint } from './TimeSeriesDataPoint';
 
-export type ValueIndicator = {
+export type BaseValueIndicator = {
   current: TimeSeriesDataPoint;
-  recentValuesDataset?: Array<TimeSeriesDataPoint>;
+  recentValuesDataset: Array<TimeSeriesDataPoint>;
 };
 

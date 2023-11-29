@@ -2,11 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { ValueIndicator } from './ValueIndicator';
+import type { BaseValueIndicator } from './BaseValueIndicator';
 
 export type RoyaltyToken = {
   symbol: string;
-  price?: ValueIndicator;
-  depositedRoyaltyIncome?: ValueIndicator;
+  price?: BaseValueIndicator;
+  depositedRoyaltyIncome?: BaseValueIndicator;
 };
 

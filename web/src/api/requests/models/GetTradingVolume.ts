@@ -2,10 +2,10 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { ValueIndicator } from './ValueIndicator';
+import type { BaseValueIndicator } from './BaseValueIndicator';
 
 export type GetTradingVolume = {
-  otcMarket: ValueIndicator;
-  royaltyExchange: ValueIndicator;
+  otcMarket: BaseValueIndicator;
+  royaltyExchange: BaseValueIndicator;
 };
 

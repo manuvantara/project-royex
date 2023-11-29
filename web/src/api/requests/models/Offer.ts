@@ -5,7 +5,7 @@
 export type Offer = {
   offerId: string;
   seller: string;
-  royaltyTokenAmount: number;
-  stablecoinAmount: number;
+  royaltyTokenAmount: string;
+  stablecoinAmount: string;
 };
 

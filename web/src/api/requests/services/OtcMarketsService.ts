@@ -1,8 +1,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { BaseValueIndicator } from '../models/BaseValueIndicator';
 import type { Offer } from '../models/Offer';
-import type { ValueIndicator } from '../models/ValueIndicator';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -34,12 +34,12 @@ export class OtcMarketsService {
   /**
    * Get Floor Price
    * @param royaltyTokenSymbol
-   * @returns ValueIndicator Successful Response
+   * @returns BaseValueIndicator Successful Response
    * @throws ApiError
    */
   public static getFloorPrice(
     royaltyTokenSymbol: string,
-  ): CancelablePromise<ValueIndicator> {
+  ): CancelablePromise<BaseValueIndicator> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/otc-markets/{royalty_token_symbol}/floor-price',
@@ -55,12 +55,12 @@ export class OtcMarketsService {
   /**
    * Get Trading Volume
    * @param royaltyTokenSymbol
-   * @returns ValueIndicator Successful Response
+   * @returns BaseValueIndicator Successful Response
    * @throws ApiError
    */
   public static getTradingVolume(
     royaltyTokenSymbol: string,
-  ): CancelablePromise<ValueIndicator> {
+  ): CancelablePromise<BaseValueIndicator> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/otc-markets/{royalty_token_symbol}/trading-volume',

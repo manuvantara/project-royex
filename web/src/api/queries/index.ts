@@ -1,6 +1,5 @@
 // generated with @7nohe/openapi-react-query-codegen@0.5.1 
 import { useQuery, useMutation, UseQueryResult, UseQueryOptions, UseMutationOptions, UseMutationResult } from "@tanstack/react-query";
-import { ValueIndicator } from "../requests/models/ValueIndicator";
 import { ValidationError } from "../requests/models/ValidationError";
 import { TimeSeriesDataPoint } from "../requests/models/TimeSeriesDataPoint";
 import { RoyaltyToken } from "../requests/models/RoyaltyToken";
@@ -14,6 +13,7 @@ import { GetTradingVolume } from "../requests/models/GetTradingVolume";
 import { GetRoyaltyIncomeResponse } from "../requests/models/GetRoyaltyIncomeResponse";
 import { GetEstimatedPortfolioValue } from "../requests/models/GetEstimatedPortfolioValue";
 import { Deposit } from "../requests/models/Deposit";
+import { BaseValueIndicator } from "../requests/models/BaseValueIndicator";
 import { RoyaltyTokensService } from "../requests/services/RoyaltyTokensService";
 import { RoyaltyPaymentPoolsService } from "../requests/services/RoyaltyPaymentPoolsService";
 import { RoyaltyExchangesService } from "../requests/services/RoyaltyExchangesService";

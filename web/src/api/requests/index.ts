@@ -6,6 +6,7 @@ export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
+export type { BaseValueIndicator } from './models/BaseValueIndicator';
 export type { Deposit } from './models/Deposit';
 export type { GetEstimatedPortfolioValue } from './models/GetEstimatedPortfolioValue';
 export type { GetRoyaltyIncomeResponse } from './models/GetRoyaltyIncomeResponse';
@@ -19,7 +20,6 @@ export type { ProposalVotes } from './models/ProposalVotes';
 export type { RoyaltyToken } from './models/RoyaltyToken';
 export type { TimeSeriesDataPoint } from './models/TimeSeriesDataPoint';
 export type { ValidationError } from './models/ValidationError';
-export type { ValueIndicator } from './models/ValueIndicator';
 
 export { CollectivesService } from './services/CollectivesService';
 export { InitialRoyaltyOfferingsService } from './services/InitialRoyaltyOfferingsService';
