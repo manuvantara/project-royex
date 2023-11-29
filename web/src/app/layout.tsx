@@ -50,7 +50,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Footer />
           </div>
         </Providers>
-        <Toaster theme="dark" />
+        <Toaster
+          theme="dark"
+          closeButton={true}
+          richColors={true}
+          toastOptions={{
+            classNames: {
+              toast: 'bg-background font-sans',
+              title: 'text-foreground text-sm',
+              description: 'text-muted-foreground',
+              success: 'bg-primary text-primary-foreground',
+              error: 'bg-destructive text-destructive-foreground',
+            },
+          }}
+        />
       </body>
     </html>
   );
