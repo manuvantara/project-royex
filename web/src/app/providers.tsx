@@ -1,28 +1,26 @@
 'use client';
 
-import {
-  cssStringFromTheme,
-  getDefaultWallets,
-  midnightTheme,
-  RainbowKitProvider,
-  Theme,
-} from '@rainbow-me/rainbowkit';
+import { connectorsForWallets, cssStringFromTheme, midnightTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
+import { injectedWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useLayoutEffect, useState } from 'react';
 import { auroraTestnet } from 'viem/chains';
 
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
-import { siteConfig } from '@/config/site';
 
 const { chains, publicClient } = configureChains([auroraTestnet], [publicProvider()]);
 
-const { connectors } = getDefaultWallets({
-  appName: siteConfig.name,
-  projectId: `${process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID}`,
-  chains,
-});
+const connectors = connectorsForWallets([
+  {
+    groupName: 'Recommended',
+    wallets: [
+      injectedWallet({ chains }),
+      walletConnectWallet({ projectId: `${process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID}`, chains }),
+    ],
+  },
+]);
 
 const wagmiConfig = createConfig({
   autoConnect: true,
