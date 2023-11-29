@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter as FontSans } from 'next/font/google';
 import './globals.css';
+import { Suspense } from 'react';
 import { Toaster } from 'sonner';
 import Footer from '@/components/footer';
 import Header from '@/components/header';
@@ -34,15 +35,22 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark-theme">
-      <body className={cn('min-h-screen bg-background font-sans antialiased', sans.variable)}>
+      <body
+        className={cn(
+          'min-h-screen bg-background font-sans antialiased selection:bg-primary selection:text-primary-foreground',
+          sans.variable
+        )}
+      >
         <Providers>
           <div className="relative flex min-h-screen flex-col">
             <Header />
-            <main className="flex-1">{children}</main>
+            <Suspense>
+              <main className="flex-1">{children}</main>
+            </Suspense>
             <Footer />
           </div>
         </Providers>
-        <Toaster theme='dark' />
+        <Toaster theme="dark" />
       </body>
     </html>
   );
