@@ -1,8 +1,10 @@
 import { Suspense } from 'react';
-import { CardsWrapper, RoyaltyIncome, SectionWrapper, TradingVolume } from './components';
 import { StatCardsSkeleton, ChartSkeleton, TokensSectionSkeleton } from '@/components/skeletons';
+import { CardsWrapper, RoyaltyIncome, SectionWrapper, TradingVolume } from './components';
 
-export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
+export const revalidate = 300;
 
 export default function Page() {
   return (
