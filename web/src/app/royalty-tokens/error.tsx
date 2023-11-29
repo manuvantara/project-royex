@@ -13,7 +13,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
           There was an issue with our server. This could be a temporary issue, please try your action again.
         </PageHeaderDescription>
         <div className="flex items-center gap-2 text-destructive">
-          <ExclamationTriangleIcon />
+          <ExclamationTriangleIcon className='overflow-visible' />
           <code className="relative rounded border bg-muted px-[0.3rem] py-[0.2rem] font-mono text-xs">
             {error.message}
           </code>
