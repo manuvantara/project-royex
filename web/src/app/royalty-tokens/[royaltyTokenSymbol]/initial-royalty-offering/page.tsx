@@ -1,15 +1,20 @@
-import Balancer from 'react-wrap-balancer';
-import IroForm from './components/iro-form';
-import Stats from './components/stats';
-import { INITIAL_ROYALTY_OFFERING_ADDRESS, ROYALTY_TOKEN_ADDRESS } from '@/config/contracts';
-import { InitialRoyaltyOfferingsService } from '@/api/requests';
+'use client';
 
-export default async function Page({ params: { royaltyTokenSymbol } }: { params: { royaltyTokenSymbol: string } }) {
-  const contractAddress = await InitialRoyaltyOfferingsService.getContractAddress(royaltyTokenSymbol);
+import Balancer from 'react-wrap-balancer';
+import { useEffectOnce } from 'usehooks-ts';
+import { INITIAL_ROYALTY_OFFERING_ADDRESS, ROYALTY_TOKEN_ADDRESS } from '@/config/contracts';
+import { IroForm, Stats } from './components';
+
+export default function Page({ params: { royaltyTokenSymbol } }: { params: { royaltyTokenSymbol: string } }) {
+  useEffectOnce(() => {
+    if (window.scrollY > 0) {
+      window.scrollTo(0, 0);
+    }
+  });
 
   return (
-    <div className="mt-8 rounded-md border p-6">
-      <div className="space-y-1 p-6">
+    <div className="rounded-md border p-6">
+      <div className="space-y-1">
         <h3 className="text-2xl font-semibold tracking-tight">Initial Royalty Offering</h3>
         <p className="max-w-sm text-sm text-muted-foreground">
           <Balancer>IRO is a place where royalty tokens are initially offered.</Balancer>
