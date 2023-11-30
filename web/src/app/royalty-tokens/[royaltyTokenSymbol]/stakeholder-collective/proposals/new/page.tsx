@@ -3,14 +3,16 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { usePrepareContractWrite, useContractWrite, useWaitForTransaction } from 'wagmi';
-import Editor from './components/editor';
-import TemplateSelector from './components/template-selector';
-import { proposalTemplates, templateTypes } from './data/templates';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PageHeader, PageHeaderHeading } from '@/components/ui/page-header';
 import { STAKEHOLDER_COLLECTIVE_ABI, STAKEHOLDER_ADDRESS } from '@/config/contracts';
+import Editor from './components/editor';
+import TemplateSelector from './components/template-selector';
+import { proposalTemplates, templateTypes } from './data/templates';
+
+export const runtime = 'nodejs';
 
 export default function Page() {
   const [title, setTitle] = useState('');
