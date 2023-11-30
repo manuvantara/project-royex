@@ -12,7 +12,7 @@ export default async function Page({ params: { royaltyTokenSymbol } }: { params:
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-4 py-6">
+      <div className="grid grid-cols-2 gap-4">
         <Suspense fallback={<ChartSkeleton />}>
           <FloorPrice royaltyTokenSymbol={royaltyTokenSymbol} />
         </Suspense>
@@ -21,7 +21,7 @@ export default async function Page({ params: { royaltyTokenSymbol } }: { params:
         </Suspense>
       </div>
       <div className="mt-8 rounded-md border p-6">
-        <div className="space-y-1 p-6">
+        <div className="space-y-1">
           <h3 className="text-2xl font-semibold tracking-tight">OTC Market</h3>
           <p className="max-w-sm text-sm text-muted-foreground">
             <Balancer>
