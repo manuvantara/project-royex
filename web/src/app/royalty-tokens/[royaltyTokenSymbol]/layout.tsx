@@ -1,5 +1,4 @@
 import { Suspense } from 'react';
-import { CardsWrapper, Navbar } from './components';
 import {
   CollectivesService,
   InitialRoyaltyOfferingsService,
@@ -9,6 +8,10 @@ import {
 } from '@/api/requests';
 import { StatCardsSkeleton } from '@/components/skeletons';
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from '@/components/ui/page-header';
+import { handleNotFoundResponse } from '@/lib/utils';
+import { CardsWrapper, Navbar } from './components';
+
+export const runtime = 'edge';
 
 export default async function RoyaltyTokenSymbolLayout({
   children,
@@ -17,13 +20,15 @@ export default async function RoyaltyTokenSymbolLayout({
   children: React.ReactNode;
   params: { royaltyTokenSymbol: string };
 }) {
-  const contractAddresses = await Promise.all([
-    RoyaltyPaymentPoolsService.getContractAddress(royaltyTokenSymbol),
-    CollectivesService.getContractAddress(royaltyTokenSymbol),
-    OtcMarketsService.getContractAddress(royaltyTokenSymbol),
-    RoyaltyExchangesService.getContractAddress(royaltyTokenSymbol),
-    InitialRoyaltyOfferingsService.getContractAddress(royaltyTokenSymbol),
-  ]);
+  const contractAddresses = await handleNotFoundResponse(
+    Promise.all([
+      RoyaltyPaymentPoolsService.getContractAddress(royaltyTokenSymbol),
+      CollectivesService.getContractAddress(royaltyTokenSymbol),
+      OtcMarketsService.getContractAddress(royaltyTokenSymbol),
+      RoyaltyExchangesService.getContractAddress(royaltyTokenSymbol),
+      InitialRoyaltyOfferingsService.getContractAddress(royaltyTokenSymbol),
+    ])
+  );
 
   return (
     <div className="container relative">
@@ -37,7 +42,7 @@ export default async function RoyaltyTokenSymbolLayout({
           <CardsWrapper royaltyTokenSymbol={royaltyTokenSymbol} />
         </Suspense>
       </div>
-      <section>{children}</section>
+      <section className="py-6">{children}</section>
     </div>
   );
 }

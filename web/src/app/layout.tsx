@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
 import { Inter as FontSans } from 'next/font/google';
-import './globals.css';
-import { Suspense } from 'react';
 import { Toaster } from 'sonner';
 import Footer from '@/components/footer';
 import Header from '@/components/header';
 import { siteConfig } from '@/config/site';
 import { cn } from '@/lib/utils';
+import './globals.css';
 import Providers from './providers';
 
 const sans = FontSans({ subsets: ['latin'], variable: '--font-sans' });
@@ -44,9 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <div className="relative flex min-h-screen flex-col">
             <Header />
-            <Suspense>
-              <main className="flex-1">{children}</main>
-            </Suspense>
+            <main className="flex-1">{children}</main>
             <Footer />
           </div>
         </Providers>
