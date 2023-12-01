@@ -44,8 +44,14 @@ class GetRoyaltyIncomeResponse(Response):
 
 class RoyaltyToken(Response):
     symbol: str
-    price: BaseValueIndicator | None
-    deposited_royalty_income: BaseValueIndicator | None
+
+
+class PrivateRoyaltyToken(RoyaltyToken):
+    deposited_royalty_income: BaseValueIndicator
+
+
+class PublicRoyaltyToken(PrivateRoyaltyToken):
+    price: BaseValueIndicator
 
 
 class GetRoyaltyOffering(Response):

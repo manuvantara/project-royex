@@ -26,7 +26,7 @@ router = APIRouter()
 
 @router.get("/{royalty_token_symbol}/contract-address")
 def get_contract_address(
-    royalty_token_symbol: str, session: Session = Depends(get_session)
+    royalty_token_symbol: str, *, session: Session = Depends(get_session)
 ) -> str:  # address
     statement = select(RoyaltyPaymentPool).where(
         RoyaltyPaymentPool.royalty_token_symbol == royalty_token_symbol
@@ -50,15 +50,18 @@ def get_contract_address(
     return royalty_token.contract_address
 
 
+# TODO: Split into two endpoints (reported and deposited)
 @router.get("/{royalty_token_symbol}/royalty-income")
 def get_royalty_income(
-    royalty_token_symbol: str, session: Session = Depends(get_session)
+    royalty_token_symbol: str,
+    *,
+    upper_bound: datetime = datetime.now(),
+    session: Session = Depends(get_session)
 ) -> GetRoyaltyIncomeResponse:
     contract_address = get_contract_address(
         royalty_token_symbol=royalty_token_symbol, session=session
     )
 
-    upper_bound = datetime.now()
     lower_bound = upper_bound.replace(minute=0, second=0) - timedelta(hours=23)
 
     events = fetch_events(
@@ -100,7 +103,7 @@ def get_royalty_income(
 
 @router.get("/{royalty_token_symbol}/deposits")
 def fetch_deposits(
-    royalty_token_symbol: str, session: Session = Depends(get_session)
+    royalty_token_symbol: str, *, session: Session = Depends(get_session)
 ) -> List[Deposit]:
     contract_address = get_contract_address(
         royalty_token_symbol=royalty_token_symbol, session=session
