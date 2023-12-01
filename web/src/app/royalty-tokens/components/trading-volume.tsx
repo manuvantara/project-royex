@@ -1,9 +1,16 @@
+'use client';
+
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { useProtocolServiceGetTradingVolumeKey } from '@/api/queries';
 import { type GetTradingVolume, ProtocolService } from '@/api/requests';
 import { ReportChart } from '@/components/charts';
 import { parseChartData } from '@/lib/helpers/chart';
 
-export default async function TradingVolume() {
-  const data = await ProtocolService.getTradingVolume();
+export default function TradingVolume() {
+  const { data } = useSuspenseQuery({
+    queryKey: [useProtocolServiceGetTradingVolumeKey],
+    queryFn: () => ProtocolService.getTradingVolume(),
+  });
 
   const parseData = (data: GetTradingVolume) => {
     const otc = parseChartData(data.otcMarket);
