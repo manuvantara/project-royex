@@ -1,4 +1,4 @@
-import random
+from datetime import datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -9,7 +9,7 @@ from sqlmodel import Session, select
 from apiserver.database import get_session
 
 from apiserver.database import models
-from apiserver.routers import commune
+from apiserver.routers import commune, royalty_payment_pools, royalty_exchanges
 
 router = APIRouter()
 
@@ -28,6 +28,11 @@ def get_contract_address(
             status_code=404,
             detail="Royalty Token Not Found",
         )
+    except exc.MultipleResultsFound:
+        raise HTTPException(
+            status_code=500,
+            detail="Multiple Royalty Token Found",
+        )
 
     return royalty_token.contract_address
 
@@ -35,88 +40,47 @@ def get_contract_address(
 @router.get("/public")
 def fetch_public(
     *, session: Session = Depends(get_session)
-) -> List[commune.RoyaltyToken]:
+) -> List[commune.PublicRoyaltyToken]:
+    upper_bound = datetime.now()
+
     statement = select(models.RoyaltyToken).where(
         (models.RoyaltyExchange.royalty_token_symbol == models.RoyaltyToken.symbol)
     )
     results = session.exec(statement)
 
-    try:
-        public_royalty_tokens = results.all()
-    except exc.NoResultFound:
-        raise HTTPException(
-            status_code=404,
-            detail="Public Royalty Tokens Not Found",
-        )
-
-    # TODO: implement recent values datasets
+    royalty_tokens = results.all()
 
     return [
-        commune.RoyaltyToken(
+        commune.PublicRoyaltyToken(
             symbol=royalty_token.symbol,
-            price=commune.BaseValueIndicator(
-                current=commune.TimeSeriesDataPoint(timestamp=100, value=522),
-                recent_values_dataset=[
-                    commune.TimeSeriesDataPoint(
-                        timestamp=hour * 3600, value=random.randint(0, 742)
-                    )
-                    for hour in range(24)
-                ],
-            ),
-            deposited_royalty_income=commune.BaseValueIndicator(
-                current=commune.TimeSeriesDataPoint(timestamp=100, value=237),
-                recent_values_dataset=[
-                    commune.TimeSeriesDataPoint(
-                        timestamp=hour * 3600, value=random.randint(0, 880)
-                    )
-                    for hour in range(24)
-                ],
-            ),
+            price=royalty_exchanges.get_price(royalty_token.symbol, session=session),
+            deposited_royalty_income=royalty_payment_pools.get_royalty_income(
+                royalty_token.symbol, upper_bound=upper_bound, session=session
+            ).deposited,
         )
-        for royalty_token in public_royalty_tokens
+        for royalty_token in royalty_tokens
     ]
 
 
 @router.get("/private")
 def fetch_private(
     *, session: Session = Depends(get_session)
-) -> List[commune.RoyaltyToken]:
+) -> List[commune.PrivateRoyaltyToken]:
+    upper_bound = datetime.now()
+
     statement = select(models.RoyaltyToken).where(
         (models.RoyaltyExchange.royalty_token_symbol != models.RoyaltyToken.symbol)
     )
     results = session.exec(statement)
 
-    try:
-        private_royalty_tokens = results.all()
-    except exc.NoResultFound:
-        raise HTTPException(
-            status_code=404,
-            detail="Private Royalty Tokens Not Found",
-        )
-
-    # TODO: implement recent values datasets
+    royalty_tokens = results.all()
 
     return [
-        commune.RoyaltyToken(
+        commune.PrivateRoyaltyToken(
             symbol=royalty_token.symbol,
-            price=commune.BaseValueIndicator(
-                current=commune.TimeSeriesDataPoint(timestamp=100, value=522),
-                recent_values_dataset=[
-                    commune.TimeSeriesDataPoint(
-                        timestamp=hour * 3600, value=random.randint(0, 742)
-                    )
-                    for hour in range(24)
-                ],
-            ),
-            deposited_royalty_income=commune.BaseValueIndicator(
-                current=commune.TimeSeriesDataPoint(timestamp=100, value=237),
-                recent_values_dataset=[
-                    commune.TimeSeriesDataPoint(
-                        timestamp=hour * 3600, value=random.randint(0, 880)
-                    )
-                    for hour in range(24)
-                ],
-            ),
+            deposited_royalty_income=royalty_payment_pools.get_royalty_income(
+                royalty_token.symbol, upper_bound=upper_bound, session=session
+            ).deposited,
         )
-        for royalty_token in private_royalty_tokens
+        for royalty_token in royalty_tokens
     ]

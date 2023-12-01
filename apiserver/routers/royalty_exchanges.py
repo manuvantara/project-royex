@@ -56,7 +56,7 @@ def get_contract_address(
 
 @router.get("/{royalty_token_symbol}/price")
 def get_price(
-    royalty_token_symbol: str, session: Session = Depends(get_session)
+    royalty_token_symbol: str, *, session: Session = Depends(get_session)
 ) -> BaseValueIndicator:
     contract_address = get_contract_address(
         royalty_token_symbol=royalty_token_symbol, session=session
@@ -101,7 +101,7 @@ def get_price(
 
 @router.get("/{royalty_token_symbol}/trading-volume")
 def get_trading_volume(
-    royalty_token_symbol: str, session: Session = Depends(get_session)
+    royalty_token_symbol: str, *, session: Session = Depends(get_session)
 ) -> BaseValueIndicator:
     contract_address = get_contract_address(
         royalty_token_symbol=royalty_token_symbol, session=session
