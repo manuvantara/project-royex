@@ -34,17 +34,22 @@ export class RoyaltyPaymentPoolsService {
   /**
    * Get Royalty Income
    * @param royaltyTokenSymbol
+   * @param upperBound
    * @returns GetRoyaltyIncomeResponse Successful Response
    * @throws ApiError
    */
   public static getRoyaltyIncome(
     royaltyTokenSymbol: string,
+    upperBound: string = '2023-12-01T12:55:58.389170',
   ): CancelablePromise<GetRoyaltyIncomeResponse> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/royalty-payment-pools/{royalty_token_symbol}/royalty-income',
       path: {
         'royalty_token_symbol': royaltyTokenSymbol,
+      },
+      query: {
+        'upper_bound': upperBound,
       },
       errors: {
         422: `Validation Error`,

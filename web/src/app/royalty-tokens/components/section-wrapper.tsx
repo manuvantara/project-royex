@@ -1,10 +1,11 @@
 import { InitialRoyaltyOfferingsService, RoyaltyTokensService } from '@/api/requests';
+import { PrivateTokenCard, PublicTokenCard } from '@/components/cards';
 import RoyaltyTokensSection from '@/components/royalty-tokens-section';
 
 export default async function SectionWrapper() {
-  const [upcomingInitialRoyaltyOfferings, publicRoyaltyTokens, privateRoyaltyTokens] =
+  const [liveInitialRoyaltyOfferings, upcomingInitialRoyaltyOfferings, publicRoyaltyTokens, privateRoyaltyTokens] =
     await Promise.all([
-      // InitialRoyaltyOfferingsService.fetchLive(),
+      InitialRoyaltyOfferingsService.fetchLive(),
       InitialRoyaltyOfferingsService.fetchUpcoming(),
       RoyaltyTokensService.fetchPublic(),
       RoyaltyTokensService.fetchPrivate(),
@@ -12,15 +13,25 @@ export default async function SectionWrapper() {
 
   return (
     <>
-      {/* {liveInitialRoyaltyOfferings.length && (
-        <RoyaltyTokensSection title="Live Initial Royalty Offerings" data={liveInitialRoyaltyOfferings} />
-      )} */}
-      {upcomingInitialRoyaltyOfferings.length > 0 && (
-        <RoyaltyTokensSection title="Upcoming Initial Royalty Offerings" data={upcomingInitialRoyaltyOfferings} />
+      {liveInitialRoyaltyOfferings.length > 0 && (
+        <RoyaltyTokensSection
+          title="Live Initial Royalty Offerings"
+          data={liveInitialRoyaltyOfferings}
+          Card={PrivateTokenCard}
+        />
       )}
-      {publicRoyaltyTokens.length && <RoyaltyTokensSection title="Public Royalty Tokens" data={publicRoyaltyTokens} />}
-      {privateRoyaltyTokens.length && (
-        <RoyaltyTokensSection title="Private Royalty Tokens" data={privateRoyaltyTokens} />
+      {upcomingInitialRoyaltyOfferings.length > 0 && (
+        <RoyaltyTokensSection
+          title="Upcoming Initial Royalty Offerings"
+          data={upcomingInitialRoyaltyOfferings}
+          Card={PrivateTokenCard}
+        />
+      )}
+      {publicRoyaltyTokens.length > 0 && (
+        <RoyaltyTokensSection title="Public Royalty Tokens" data={publicRoyaltyTokens} Card={PublicTokenCard} />
+      )}
+      {privateRoyaltyTokens.length > 0 && (
+        <RoyaltyTokensSection title="Private Royalty Tokens" data={privateRoyaltyTokens} Card={PrivateTokenCard} />
       )}
     </>
   );

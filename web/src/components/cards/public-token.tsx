@@ -3,19 +3,19 @@
 import Link from 'next/link';
 import { Bar, BarChart, Line, LineChart, ResponsiveContainer } from 'recharts';
 
-import type { RoyaltyToken } from '@/api/requests';
+import type { PublicRoyaltyToken } from '@/api/requests';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { parseChartData } from '@/lib/helpers/chart';
 
-export default function CardChart({ symbol: royaltyTokenSymbol, price, depositedRoyaltyIncome }: RoyaltyToken) {
+export default function PublicTokenCard({ symbol, price, depositedRoyaltyIncome }: PublicRoyaltyToken) {
   const priceData = parseChartData(price);
   const royaltyIncomeData = parseChartData(depositedRoyaltyIncome);
 
   return (
-    <Link href={`/royalty-tokens/${royaltyTokenSymbol}/initial-royalty-offering`} >
+    <Link href={`/royalty-tokens/${symbol}/initial-royalty-offering`}>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-normal">{royaltyTokenSymbol}</CardTitle>
+          <CardTitle className="text-sm font-normal">{symbol}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>

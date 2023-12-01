@@ -13,10 +13,12 @@ export type { GetRoyaltyIncomeResponse } from './models/GetRoyaltyIncomeResponse
 export type { GetTradingVolume } from './models/GetTradingVolume';
 export type { HTTPValidationError } from './models/HTTPValidationError';
 export type { Offer } from './models/Offer';
+export type { PrivateRoyaltyToken } from './models/PrivateRoyaltyToken';
 export type { Proposal } from './models/Proposal';
 export type { ProposalDescription } from './models/ProposalDescription';
 export type { ProposalInfo } from './models/ProposalInfo';
 export type { ProposalVotes } from './models/ProposalVotes';
+export type { PublicRoyaltyToken } from './models/PublicRoyaltyToken';
 export type { RoyaltyToken } from './models/RoyaltyToken';
 export type { TimeSeriesDataPoint } from './models/TimeSeriesDataPoint';
 export type { ValidationError } from './models/ValidationError';

@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { RoyaltyToken } from '../models/RoyaltyToken';
+import type { PrivateRoyaltyToken } from '../models/PrivateRoyaltyToken';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -32,10 +32,10 @@ export class InitialRoyaltyOfferingsService {
 
   /**
    * Fetch Live
-   * @returns RoyaltyToken Successful Response
+   * @returns PrivateRoyaltyToken Successful Response
    * @throws ApiError
    */
-  public static fetchLive(): CancelablePromise<Array<RoyaltyToken>> {
+  public static fetchLive(): CancelablePromise<Array<PrivateRoyaltyToken>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/initial-royalty-offerings/live',
@@ -44,10 +44,10 @@ export class InitialRoyaltyOfferingsService {
 
   /**
    * Fetch Upcoming
-   * @returns RoyaltyToken Successful Response
+   * @returns PrivateRoyaltyToken Successful Response
    * @throws ApiError
    */
-  public static fetchUpcoming(): CancelablePromise<Array<RoyaltyToken>> {
+  public static fetchUpcoming(): CancelablePromise<Array<PrivateRoyaltyToken>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/initial-royalty-offerings/upcoming',

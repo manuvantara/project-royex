@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { StatCardsSkeleton, ChartSkeleton, TokensSectionSkeleton } from '@/components/skeletons';
+import { ChartSkeleton, StatCardsSkeleton, TokensSectionSkeleton } from '@/components/skeletons';
 import { CardsWrapper, RoyaltyIncome, SectionWrapper, TradingVolume } from './components';
 
 export const runtime = 'edge';

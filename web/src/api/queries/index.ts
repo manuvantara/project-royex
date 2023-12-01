@@ -3,10 +3,12 @@ import { useQuery, useMutation, UseQueryResult, UseQueryOptions, UseMutationOpti
 import { ValidationError } from "../requests/models/ValidationError";
 import { TimeSeriesDataPoint } from "../requests/models/TimeSeriesDataPoint";
 import { RoyaltyToken } from "../requests/models/RoyaltyToken";
+import { PublicRoyaltyToken } from "../requests/models/PublicRoyaltyToken";
 import { ProposalVotes } from "../requests/models/ProposalVotes";
 import { ProposalInfo } from "../requests/models/ProposalInfo";
 import { ProposalDescription } from "../requests/models/ProposalDescription";
 import { Proposal } from "../requests/models/Proposal";
+import { PrivateRoyaltyToken } from "../requests/models/PrivateRoyaltyToken";
 import { Offer } from "../requests/models/Offer";
 import { HTTPValidationError } from "../requests/models/HTTPValidationError";
 import { GetTradingVolume } from "../requests/models/GetTradingVolume";
@@ -43,9 +45,10 @@ export const useRoyaltyPaymentPoolsServiceGetContractAddress = <TQueryKey extend
     data: TData;
 };
 export const useRoyaltyPaymentPoolsServiceGetRoyaltyIncomeKey = "RoyaltyPaymentPoolsServiceGetRoyaltyIncome";
-export const useRoyaltyPaymentPoolsServiceGetRoyaltyIncome = <TQueryKey extends Array<unknown> = unknown[], TData = Awaited<ReturnType<typeof RoyaltyPaymentPoolsService.getRoyaltyIncome>>, TError = unknown>({ royaltyTokenSymbol }: {
+export const useRoyaltyPaymentPoolsServiceGetRoyaltyIncome = <TQueryKey extends Array<unknown> = unknown[], TData = Awaited<ReturnType<typeof RoyaltyPaymentPoolsService.getRoyaltyIncome>>, TError = unknown>({ royaltyTokenSymbol, upperBound }: {
     royaltyTokenSymbol: string;
-}, queryKey?: TQueryKey, options?: Omit<UseQueryOptions<Awaited<ReturnType<typeof RoyaltyPaymentPoolsService.getRoyaltyIncome>>, unknown, Awaited<ReturnType<typeof RoyaltyPaymentPoolsService.getRoyaltyIncome>>, unknown[]>, "queryKey" | "queryFn" | "initialData">) => useQuery({ queryKey: [useRoyaltyPaymentPoolsServiceGetRoyaltyIncomeKey, ...(queryKey ?? [{ royaltyTokenSymbol }])], queryFn: () => RoyaltyPaymentPoolsService.getRoyaltyIncome(royaltyTokenSymbol), ...options }) as Omit<UseQueryResult<Awaited<ReturnType<typeof RoyaltyPaymentPoolsService.getRoyaltyIncome>>, TError>, "data"> & {
+    upperBound?: string;
+}, queryKey?: TQueryKey, options?: Omit<UseQueryOptions<Awaited<ReturnType<typeof RoyaltyPaymentPoolsService.getRoyaltyIncome>>, unknown, Awaited<ReturnType<typeof RoyaltyPaymentPoolsService.getRoyaltyIncome>>, unknown[]>, "queryKey" | "queryFn" | "initialData">) => useQuery({ queryKey: [useRoyaltyPaymentPoolsServiceGetRoyaltyIncomeKey, ...(queryKey ?? [{ royaltyTokenSymbol, upperBound }])], queryFn: () => RoyaltyPaymentPoolsService.getRoyaltyIncome(royaltyTokenSymbol, upperBound), ...options }) as Omit<UseQueryResult<Awaited<ReturnType<typeof RoyaltyPaymentPoolsService.getRoyaltyIncome>>, TError>, "data"> & {
     data: TData;
 };
 export const useRoyaltyPaymentPoolsServiceFetchDepositsKey = "RoyaltyPaymentPoolsServiceFetchDeposits";

@@ -1,7 +1,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { RoyaltyToken } from '../models/RoyaltyToken';
+import type { PrivateRoyaltyToken } from '../models/PrivateRoyaltyToken';
+import type { PublicRoyaltyToken } from '../models/PublicRoyaltyToken';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -32,10 +33,10 @@ export class RoyaltyTokensService {
 
   /**
    * Fetch Public
-   * @returns RoyaltyToken Successful Response
+   * @returns PublicRoyaltyToken Successful Response
    * @throws ApiError
    */
-  public static fetchPublic(): CancelablePromise<Array<RoyaltyToken>> {
+  public static fetchPublic(): CancelablePromise<Array<PublicRoyaltyToken>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/royalty-tokens/public',
@@ -44,10 +45,10 @@ export class RoyaltyTokensService {
 
   /**
    * Fetch Private
-   * @returns RoyaltyToken Successful Response
+   * @returns PrivateRoyaltyToken Successful Response
    * @throws ApiError
    */
-  public static fetchPrivate(): CancelablePromise<Array<RoyaltyToken>> {
+  public static fetchPrivate(): CancelablePromise<Array<PrivateRoyaltyToken>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/royalty-tokens/private',
