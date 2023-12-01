@@ -1,10 +1,10 @@
 import { Suspense } from 'react';
-import { ChartSkeleton, StatCardsSkeleton, TokensSectionSkeleton } from '@/components/skeletons';
 import { CardsWrapper, RoyaltyIncome, SectionWrapper, TradingVolume } from './components';
+import { ChartSkeleton, StatCardsSkeleton, TokensSectionSkeleton } from '@/components/skeletons';
 
 export const runtime = 'edge';
 
-export const revalidate = 300;
+export const revalidate = 0;
 
 export default function Page() {
   return (
