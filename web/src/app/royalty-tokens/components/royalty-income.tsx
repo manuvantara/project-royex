@@ -1,9 +1,16 @@
+'use client';
+
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { useProtocolServiceGetRoyaltyIncomePerProtocolKey } from '@/api/queries';
 import { type GetRoyaltyIncomeResponse, ProtocolService } from '@/api/requests';
 import { ReportChart } from '@/components/charts';
 import { parseChartData } from '@/lib/helpers/chart';
 
-export default async function RoyaltyIncome() {
-  const data = await ProtocolService.getRoyaltyIncomePerProtocol();
+export default function RoyaltyIncome() {
+  const { data } = useSuspenseQuery({
+    queryKey: [useProtocolServiceGetRoyaltyIncomePerProtocolKey],
+    queryFn: () => ProtocolService.getRoyaltyIncomePerProtocol(),
+  });
 
   const parseData = (data: GetRoyaltyIncomeResponse) => {
     const reported = parseChartData(data.reported);
