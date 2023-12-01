@@ -44,6 +44,7 @@ app = FastAPI(generate_unique_id_function=custom_generate_unique_id, lifespan=li
 origins = [
     "http://localhost:3000",
     "http://localhost:8080",
+    "https://project-royex.vercel.app"
 ]
 
 app.add_middleware(
