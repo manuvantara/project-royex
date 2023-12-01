@@ -1,7 +1,9 @@
 from sqlmodel import create_engine, Session
 from apiserver.config import DATABASE_URL
 
-engine = create_engine(url=DATABASE_URL, echo=True)
+engine = create_engine(
+    url=DATABASE_URL, echo=False, pool_pre_ping=True, pool_recycle=300
+)
 
 
 def get_session():
