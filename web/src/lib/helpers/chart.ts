@@ -1,14 +1,14 @@
 import dayjs from 'dayjs';
-// import timezonePlugin from 'dayjs/plugin/timezone';
-// import utcPlugin from 'dayjs/plugin/utc';
-import type { ValueIndicator } from '@/api/requests';
+import timezonePlugin from 'dayjs/plugin/timezone';
+import utcPlugin from 'dayjs/plugin/utc';
+import type { BaseValueIndicator } from '@/api/requests';
 
-// dayjs.extend(utcPlugin);
-// dayjs.extend(timezonePlugin);
+dayjs.extend(utcPlugin);
+dayjs.extend(timezonePlugin);
 
-// const timezone = dayjs.tz.guess();
+const timezone = dayjs.tz.guess();
 
-// dayjs.tz.setDefault('Asia/Jakarta');
+dayjs.tz.setDefault(timezone);
 
 type ChartData = {
   timestamp: string;
@@ -16,7 +16,7 @@ type ChartData = {
   fixedValue: string;
 }[];
 
-export function parseChartData(data: ValueIndicator): ChartData {
+export function parseChartData(data: BaseValueIndicator): ChartData {
   const formatTimestamp = (timestamp: number) => dayjs.unix(timestamp).format('HH:mm');
 
   const chartData: ChartData =
