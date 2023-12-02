@@ -96,3 +96,64 @@ export function TokensSectionSkeleton() {
     </div>
   );
 }
+
+export function ProposalSkeleton() {
+  return (
+    <>
+      <Skeleton className="w-fit">
+        <div className="h-8 w-40 rounded-xl bg-secondary" />
+      </Skeleton>
+      <div className="grid gap-4 py-6 md:grid-cols-[1fr_350px]">
+        <Skeleton>
+          <Card className="h-full">
+            <CardHeader className="space-y-0 pb-2">
+              <div className="h-5 w-24 rounded-xl bg-secondary" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <div className="mb-1 h-8 w-20 rounded-xl bg-secondary" />
+                <div className="h-3 w-40 rounded-xl bg-secondary" />
+                <div className="mt-4 h-20 w-full rounded-xl bg-secondary" />
+              </div>
+              <div>
+                <div className="mb-1 h-8 w-20 rounded-xl bg-secondary" />
+                <div className="h-3 w-40 rounded-xl bg-secondary" />
+                <div className="mt-4 h-20 w-full rounded-xl bg-secondary" />
+              </div>
+            </CardContent>
+          </Card>
+        </Skeleton>
+        <Skeleton>
+          <Card className="h-full">
+            <CardHeader className="mb-4">
+              <div className="h-7 w-24 rounded-xl bg-secondary" />
+            </CardHeader>
+            <CardContent className="grid gap-2">
+              <div className="rounded-xl border bg-card p-4 text-card-foreground shadow">
+                <div className="flex items-center justify-between pb-2">
+                  <div className="h-5 w-8 rounded-full bg-secondary" />
+                  <div className="h-4 w-4 rounded-full bg-accent" />
+                </div>
+                <div className="h-7 w-20 rounded-xl bg-secondary" />
+              </div>
+              <div className="rounded-xl border bg-card p-4 text-card-foreground shadow">
+                <div className="flex items-center justify-between pb-2">
+                  <div className="h-5 w-8 rounded-full bg-secondary" />
+                  <div className="h-4 w-4 rounded-full bg-accent" />
+                </div>
+                <div className="h-7 w-20 rounded-xl bg-secondary" />
+              </div>
+              <div className="rounded-xl border bg-card p-4 text-card-foreground shadow">
+                <div className="flex items-center justify-between pb-2">
+                  <div className="h-5 w-8 rounded-full bg-secondary" />
+                  <div className="h-4 w-4 rounded-full bg-accent" />
+                </div>
+                <div className="h-7 w-20 rounded-xl bg-secondary" />
+              </div>
+            </CardContent>
+          </Card>
+        </Skeleton>
+      </div>
+    </>
+  );
+}
