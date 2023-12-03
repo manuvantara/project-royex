@@ -1,24 +1,27 @@
 import { ethers } from "hardhat";
 
-const ACCOUNT_ADDRESS = "0xC37713ef41Aff1A7ac1c3D02f6f0B3a57F8A3091";
 const RXRC2_ROLE =
   "0x77c6a04230ad617eb59ec90dad8c70a66f2f87f5d791cd2603e1d73ba16d4a96";
 
 async function main() {
+  const [owner, ...otherAccounts] = await ethers.getSigners();
+
   const royaltyToken = await ethers.deployContract("RoyaltyToken", [
-    ACCOUNT_ADDRESS,
+    owner.address,
   ]);
   await royaltyToken.waitForDeployment();
+  await royaltyToken.mint(owner.address, ethers.parseEther("1000000"));
   console.log(`Royalty token deployed to ${royaltyToken.target}`);
 
   const stablecoin = await ethers.deployContract("Stablecoin", [
-    ACCOUNT_ADDRESS,
+    owner.address,
   ]);
-  await royaltyToken.waitForDeployment();
+  await stablecoin.waitForDeployment();
+  await stablecoin.mint(owner.address, ethers.parseEther("1000000"));
   console.log(`Stable coin deployed to ${stablecoin.target}`);
 
   const royaltyPaymentPool = await ethers.deployContract("RoyaltyPaymentPool", [
-    ACCOUNT_ADDRESS,
+    owner.address,
     royaltyToken.target,
     stablecoin.target,
   ]);
@@ -27,15 +30,27 @@ async function main() {
   console.log(`Royalty pool deployed to ${royaltyPaymentPool.target}`);
 
   const royaltyExchange = await ethers.deployContract("RoyaltyExchange", [
-    ACCOUNT_ADDRESS,
+    owner.address,
     royaltyToken.target,
     stablecoin.target,
   ]);
   await royaltyExchange.waitForDeployment();
+  await royaltyToken.approve(
+    royaltyExchange.target,
+    ethers.parseEther("5000"),
+  );
+  await stablecoin.approve(
+    royaltyExchange.target,
+    ethers.parseEther("5000"),
+  );
+  await royaltyExchange.provideInitialLiquidity(
+    ethers.parseEther("5000"),
+    ethers.parseEther("5000"),
+  );
   console.log(`RoyaltyExchange deployed to ${royaltyExchange.target}`);
 
   const otcMarket = await ethers.deployContract("OtcMarket", [
-    ACCOUNT_ADDRESS,
+    owner.address,
     royaltyToken.target,
     stablecoin.target,
   ]);
@@ -43,14 +58,28 @@ async function main() {
   console.log(`OTC market deployed to ${otcMarket.target}`);
 
   const initialRoyaltyOffering = await ethers.deployContract("InitialRoyaltyOffering", [
-    ACCOUNT_ADDRESS,
+    owner.address,
     royaltyToken.target,
     stablecoin.target,
     1699501779n,
     2n,
   ]);
+  await royaltyToken.approve(
+    initialRoyaltyOffering.target,
+    ethers.parseEther("5000"),
+  );
+  await initialRoyaltyOffering.depositRoyaltyTokens(
+    ethers.parseEther("5000"),
+  );
   await initialRoyaltyOffering.waitForDeployment();
   console.log(`IRO deployed to ${initialRoyaltyOffering.target}`);
+
+  const stakeholderCollective = await ethers.deployContract("StakeholderCollective", [
+    royaltyToken.getAddress(),
+    "Stakeholder Collective Test"
+  ]);
+  await stakeholderCollective.waitForDeployment();
+  console.log(`Stakeholder collective deployed to ${stakeholderCollective.target}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
