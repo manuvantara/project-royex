@@ -23,6 +23,9 @@ const config: HardhatUserConfig = {
       accounts: [process.env.PRIVATE_KEY!],
       chainId: 1313161555,
     },
+    hardhat: {
+      chainId: 1_337,
+    }
   },
   contractsToExtractAbi: [
     "RoyaltyToken",
